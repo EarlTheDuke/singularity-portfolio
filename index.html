@@ -38,9 +38,13 @@
             padding: 1rem 2rem;
             z-index: 1000;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav ul {
+            list-style: none;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 2rem;
         }
 
         .logo {
@@ -58,6 +62,20 @@
             justify-content: center;
             gap: 2rem;
             list-style: none;
+        }
+
+        .header-logo {
+            height: 320px;
+            width: auto;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .header-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.5);
         }
 
         nav a {
@@ -290,15 +308,14 @@
             
             nav {
                 padding: 1rem;
-                flex-direction: column;
-                gap: 1rem;
             }
             
-            .logo {
-                height: 35px;
+            .header-logo {
+                height: 200px;
+                margin-bottom: 1.5rem;
             }
             
-            .nav-menu {
+            nav ul {
                 gap: 1rem;
             }
             
@@ -312,10 +329,7 @@
     <canvas id="three-canvas"></canvas>
     
     <nav>
-        <div class="logo">
-            <img src="local.jpg" alt="The Singularity Logo" class="logo">
-        </div>
-        <ul class="nav-menu">
+        <ul>
             <li><a href="#projects">Projects</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
@@ -324,6 +338,7 @@
 
     <div class="container">
         <header>
+            <img src="local.jpg" alt="The Singularity Logo" class="header-logo">
             <h1>The Singularity - Ground Zero</h1>
             <p class="intro">If AI does not belong to you then you belong to AI</p>
         </header>
