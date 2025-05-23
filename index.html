@@ -207,6 +207,41 @@
             font-style: italic;
         }
 
+        .coming-soon-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            z-index: 10;
+        }
+
+        .coming-soon-text {
+            color: #00ff88;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
         .section {
             padding: 4rem 0;
             text-align: center;
@@ -271,6 +306,9 @@
             <h2>Featured Projects</h2>
             <div class="projects-grid">
                 <div class="project-card">
+                    <div class="coming-soon-overlay">
+                        <div class="coming-soon-text">Coming Soon</div>
+                    </div>
                     <div class="project-image">🌌</div>
                     <h3 class="project-title">Solar System</h3>
                     <p class="project-description">An interactive 3D solar system simulation with realistic planetary orbits and stunning visual effects.</p>
@@ -286,6 +324,9 @@
                 </div>
 
                 <div class="project-card">
+                    <div class="coming-soon-overlay">
+                        <div class="coming-soon-text">Coming Soon</div>
+                    </div>
                     <div class="project-image">🐄</div>
                     <h3 class="project-title">Cows</h3>
                     <p class="project-description">A quirky farm management simulator where you raise virtual cows and build your dairy empire.</p>
