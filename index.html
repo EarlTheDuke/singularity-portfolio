@@ -39,6 +39,20 @@
             opacity: 0.3;
         }
 
+        #holographic-knot-canvas {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            width: 300px;
+            height: 300px;
+            z-index: 5;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            pointer-events: none;
+        }
+
         nav {
             position: fixed;
             top: 0;
@@ -370,6 +384,13 @@
             nav a {
                 font-size: 1rem;
             }
+
+            #holographic-knot-canvas {
+                width: 200px;
+                height: 200px;
+                top: 70px;
+                left: 10px;
+            }
         }
 
         .submarine-scene {
@@ -700,6 +721,7 @@
 </head>
 <body>
     <canvas id="three-canvas"></canvas>
+    <canvas id="holographic-knot-canvas"></canvas>
     <div class="vibe-text">Vibe Code</div>
     
     <nav>
@@ -1090,6 +1112,179 @@
             }
         `;
         document.head.appendChild(style);
+
+        // Holographic Torus Knot Effect (Upper Left Corner)
+        let knotScene, knotCamera, knotRenderer, torusKnot, outerRing, secondOuterRing;
+
+        function initHolographicKnot() {
+            // Scene setup for holographic knot
+            knotScene = new THREE.Scene();
+            knotCamera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000); // 1:1 aspect ratio for square canvas
+            knotRenderer = new THREE.WebGLRenderer({ 
+                canvas: document.getElementById('holographic-knot-canvas'),
+                alpha: true,
+                antialias: true
+            });
+            knotRenderer.setSize(300, 300);
+            knotRenderer.setPixelRatio(window.devicePixelRatio);
+            knotRenderer.setClearColor(0x000000, 0);
+
+            // Add starry background adapted to green theme
+            const starGeometry = new THREE.BufferGeometry();
+            const starMaterial = new THREE.PointsMaterial({ 
+                color: 0x00ff88, 
+                size: 0.015,
+                transparent: true,
+                opacity: 0.6
+            });
+            const starVertices = [];
+            for (let i = 0; i < 2000; i++) {
+                const x = (Math.random() - 0.5) * 20;
+                const y = (Math.random() - 0.5) * 20;
+                const z = (Math.random() - 0.5) * 20;
+                starVertices.push(x, y, z);
+            }
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            knotScene.add(stars);
+
+            // Create holographic material with green theme for torus knot
+            const hologramShader = {
+                vertexShader: `
+                    varying vec3 vNormal;
+                    varying vec2 vUv;
+                    void main() {
+                        vNormal = normalize(normalMatrix * normal);
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float time;
+                    varying vec3 vNormal;
+                    varying vec2 vUv;
+                    void main() {
+                        float glow = abs(sin(time + vUv.y * 3.0)) * 0.3 + 0.2;
+                        vec3 color = vec3(0.0, 1.0, 0.53); // Green holographic color
+                        float alpha = 0.4 + glow * (1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)));
+                        gl_FragColor = vec4(color, alpha);
+                    }
+                `,
+                uniforms: {
+                    time: { value: 0.0 }
+                },
+                transparent: true,
+                side: THREE.DoubleSide
+            };
+
+            // Create torus knot geometry and apply hologram material
+            const knotGeometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+            const knotMaterial = new THREE.ShaderMaterial(hologramShader);
+            torusKnot = new THREE.Mesh(knotGeometry, knotMaterial);
+            knotScene.add(torusKnot);
+
+            // Create holographic material for first outer ring (darker green)
+            const ringShader = {
+                vertexShader: `
+                    varying vec3 vNormal;
+                    varying vec2 vUv;
+                    void main() {
+                        vNormal = normalize(normalMatrix * normal);
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float time;
+                    varying vec3 vNormal;
+                    varying vec2 vUv;
+                    void main() {
+                        float glow = abs(sin(time + vUv.y * 2.0)) * 0.2 + 0.15;
+                        vec3 color = vec3(0.0, 0.8, 0.4); // Darker green holographic color
+                        float alpha = 0.3 + glow * (1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)));
+                        gl_FragColor = vec4(color, alpha);
+                    }
+                `,
+                uniforms: {
+                    time: { value: 0.0 }
+                },
+                transparent: true,
+                side: THREE.DoubleSide
+            };
+
+            // Create first outer ring (torus) geometry and apply ring material
+            const ringGeometry = new THREE.TorusGeometry(2.5, 0.2, 16, 100);
+            const ringMaterial = new THREE.ShaderMaterial(ringShader);
+            outerRing = new THREE.Mesh(ringGeometry, ringMaterial);
+            knotScene.add(outerRing);
+
+            // Create holographic material for second outer ring (light cyan-green)
+            const outerRingShader = {
+                vertexShader: `
+                    varying vec3 vNormal;
+                    varying vec2 vUv;
+                    void main() {
+                        vNormal = normalize(normalMatrix * normal);
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float time;
+                    varying vec3 vNormal;
+                    varying vec2 vUv;
+                    void main() {
+                        float glow = abs(sin(time + vUv.y * 1.5)) * 0.15 + 0.1;
+                        vec3 color = vec3(0.53, 1.0, 0.8); // Light cyan-green holographic color
+                        float alpha = 0.25 + glow * (1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)));
+                        gl_FragColor = vec4(color, alpha);
+                    }
+                `,
+                uniforms: {
+                    time: { value: 0.0 }
+                },
+                transparent: true,
+                side: THREE.DoubleSide
+            };
+
+            // Create second outer ring (torus) geometry and apply material
+            const outerRingGeometry = new THREE.TorusGeometry(3.5, 0.15, 16, 100);
+            const outerRingMaterial = new THREE.ShaderMaterial(outerRingShader);
+            secondOuterRing = new THREE.Mesh(outerRingGeometry, outerRingMaterial);
+            knotScene.add(secondOuterRing);
+
+            // Position camera
+            knotCamera.position.z = 6;
+
+            // Add ambient light
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            knotScene.add(ambientLight);
+
+            // Start knot animation
+            animateKnot();
+        }
+
+        // Animation loop for holographic knot
+        let knotTime = 0;
+        function animateKnot() {
+            requestAnimationFrame(animateKnot);
+            knotTime += 0.05;
+            
+            torusKnot.rotation.x += 0.01;
+            torusKnot.rotation.y += 0.01;
+            outerRing.rotation.x += 0.005;
+            outerRing.rotation.y += 0.005;
+            secondOuterRing.rotation.y += 0.003;
+            
+            torusKnot.material.uniforms.time.value = knotTime;
+            outerRing.material.uniforms.time.value = knotTime;
+            secondOuterRing.material.uniforms.time.value = knotTime;
+            
+            knotRenderer.render(knotScene, knotCamera);
+        }
+
+        // Initialize holographic knot when page loads
+        window.addEventListener('load', initHolographicKnot);
     </script>
 </body>
 </html>
