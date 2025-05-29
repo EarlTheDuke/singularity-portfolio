@@ -83,15 +83,15 @@
 
         .holo-chamber {
             position: relative;
-            width: 250px;
-            height: 250px;
+            width: 280px;
+            height: 280px;
             perspective: 800px;
             transform-style: preserve-3d;
         }
 
         .holo-projection-base {
             position: absolute;
-            bottom: -40px;
+            bottom: -50px;
             left: 50%;
             transform: translateX(-50%);
             width: 200px;
@@ -100,15 +100,16 @@
                 linear-gradient(90deg, transparent, #00ff88 20%, #00cc66 50%, #00ff88 80%, transparent),
                 radial-gradient(ellipse, rgba(0, 255, 136, 0.8) 0%, transparent 70%);
             border-radius: 50%;
-            animation: holoBasePulse 2s ease-in-out infinite alternate;
+            animation: holoBasePulse 4s ease-in-out infinite alternate;
             box-shadow: 
                 0 0 25px #00ff88,
-                0 0 50px rgba(0, 255, 136, 0.5);
+                0 0 50px rgba(0, 255, 136, 0.5),
+                inset 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .holo-beam-core {
             position: absolute;
-            bottom: -25px;
+            bottom: -35px;
             left: 50%;
             transform: translateX(-50%);
             width: 4px;
@@ -121,7 +122,7 @@
             box-shadow: 
                 0 0 10px #00ff88,
                 0 0 20px rgba(0, 255, 136, 0.7);
-            animation: holoBeamFlicker 3s ease-in-out infinite;
+            animation: holoBeamFlicker 6s ease-in-out infinite;
         }
 
         .holo-display {
@@ -129,7 +130,7 @@
             height: 150px;
             position: relative;
             transform-style: preserve-3d;
-            animation: holoComplexRotate 12s linear infinite;
+            animation: holoComplexRotate 36s linear infinite;
             margin: auto;
             filter: brightness(1.5) contrast(1.2);
         }
@@ -145,19 +146,19 @@
         }
 
         .holo-inner-core {
-            width: 75px;
-            height: 75px;
-            top: 37.5px;
-            left: 37.5px;
-            animation: holoCounterRotate 8s linear infinite reverse;
+            width: 150px;
+            height: 150px;
+            top: 0px;
+            left: 0px;
+            animation: holoCounterRotate 24s linear infinite reverse;
         }
 
         .holo-micro-core {
-            width: 40px;
-            height: 40px;
-            top: 55px;
-            left: 55px;
-            animation: holoComplexRotate 4s linear infinite;
+            width: 80px;
+            height: 80px;
+            top: 35px;
+            left: 35px;
+            animation: holoComplexRotate 12s linear infinite;
         }
 
         .holo-face {
@@ -177,13 +178,13 @@
         }
 
         .holo-inner-core .holo-face {
-            width: 75px;
-            height: 75px;
+            width: 150px;
+            height: 150px;
         }
 
         .holo-micro-core .holo-face {
-            width: 40px;
-            height: 40px;
+            width: 80px;
+            height: 80px;
         }
 
         /* Outer frame faces - green theme */
@@ -223,12 +224,138 @@
             box-shadow: 0 0 30px #44ff77, inset 0 0 15px rgba(68, 255, 119, 0.3);
         }
 
+        /* Inner core faces - green variations */
+        .holo-inner-core .holo-face:nth-child(1) {
+            transform: rotateY(0deg) translateZ(75px);
+            border-color: #22ff66;
+            box-shadow: 0 0 20px #22ff66;
+        }
+
+        .holo-inner-core .holo-face:nth-child(2) {
+            transform: rotateY(90deg) translateZ(75px);
+            border-color: #77ffaa;
+            box-shadow: 0 0 20px #77ffaa;
+        }
+
+        .holo-inner-core .holo-face:nth-child(3) {
+            transform: rotateY(180deg) translateZ(75px);
+            border-color: #00ff66;
+            box-shadow: 0 0 20px #00ff66;
+        }
+
+        .holo-inner-core .holo-face:nth-child(4) {
+            transform: rotateY(-90deg) translateZ(75px);
+            border-color: #55ffaa;
+            box-shadow: 0 0 20px #55ffaa;
+        }
+
+        .holo-inner-core .holo-face:nth-child(5) {
+            transform: rotateX(90deg) translateZ(75px);
+            border-color: #99ffcc;
+            box-shadow: 0 0 20px #99ffcc;
+        }
+
+        .holo-inner-core .holo-face:nth-child(6) {
+            transform: rotateX(-90deg) translateZ(75px);
+            border-color: #33ff88;
+            box-shadow: 0 0 20px #33ff88;
+        }
+
+        /* Micro core faces - bright green variations */
+        .holo-micro-core .holo-face:nth-child(1) {
+            transform: rotateY(0deg) translateZ(40px);
+            border-color: #aaffcc;
+            box-shadow: 0 0 15px #aaffcc;
+        }
+
+        .holo-micro-core .holo-face:nth-child(2) {
+            transform: rotateY(60deg) translateZ(40px);
+            border-color: #00ff99;
+            box-shadow: 0 0 15px #00ff99;
+        }
+
+        .holo-micro-core .holo-face:nth-child(3) {
+            transform: rotateY(120deg) translateZ(40px);
+            border-color: #66ff99;
+            box-shadow: 0 0 15px #66ff99;
+        }
+
+        .holo-micro-core .holo-face:nth-child(4) {
+            transform: rotateY(180deg) translateZ(40px);
+            border-color: #44ffaa;
+            box-shadow: 0 0 15px #44ffaa;
+        }
+
+        .holo-micro-core .holo-face:nth-child(5) {
+            transform: rotateY(240deg) translateZ(40px);
+            border-color: #77ffbb;
+            box-shadow: 0 0 15px #77ffbb;
+        }
+
+        .holo-micro-core .holo-face:nth-child(6) {
+            transform: rotateY(300deg) translateZ(40px);
+            border-color: #99ffdd;
+            box-shadow: 0 0 15px #99ffdd;
+        }
+
+        .holo-interference-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent 0px,
+                    rgba(0, 255, 136, 0.08) 1px,
+                    transparent 3px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0px,
+                    rgba(0, 255, 136, 0.05) 1px,
+                    transparent 4px
+                );
+            animation: holoScan 8s linear infinite;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        .holo-data-streams {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .holo-data-stream {
+            position: absolute;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                #00ff88 20%, 
+                transparent 40%, 
+                #00cc66 60%, 
+                transparent 80%, 
+                #88ffcc 100%);
+            animation: holoDataFlow 8s linear infinite;
+            opacity: 0.6;
+        }
+
+        .holo-data-stream:nth-child(1) { left: 20%; animation-delay: 0s; }
+        .holo-data-stream:nth-child(2) { left: 40%; animation-delay: 1s; }
+        .holo-data-stream:nth-child(3) { left: 60%; animation-delay: 2s; }
+        .holo-data-stream:nth-child(4) { left: 80%; animation-delay: 3s; }
+
         .holo-energy-particles {
             position: absolute;
             width: 3px;
             height: 3px;
             border-radius: 50%;
-            animation: holoOrbit 8s linear infinite;
+            animation: holoOrbit 16s linear infinite;
         }
 
         .holo-particle-1 {
@@ -252,20 +379,27 @@
             transform-origin: 110px 110px;
         }
 
-        .holo-interference-layer {
+        .holo-particle-4 {
+            background: #00ff99;
+            box-shadow: 0 0 10px #00ff99, 0 0 20px rgba(0, 255, 153, 0.5);
+            animation-delay: 6s;
+            transform-origin: 80px 80px;
+        }
+
+        .holo-glitch-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
             background: 
-                repeating-linear-gradient(
-                    0deg,
-                    transparent 0px,
-                    rgba(0, 255, 136, 0.08) 1px,
-                    transparent 3px
-                );
-            animation: holoScan 2s linear infinite;
+                linear-gradient(90deg, 
+                    transparent 0%, 
+                    rgba(0, 255, 136, 0.1) 25%, 
+                    rgba(0, 204, 102, 0.1) 50%, 
+                    rgba(136, 255, 204, 0.1) 75%, 
+                    transparent 100%);
+            animation: holoChromaticGlitch 14s ease-in-out infinite;
             pointer-events: none;
             mix-blend-mode: screen;
         }
@@ -309,9 +443,48 @@
             }
         }
 
+        @keyframes holoDataFlow {
+            0% { transform: translateY(-100%); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+
         @keyframes holoOrbit {
             0% { transform: rotate(0deg) translateX(0px) rotate(0deg); }
             100% { transform: rotate(360deg) translateX(0px) rotate(-360deg); }
+        }
+
+        @keyframes holoChromaticGlitch {
+            0%, 90%, 100% { 
+                transform: translateX(0) skewX(0deg); 
+                opacity: 0; 
+                filter: hue-rotate(0deg);
+            }
+            91%, 94% { 
+                transform: translateX(2px) skewX(1deg); 
+                opacity: 0.8; 
+                filter: hue-rotate(45deg);
+            }
+            95%, 97% { 
+                transform: translateX(-2px) skewX(-1deg); 
+                opacity: 0.6; 
+                filter: hue-rotate(90deg);
+            }
+            98%, 99% { 
+                transform: translateX(1px) skewX(0.5deg); 
+                opacity: 0.9; 
+                filter: hue-rotate(135deg);
+            }
+        }
+
+        .holo-display:hover {
+            animation-duration: 18s;
+            filter: brightness(2) contrast(1.5);
+        }
+
+        .holo-display:hover .holo-face {
+            border-width: 3px;
         }
 
         nav {
@@ -679,6 +852,28 @@
                 width: 100px;
                 height: 100px;
             }
+
+            .holo-inner-core {
+                width: 100px;
+                height: 100px;
+            }
+
+            .holo-inner-core .holo-face {
+                width: 100px;
+                height: 100px;
+            }
+
+            .holo-micro-core {
+                width: 50px;
+                height: 50px;
+                top: 25px;
+                left: 25px;
+            }
+
+            .holo-micro-core .holo-face {
+                width: 50px;
+                height: 50px;
+            }
         }
 
         .submarine-scene {
@@ -1013,10 +1208,17 @@
     
     <div id="holographic-display-canvas">
         <div class="holographic-container">
+            <div class="holo-data-streams">
+                <div class="holo-data-stream"></div>
+                <div class="holo-data-stream"></div>
+                <div class="holo-data-stream"></div>
+                <div class="holo-data-stream"></div>
+            </div>
+            
             <div class="holo-chamber">
                 <div class="holo-beam-core"></div>
                 
-                <div class="holo-display" onclick="triggerHoloGlitch()">
+                <div class="holo-display" onclick="triggerHoloQuantumGlitch()">
                     <div class="holo-geometric-shape holo-outer-frame">
                         <div class="holo-face"></div>
                         <div class="holo-face"></div>
@@ -1048,10 +1250,12 @@
                 <div class="holo-energy-particles holo-particle-1"></div>
                 <div class="holo-energy-particles holo-particle-2"></div>
                 <div class="holo-energy-particles holo-particle-3"></div>
+                <div class="holo-energy-particles holo-particle-4"></div>
             </div>
 
             <div class="holo-projection-base"></div>
             <div class="holo-interference-layer"></div>
+            <div class="holo-glitch-overlay"></div>
         </div>
     </div>
     
@@ -1622,15 +1826,17 @@
         // Advanced Holographic Display (Right Side) - Interactive Functions
         let isHoloGlitching = false;
 
-        function triggerHoloGlitch() {
+        function triggerHoloQuantumGlitch() {
             if (isHoloGlitching) return;
             isHoloGlitching = true;
 
             const holoDisplay = document.querySelector('.holo-display');
             const holoFaces = document.querySelectorAll('.holo-face');
+            const holoGlitchOverlay = document.querySelector('.holo-glitch-overlay');
             
             // Intense glitch effect with green theme
             holoDisplay.style.animation = 'holoComplexRotate 0.1s linear infinite';
+            holoGlitchOverlay.style.animation = 'holoChromaticGlitch 0.2s ease-in-out infinite';
             
             // Randomize face colors during glitch - green variations
             holoFaces.forEach(face => {
@@ -1639,13 +1845,14 @@
                 face.style.borderWidth = '3px';
             });
             
-            // Create green glitch particles
-            for (let i = 0; i < 10; i++) {
-                createHoloGlitchParticle();
+            // Create enhanced green glitch particles
+            for (let i = 0; i < 20; i++) {
+                createHoloAdvancedGlitchParticle();
             }
             
             setTimeout(() => {
-                holoDisplay.style.animation = 'holoComplexRotate 12s linear infinite';
+                holoDisplay.style.animation = 'holoComplexRotate 36s linear infinite';
+                holoGlitchOverlay.style.animation = 'holoChromaticGlitch 14s ease-in-out infinite';
                 
                 holoFaces.forEach(face => {
                     face.style.filter = '';
@@ -1656,36 +1863,36 @@
             }, 1000);
         }
 
-        function createHoloGlitchParticle() {
+        function createHoloAdvancedGlitchParticle() {
             const particle = document.createElement('div');
             particle.style.position = 'absolute';
-            particle.style.width = '3px';
-            particle.style.height = '3px';
+            particle.style.width = '4px';
+            particle.style.height = '4px';
             particle.style.background = `hsl(${120 + Math.random() * 60}, 100%, 50%)`; // Green variations
             particle.style.borderRadius = '50%';
-            particle.style.boxShadow = `0 0 15px currentColor`;
+            particle.style.boxShadow = `0 0 20px currentColor`;
             particle.style.left = Math.random() * 100 + '%';
             particle.style.top = Math.random() * 100 + '%';
             particle.style.animation = 'holoOrbit 2s linear infinite';
             particle.style.transformOrigin = '0 0';
             particle.style.pointerEvents = 'none';
             
-            document.querySelector('#holographic-display-canvas').appendChild(particle);
+            document.querySelector('.holographic-container').appendChild(particle);
             
             setTimeout(() => {
                 particle.remove();
             }, 2000);
         }
 
-        // Enhanced particle system for holo display
-        function createHoloEnergyBurst() {
-            const greenColors = ['#00ff88', '#00cc66', '#88ffcc', '#00ff99', '#66ffaa', '#44ff77'];
+        // Enhanced particle system for advanced holo display
+        function createHoloAdvancedEnergyBurst() {
+            const greenColors = ['#00ff88', '#00cc66', '#88ffcc', '#00ff99', '#66ffaa', '#44ff77', '#22ff66'];
             
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 8; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'holo-energy-particles';
                 particle.style.background = greenColors[Math.floor(Math.random() * greenColors.length)];
-                particle.style.boxShadow = `0 0 15px currentColor, 0 0 30px currentColor`;
+                particle.style.boxShadow = `0 0 30px currentColor, 0 0 60px currentColor`;
                 particle.style.left = '50%';
                 particle.style.top = '50%';
                 particle.style.transformOrigin = `${50 + Math.random() * 100}px ${50 + Math.random() * 100}px`;
@@ -1700,10 +1907,10 @@
             }
         }
 
-        // Auto-generate energy bursts for holo display
-        setInterval(createHoloEnergyBurst, 6000);
+        // Auto-generate energy bursts for advanced holo display
+        setInterval(createHoloAdvancedEnergyBurst, 10000);
 
-        // Enhanced mouse interaction with parallax for holo display
+        // Enhanced mouse interaction with advanced parallax for holo display
         document.addEventListener('mousemove', (e) => {
             const mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
             const mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -1713,50 +1920,50 @@
             const holoBeam = document.querySelector('.holo-beam-core');
             
             if (holoChamber) {
-                // Subtle 3D parallax effect for right side display
+                // Enhanced 3D parallax effect for right side display
                 holoChamber.style.transform = `
-                    translateX(${mouseX * 15}px) 
-                    translateY(${mouseY * 15}px) 
-                    rotateY(${mouseX * 3}deg) 
-                    rotateX(${-mouseY * 3}deg)
+                    translateX(${mouseX * 30}px) 
+                    translateY(${mouseY * 30}px) 
+                    rotateY(${mouseX * 5}deg) 
+                    rotateX(${-mouseY * 5}deg)
                 `;
             }
             
             if (holoBase) {
                 holoBase.style.transform = `
                     translateX(-50%) 
-                    translateX(${mouseX * 10}px) 
-                    rotateZ(${mouseX * 1}deg)
+                    translateX(${mouseX * 20}px) 
+                    rotateZ(${mouseX * 2}deg)
                 `;
             }
             
             if (holoBeam) {
                 holoBeam.style.transform = `
                     translateX(-50%) 
-                    translateX(${mouseX * 8}px) 
-                    skewX(${mouseX * 2}deg)
+                    translateX(${mouseX * 15}px) 
+                    skewX(${mouseX * 3}deg)
                 `;
             }
         });
 
-        // Dynamic color cycling for holo display
-        function cycleHologramColors() {
+        // Advanced dynamic color cycling for holo display
+        function cycleAdvancedHologramColors() {
             const holoFaces = document.querySelectorAll('.holo-face');
             holoFaces.forEach((face, index) => {
-                const hue = 120 + (Date.now() * 0.05 + index * 30) % 60; // Green hue range
+                const hue = 120 + (Date.now() * 0.1 + index * 60) % 60; // Green hue range
                 face.style.filter = `hue-rotate(${hue}deg)`;
             });
         }
 
-        setInterval(cycleHologramColors, 150);
+        setInterval(cycleAdvancedHologramColors, 200);
 
-        // Audio-reactive simulation for holo display
-        function simulateHoloAudioReactive() {
+        // Enhanced audio-reactive simulation for advanced holo display
+        function simulateAdvancedHoloAudioReactive() {
             const holoShapes = document.querySelectorAll('.holo-geometric-shape');
             const intensity = 0.8 + Math.random() * 0.4;
             
             holoShapes.forEach((shape, index) => {
-                const delay = index * 50;
+                const delay = index * 100;
                 setTimeout(() => {
                     shape.style.transform += ` scale(${intensity})`;
                     shape.style.filter = `brightness(${intensity * 1.5}) contrast(${intensity * 1.2})`;
@@ -1764,22 +1971,22 @@
                     setTimeout(() => {
                         shape.style.transform = shape.style.transform.replace(` scale(${intensity})`, '');
                         shape.style.filter = '';
-                    }, 200);
+                    }, 300);
                 }, delay);
             });
         }
 
-        setInterval(simulateHoloAudioReactive, 3000);
+        setInterval(simulateAdvancedHoloAudioReactive, 4000);
 
-        // Holographic display startup sequence
+        // Advanced holographic display startup sequence
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const holoDisplay = document.querySelector('.holo-display');
                 if (holoDisplay) {
                     holoDisplay.style.filter = 'brightness(2) contrast(1.5)';
-                    createHoloEnergyBurst();
+                    createHoloAdvancedEnergyBurst();
                 }
-            }, 800);
+            }, 1000);
         });
     </script>
 </body>
