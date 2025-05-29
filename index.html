@@ -1913,42 +1913,6 @@
         // Auto-generate energy bursts for advanced holo display
         setInterval(createHoloAdvancedEnergyBurst, 10000);
 
-        // Enhanced mouse interaction with advanced parallax for holo display
-        document.addEventListener('mousemove', (e) => {
-            const mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-            const mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-            
-            const holoChamber = document.querySelector('.holo-chamber');
-            const holoBase = document.querySelector('.holo-projection-base');
-            const holoBeam = document.querySelector('.holo-beam-core');
-            
-            if (holoChamber) {
-                // Enhanced 3D parallax effect for right side display
-                holoChamber.style.transform = `
-                    translateX(${mouseX * 30}px) 
-                    translateY(${mouseY * 30}px) 
-                    rotateY(${mouseX * 5}deg) 
-                    rotateX(${-mouseY * 5}deg)
-                `;
-            }
-            
-            if (holoBase) {
-                holoBase.style.transform = `
-                    translateX(-50%) 
-                    translateX(${mouseX * 20}px) 
-                    rotateZ(${mouseX * 2}deg)
-                `;
-            }
-            
-            if (holoBeam) {
-                holoBeam.style.transform = `
-                    translateX(-50%) 
-                    translateX(${mouseX * 15}px) 
-                    skewX(${mouseX * 3}deg)
-                `;
-            }
-        });
-
         // Localized mouse interaction for right-side holographic display only
         const holoDisplayCanvas = document.querySelector('#holographic-display-canvas');
         
