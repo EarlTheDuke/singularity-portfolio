@@ -87,6 +87,7 @@
             height: 280px;
             perspective: 800px;
             transform-style: preserve-3d;
+            transition: transform 0.3s ease-out;
         }
 
         .holo-projection-base {
@@ -105,6 +106,7 @@
                 0 0 25px #00ff88,
                 0 0 50px rgba(0, 255, 136, 0.5),
                 inset 0 0 10px rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease-out;
         }
 
         .holo-beam-core {
@@ -123,6 +125,7 @@
                 0 0 10px #00ff88,
                 0 0 20px rgba(0, 255, 136, 0.7);
             animation: holoBeamFlicker 6s ease-in-out infinite;
+            transition: transform 0.3s ease-out;
         }
 
         .holo-display {
@@ -1945,6 +1948,74 @@
                 `;
             }
         });
+
+        // Localized mouse interaction for right-side holographic display only
+        const holoDisplayCanvas = document.querySelector('#holographic-display-canvas');
+        
+        if (holoDisplayCanvas) {
+            // Mouse enter - activate effects
+            holoDisplayCanvas.addEventListener('mouseenter', () => {
+                holoDisplayCanvas.style.cursor = 'pointer';
+            });
+            
+            // Mouse move - parallax effects only when over the display
+            holoDisplayCanvas.addEventListener('mousemove', (e) => {
+                const rect = holoDisplayCanvas.getBoundingClientRect();
+                const mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+                const mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+                
+                const holoChamber = document.querySelector('.holo-chamber');
+                const holoBase = document.querySelector('.holo-projection-base');
+                const holoBeam = document.querySelector('.holo-beam-core');
+                
+                if (holoChamber) {
+                    // Enhanced 3D parallax effect for right side display
+                    holoChamber.style.transform = `
+                        translateX(${mouseX * 30}px) 
+                        translateY(${mouseY * 30}px) 
+                        rotateY(${mouseX * 5}deg) 
+                        rotateX(${-mouseY * 5}deg)
+                    `;
+                }
+                
+                if (holoBase) {
+                    holoBase.style.transform = `
+                        translateX(-50%) 
+                        translateX(${mouseX * 20}px) 
+                        rotateZ(${mouseX * 2}deg)
+                    `;
+                }
+                
+                if (holoBeam) {
+                    holoBeam.style.transform = `
+                        translateX(-50%) 
+                        translateX(${mouseX * 15}px) 
+                        skewX(${mouseX * 3}deg)
+                    `;
+                }
+            });
+            
+            // Mouse leave - reset transforms
+            holoDisplayCanvas.addEventListener('mouseleave', () => {
+                holoDisplayCanvas.style.cursor = 'default';
+                
+                const holoChamber = document.querySelector('.holo-chamber');
+                const holoBase = document.querySelector('.holo-projection-base');
+                const holoBeam = document.querySelector('.holo-beam-core');
+                
+                if (holoChamber) {
+                    holoChamber.style.transform = 'translateX(0px) translateY(0px) rotateY(0deg) rotateX(0deg)';
+                }
+                
+                if (holoBase) {
+                    holoBase.style.transform = 'translateX(-50%) translateX(0px) rotateZ(0deg)';
+                }
+                
+                if (holoBeam) {
+                    holoBeam.style.transform = 'translateX(-50%) translateX(0px) skewX(0deg)';
+                }
+            });
+        }
 
         // Advanced dynamic color cycling for holo display
         function cycleAdvancedHologramColors() {
