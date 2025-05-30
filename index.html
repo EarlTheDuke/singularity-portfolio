@@ -50,7 +50,15 @@
             background: rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(5px);
             border: 1px solid rgba(0, 255, 136, 0.2);
-            pointer-events: none;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #holographic-knot-canvas:hover {
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            transform: scale(1.02);
         }
 
         #holographic-display-canvas {
@@ -1964,6 +1972,16 @@
 
         // Initialize holographic knot when page loads
         window.addEventListener('load', initHolographicKnot);
+
+        // Add click navigation to space simulation
+        window.addEventListener('load', () => {
+            const knotCanvas = document.getElementById('holographic-knot-canvas');
+            if (knotCanvas) {
+                knotCanvas.addEventListener('click', () => {
+                    window.location.href = 'space-simulation.html';
+                });
+            }
+        });
 
         // Advanced Holographic Display (Right Side) - Interactive Functions
         let isHoloGlitching = false;

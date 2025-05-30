@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Travel Simulation - The Singularity Test Site</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: 'Arial', sans-serif;
+        }
+        canvas { 
+            display: block; 
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        .back-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 255, 136, 0.5);
+        }
+        
+        .info-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+            max-width: 250px;
+        }
+        
+        .info-title {
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .info-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Main</a>
+    
+    <div class="info-panel">
+        <div class="info-title">Space Travel Simulation</div>
+        <div class="info-text">Navigate through the cosmos with realistic starfield and planetary systems. Watch the blue planet rotate in the infinite expanse of space.</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script>
+        // Set up the scene, camera, and renderer
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000); // Black background for space
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create starfield
+        function createStarfield() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 32;
+            canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            ctx.beginPath();
+            ctx.arc(16, 16, 16, 0, 2 * Math.PI);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            const texture = new THREE.CanvasTexture(canvas);
+
+            const colorOptions = [
+                new THREE.Color(0xffffff), // white
+                new THREE.Color(0xffffe0), // light yellow
+                new THREE.Color(0xffa500), // orange
+                new THREE.Color(0xff4500), // red-orange
+                new THREE.Color(0x87ceeb), // sky blue
+                new THREE.Color(0x4682b4), // steel blue
+                new THREE.Color(0x00ff88), // Green theme addition
+                new THREE.Color(0x88ffcc), // Light cyan-green
+            ];
+
+            const numStars = 10000;
+            const positions = new Float32Array(numStars * 3);
+            const colors = new Float32Array(numStars * 3);
+            for (let i = 0; i < numStars; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 200; // x
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 200; // y
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 200; // z
+
+                const color = colorOptions[Math.floor(Math.random() * colorOptions.length)].clone();
+                const brightness = 0.5 + Math.random() * 0.5;
+                color.multiplyScalar(brightness);
+                colors[i * 3] = color.r;
+                colors[i * 3 + 1] = color.g;
+                colors[i * 3 + 2] = color.b;
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                map: texture,
+                size: 1,
+                vertexColors: true,
+                transparent: true,
+                sizeAttenuation: true,
+            });
+
+            const stars = new THREE.Points(geometry, material);
+            return stars;
+        }
+
+        const starfield = createStarfield();
+        scene.add(starfield);
+
+        // Create a planet
+        const planetGeometry = new THREE.SphereGeometry(1, 32, 32); // Radius: 1, Segments: 32x32
+        const planetMaterial = new THREE.MeshStandardMaterial({ color: 0x1e90ff }); // Blue planet
+        const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+        planet.position.set(2, 0, -5); // Position in front of camera
+        scene.add(planet);
+
+        // Add lighting
+        const light = new THREE.PointLight(0xffffff, 1, 100); // White light, intensity 1, distance 100
+        light.position.set(5, 5, 5); // Position light above and to the right of the planet
+        scene.add(light);
+
+        // Add some ambient light for better visibility
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+        scene.add(ambientLight);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate the planet
+            planet.rotation.y += 0.01;
+            
+            // Slowly rotate the starfield for movement effect
+            starfield.rotation.y += 0.0002;
+            starfield.rotation.x += 0.0001;
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+
+        // Add subtle camera movement for immersion
+        let time = 0;
+        function updateCamera() {
+            time += 0.01;
+            camera.position.x = Math.sin(time * 0.3) * 0.5;
+            camera.position.y = Math.cos(time * 0.2) * 0.3;
+            camera.lookAt(planet.position);
+        }
+
+        // Enhanced animation loop with camera movement
+        function animateEnhanced() {
+            requestAnimationFrame(animateEnhanced);
+            
+            // Rotate the planet
+            planet.rotation.y += 0.01;
+            
+            // Slowly rotate the starfield for movement effect
+            starfield.rotation.y += 0.0002;
+            starfield.rotation.x += 0.0001;
+            
+            // Update camera for subtle movement
+            updateCamera();
+            
+            renderer.render(scene, camera);
+        }
+        animateEnhanced();
+    </script>
+</body>
+</html> 
