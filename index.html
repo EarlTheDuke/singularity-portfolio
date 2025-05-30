@@ -1981,6 +1981,14 @@
                     window.location.href = 'space-simulation.html';
                 });
             }
+            
+            // Add click navigation to evolution timeline
+            const holoDisplayCanvas = document.getElementById('holographic-display-canvas');
+            if (holoDisplayCanvas) {
+                holoDisplayCanvas.addEventListener('click', () => {
+                    window.location.href = 'evolution-timeline.html';
+                });
+            }
         });
 
         // Advanced Holographic Display (Right Side) - Interactive Functions

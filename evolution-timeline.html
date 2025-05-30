@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Evolution Timeline - The Singularity Test Site</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Arial', sans-serif;
+            cursor: none;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        .back-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 255, 136, 0.5);
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1a0f0a 0%, #000000 100%);
+        }
+        
+        .era-info {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            color: #ff6b35;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+        
+        .era-subtitle {
+            font-size: 14px;
+            color: #ffaa80;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+        
+        .progress-bar {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35, #ff9f5a);
+            width: 0%;
+            transition: width 60s linear;
+            border-radius: 2px;
+        }
+        
+        /* Include all the original CSS animations and styles from the provided code */
+        .cave-wall {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(101, 67, 33, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 60%, rgba(101, 67, 33, 0.3) 0%, transparent 40%),
+                linear-gradient(180deg, rgba(20, 15, 10, 0.8) 0%, rgba(40, 30, 20, 0.6) 100%);
+        }
+        
+        .fire {
+            position: absolute;
+            bottom: 15%;
+            left: 30%;
+            width: 120px;
+            height: 140px;
+        }
+        
+        .flame-core {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            background: 
+                linear-gradient(0deg, #ff0000 0%, #ff3300 20%, #ff6600 40%, #ff9900 60%, #ffcc00 80%, #ffff00 100%);
+            border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+            animation: coreFlicker 1.2s ease-in-out infinite;
+        }
+        
+        .flame-outer {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 100px;
+            background: 
+                radial-gradient(ellipse 40% 70% at 50% 90%, rgba(255, 0, 0, 0.8) 0%, rgba(255, 102, 0, 0.6) 40%, rgba(255, 204, 0, 0.4) 70%, transparent 100%);
+            border-radius: 50% 50% 50% 50% / 20% 20% 80% 80%;
+            animation: outerFlicker 1s ease-in-out infinite alternate;
+        }
+        
+        /* Add all the keyframe animations and other styles from the original code... */
+        @keyframes coreFlicker {
+            0% { 
+                transform: translateX(-50%) scale(1) rotate(0deg);
+                height: 60px;
+            }
+            25% {
+                transform: translateX(-50%) scale(1.1) rotate(-2deg);
+                height: 65px;
+            }
+            50% {
+                transform: translateX(-50%) scale(0.95) rotate(1deg);
+                height: 55px;
+            }
+            75% {
+                transform: translateX(-50%) scale(1.05) rotate(-1deg);
+                height: 70px;
+            }
+            100% { 
+                transform: translateX(-50%) scale(1) rotate(0deg);
+                height: 60px;
+            }
+        }
+        
+        @keyframes outerFlicker {
+            0% { 
+                transform: translateX(-50%) scale(1) rotate(0deg);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateX(-50%) scale(1.15) rotate(2deg);
+                opacity: 0.6;
+            }
+            100% { 
+                transform: translateX(-50%) scale(1.05) rotate(-1deg);
+                opacity: 0.9;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes sparkFly {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(var(--spark-x, 20px), var(--spark-y, -60px)) scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Add remaining styles and animations here... */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ff6b35;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Main</a>
+    
+    <canvas id="canvas"></canvas>
+    
+    <div class="era-info" id="eraInfo">
+        <div>Dawn of Tools</div>
+        <div class="era-subtitle">The first spark of human innovation</div>
+    </div>
+    
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    
+    <!-- Cave Environment -->
+    <div class="cave-wall"></div>
+    
+    <!-- Fire -->
+    <div class="fire">
+        <div class="flame-core"></div>
+        <div class="flame-outer"></div>
+        <div class="sparks" id="sparks"></div>
+    </div>
+
+    <script>
+        // Simplified version of the Evolution Timeline class with key functionality
+        class EvolutionTimeline {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.currentEra = 0;
+                this.eraDuration = 60000;
+                this.eras = [
+                    {
+                        name: "Dawn of Tools",
+                        subtitle: "The first spark of human innovation"
+                    },
+                    {
+                        name: "Industrial Revolution", 
+                        subtitle: "Steam, steel, and the birth of machinery"
+                    },
+                    {
+                        name: "Computing Dawn",
+                        subtitle: "Electronic brains and digital dreams"
+                    },
+                    {
+                        name: "Internet Age",
+                        subtitle: "Connecting the world in a web of information"
+                    },
+                    {
+                        name: "AI Consciousness",
+                        subtitle: "The emergence of artificial intelligence"
+                    }
+                ];
+                
+                this.initCanvas();
+                this.createSparks();
+                this.startTimeline();
+                this.animate();
+                
+                setTimeout(() => {
+                    document.getElementById('eraInfo').style.opacity = '1';
+                }, 1000);
+            }
+            
+            initCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+            
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            createSparks() {
+                const sparksContainer = document.getElementById('sparks');
+                if (!sparksContainer) return;
+                
+                setInterval(() => {
+                    const spark = document.createElement('div');
+                    spark.className = 'particle';
+                    spark.style.left = Math.random() * 100 + 'px';
+                    spark.style.bottom = Math.random() * 20 + 'px';
+                    spark.style.animation = 'sparkFly 3s linear forwards';
+                    spark.style.setProperty('--spark-x', (Math.random() - 0.5) * 120 + 'px');
+                    spark.style.setProperty('--spark-y', -Math.random() * 150 - 60 + 'px');
+                    
+                    sparksContainer.appendChild(spark);
+                    
+                    setTimeout(() => {
+                        if (spark.parentNode) spark.remove();
+                    }, 3000);
+                }, 200);
+            }
+            
+            startTimeline() {
+                setTimeout(() => {
+                    document.getElementById('progressFill').style.width = '100%';
+                }, 500);
+                
+                setTimeout(() => {
+                    this.transitionToNextEra();
+                }, this.eraDuration);
+            }
+            
+            transitionToNextEra() {
+                this.currentEra = (this.currentEra + 1) % this.eras.length;
+                const era = this.eras[this.currentEra];
+                
+                const eraInfo = document.getElementById('eraInfo');
+                eraInfo.innerHTML = `
+                    <div>${era.name}</div>
+                    <div class="era-subtitle">${era.subtitle}</div>
+                `;
+                
+                // Reset progress bar
+                const progressFill = document.getElementById('progressFill');
+                progressFill.style.transition = 'none';
+                progressFill.style.width = '0%';
+                
+                setTimeout(() => {
+                    progressFill.style.transition = 'width 60s linear';
+                    progressFill.style.width = '100%';
+                }, 100);
+                
+                setTimeout(() => {
+                    this.transitionToNextEra();
+                }, this.eraDuration);
+            }
+            
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            new EvolutionTimeline();
+        });
+    </script>
+</body>
+</html> 
