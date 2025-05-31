@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Hub - The Singularity Test Site</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 255, 136, 0.1);
+            color: rgba(0, 255, 136, 0.7);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: normal;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+            opacity: 0.6;
+        }
+        
+        .back-button:hover {
+            opacity: 1;
+            background: rgba(0, 255, 136, 0.2);
+            color: rgba(0, 255, 136, 1);
+            border-color: rgba(0, 255, 136, 0.5);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px 50px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #00ff88, #88ffcc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .track-card {
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.8) 0%, rgba(20, 20, 20, 0.9) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .track-card:hover {
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .track-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00ff88, #88ffcc, #00ff88);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        .track-info {
+            margin-bottom: 20px;
+        }
+        
+        .track-title {
+            font-size: 1.5rem;
+            color: #00ff88;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .track-details {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .audio-player {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .audio-player audio {
+            width: 100%;
+            background: transparent;
+        }
+        
+        .audio-player video {
+            width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            background: #000;
+        }
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+            gap: 15px;
+        }
+        
+        .download-btn {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .file-info {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .upload-section {
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.6) 0%, rgba(20, 20, 20, 0.8) 100%);
+            border: 2px dashed rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        
+        .upload-section h3 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .upload-section p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .music-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .container {
+                padding: 80px 15px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Main</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Music Hub</h1>
+            <p>Discover and enjoy a curated collection of audio and video tracks from The Singularity Test Site</p>
+        </div>
+        
+        <div class="music-grid">
+            <div class="track-card">
+                <div class="track-info">
+                    <div class="track-title">Bard Times</div>
+                    <div class="track-details">MP4 Video • Featured Track</div>
+                </div>
+                
+                <div class="audio-player">
+                    <video controls preload="metadata">
+                        <source src="bard-times.mp4" type="video/mp4">
+                        Your browser does not support the video element.
+                    </video>
+                    
+                    <div class="player-controls">
+                        <a href="bard-times.mp4" class="download-btn" download>Download MP4</a>
+                        <div class="file-info">Video file ready for download</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Placeholder for future tracks -->
+            <div class="track-card" style="opacity: 0.5;">
+                <div class="track-info">
+                    <div class="track-title">Coming Soon</div>
+                    <div class="track-details">More tracks will be added here</div>
+                </div>
+                
+                <div class="audio-player">
+                    <div style="height: 50px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5);">
+                        🎵 Next track placeholder
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="upload-section">
+            <h3>🚀 More Music Coming Soon</h3>
+            <p>This hub will expand with more audio and video content. Stay tuned for updates!</p>
+            <div style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">
+                Supported formats: MP3, MP4, WAV, OGG
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
