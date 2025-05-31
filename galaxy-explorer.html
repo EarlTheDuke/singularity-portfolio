@@ -273,6 +273,9 @@
     <!-- Enhanced Audio Controls -->
     <div id="audio-controls" onclick="toggleAudio()">
         🎵 <span id="audio-status">Click to Start Music</span>
+        <div style="font-size: 8px; margin-top: 2px; opacity: 0.7;">
+            <span id="current-track">Track 1/3</span>
+        </div>
     </div>
     
     <!-- Controls Help Modal -->
@@ -299,14 +302,27 @@
         <div class="control-group">
             <span class="control-key">ESC</span> - Close this help
         </div>
+        <div class="control-group">
+            <span class="control-key">M</span> - Next music track
+        </div>
         <div style="text-align: center; margin-top: 15px;">
             <div class="nav-option" onclick="toggleControlsHelp()">Close</div>
         </div>
     </div>
     
-    <!-- Audio element for background music -->
-    <audio id="background-music" loop preload="auto">
-        <source src="Cosmic Groove.mp3" type="audio/mpeg">
+    <!-- Multiple Audio Elements for Music Cycling -->
+    <audio id="background-music-1" loop preload="auto">
+        <source src="CE.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <audio id="background-music-2" loop preload="auto">
+        <source src="CG.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <audio id="background-music-3" loop preload="auto">
+        <source src="FS.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
@@ -739,6 +755,11 @@
                     return;
                 }
                 
+                if (event.code === 'KeyM') {
+                    nextTrack();
+                    return;
+                }
+                
                 if (this.navigationMode === 'auto') return;
                 this.keys[event.code] = true;
                 if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'Space', 'ShiftLeft'].includes(event.code)) {
@@ -834,49 +855,101 @@
         // Audio control functions
         let audioInitialized = false;
         let audioPlaying = false;
+        let currentTrack = 1;
+        const totalTracks = 3;
+        let currentAudio = null;
+        
+        // Track names for display
+        const trackNames = {
+            1: "Cosmic Explorer",
+            2: "Cosmic Groove", 
+            3: "Future Sounds"
+        };
+        
+        function getCurrentAudio() {
+            return document.getElementById(`background-music-${currentTrack}`);
+        }
+        
+        function updateTrackDisplay() {
+            document.getElementById('current-track').textContent = 
+                `${trackNames[currentTrack]} (${currentTrack}/${totalTracks})`;
+            document.getElementById('audio-status').textContent = 
+                audioPlaying ? `Playing: ${trackNames[currentTrack]}` : 'Click to Start Music';
+        }
         
         function initializeAudio() {
-            const audio = document.getElementById('background-music');
+            currentAudio = getCurrentAudio();
             const audioStatus = document.getElementById('audio-status');
             
-            if (!audio) return;
+            if (!currentAudio) return;
             
-            audio.play().then(() => {
+            currentAudio.play().then(() => {
                 audioPlaying = true;
-                audioStatus.textContent = 'Music Playing';
                 audioInitialized = true;
+                updateTrackDisplay();
             }).catch(() => {
                 audioStatus.textContent = 'Click to Start Music';
+                updateTrackDisplay();
             });
             
-            audio.addEventListener('canplaythrough', () => {
-                console.log('Audio loaded and ready to play');
-            });
+            // Add event listeners for all tracks
+            for (let i = 1; i <= totalTracks; i++) {
+                const audio = document.getElementById(`background-music-${i}`);
+                if (audio) {
+                    audio.addEventListener('canplaythrough', () => {
+                        console.log(`Galaxy Explorer: Track ${i} loaded and ready`);
+                    });
+                    
+                    audio.addEventListener('error', (e) => {
+                        console.log(`Galaxy Explorer: Track ${i} error:`, e);
+                    });
+                }
+            }
+        }
+        
+        function switchTrack(newTrack) {
+            if (newTrack < 1 || newTrack > totalTracks) return;
             
-            audio.addEventListener('error', (e) => {
-                audioStatus.textContent = 'Audio Error';
-                console.log('Audio error:', e);
-            });
+            // Fade out current track
+            if (currentAudio && audioPlaying) {
+                currentAudio.pause();
+            }
+            
+            // Switch to new track
+            currentTrack = newTrack;
+            currentAudio = getCurrentAudio();
+            
+            if (currentAudio && audioPlaying) {
+                currentAudio.currentTime = 0;
+                currentAudio.play().catch(console.log);
+            }
+            
+            updateTrackDisplay();
+            console.log(`Galaxy Explorer: Switched to track ${currentTrack}`);
+        }
+        
+        function nextTrack() {
+            const next = currentTrack >= totalTracks ? 1 : currentTrack + 1;
+            switchTrack(next);
         }
         
         function toggleAudio() {
-            const audio = document.getElementById('background-music');
-            const audioStatus = document.getElementById('audio-status');
+            currentAudio = getCurrentAudio();
             
-            if (!audio) return;
+            if (!currentAudio) return;
             
             if (audioPlaying) {
-                audio.pause();
+                currentAudio.pause();
                 audioPlaying = false;
-                audioStatus.textContent = 'Music Paused - Click to Resume';
+                document.getElementById('audio-status').textContent = 'Music Paused - Click to Resume';
             } else {
-                audio.play().then(() => {
+                currentAudio.play().then(() => {
                     audioPlaying = true;
-                    audioStatus.textContent = 'Music Playing';
                     audioInitialized = true;
+                    updateTrackDisplay();
                 }).catch((e) => {
-                    audioStatus.textContent = 'Audio Error';
-                    console.log('Audio play error:', e);
+                    document.getElementById('audio-status').textContent = 'Audio Error';
+                    console.log('Galaxy Explorer: Audio play error:', e);
                 });
             }
         }
@@ -897,16 +970,15 @@
         
         // Handle page visibility changes for audio
         document.addEventListener('visibilitychange', () => {
-            const audio = document.getElementById('background-music');
-            if (!audio || !audioInitialized) return;
+            if (!currentAudio || !audioInitialized) return;
             
             if (document.visibilityState === 'hidden') {
                 if (audioPlaying) {
-                    audio.pause();
+                    currentAudio.pause();
                 }
             } else {
                 if (audioPlaying) {
-                    audio.play().catch(console.log);
+                    currentAudio.play().catch(console.log);
                 }
             }
         });
