@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Explorer - The Singularity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 255, 136, 0.1);
+            color: rgba(0, 255, 136, 0.7);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: normal;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+            opacity: 0.6;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .back-button:hover {
+            opacity: 1;
+            background: rgba(0, 255, 136, 0.2);
+            color: rgba(0, 255, 136, 1);
+            transform: translateX(-2px);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        #navigation-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            z-index: 100;
+            backdrop-filter: blur(15px);
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            transform: translateX(10px);
+            min-width: 180px;
+        }
+        
+        #navigation-panel:hover {
+            opacity: 1.0;
+            transform: translateX(0px);
+        }
+        
+        .nav-section {
+            margin-bottom: 12px;
+        }
+        
+        .nav-section h4 {
+            color: #00ff88;
+            margin-bottom: 6px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .nav-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: 6px 10px;
+            margin: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 9px;
+        }
+        
+        .nav-option:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        
+        .nav-option.active {
+            background: rgba(0, 255, 136, 0.4);
+            border-color: #00ff88;
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+            color: #00ff88;
+        }
+        
+        .target-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #cccccc;
+            padding: 4px 8px;
+            margin: 1px 0;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 8px;
+        }
+        
+        .target-option:hover {
+            background: rgba(0, 255, 136, 0.15);
+            border-color: rgba(0, 255, 136, 0.4);
+            color: #00ff88;
+        }
+        
+        #info-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            opacity: 0.8;
+            max-width: 250px;
+        }
+        
+        #info-panel h4 {
+            color: #00ff88;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+        
+        #info-panel .info-item {
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        
+        #audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            transform: translateX(10px);
+            cursor: pointer;
+        }
+        
+        #audio-controls:hover {
+            opacity: 1.0;
+            transform: translateX(0px);
+        }
+        
+        .controls-help {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            display: none;
+            max-width: 400px;
+        }
+        
+        .controls-help h3 {
+            color: #00ff88;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .controls-help .control-group {
+            margin-bottom: 10px;
+        }
+        
+        .controls-help .control-key {
+            color: #00ff88;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Main</a>
+    
+    <div id="canvas-container"></div>
+    
+    <!-- Enhanced Navigation Panel -->
+    <div id="navigation-panel">
+        <div class="nav-section">
+            <h4>🎮 Navigation Mode</h4>
+            <div class="nav-option active" id="free-movement" onclick="neuralGenesis.setNavigationMode('free')">
+                Free Movement
+            </div>
+            <div class="nav-option" id="auto-navigation" onclick="neuralGenesis.setNavigationMode('auto')">
+                Auto-Navigation
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <h4>🎯 Quick Targets</h4>
+            <div class="target-option" onclick="neuralGenesis.jumpToTarget(0)">Galaxy Core</div>
+            <div class="target-option" onclick="neuralGenesis.jumpToTarget(1)">Spiral Arms</div>
+            <div class="target-option" onclick="neuralGenesis.jumpToTarget(2)">Outer Nebula</div>
+            <div class="target-option" onclick="neuralGenesis.jumpToTarget(3)">Deep Space</div>
+            <div class="target-option" onclick="neuralGenesis.jumpToTarget(4)">Dwarf Galaxy</div>
+            <div class="target-option" onclick="neuralGenesis.jumpToTarget(5)">Binary System</div>
+            <div class="target-option" onclick="neuralGenesis.jumpToTarget(6)">Star Cluster</div>
+            <div class="target-option" onclick="neuralGenesis.jumpToTarget(7)">Void Region</div>
+        </div>
+        
+        <div class="nav-section">
+            <h4>⚙️ Controls</h4>
+            <div class="nav-option" onclick="toggleControlsHelp()">Show Help</div>
+            <div class="nav-option" onclick="neuralGenesis.resetCamera()">Reset View</div>
+        </div>
+    </div>
+    
+    <!-- Information Panel -->
+    <div id="info-panel">
+        <h4>🌌 Galaxy Status</h4>
+        <div class="info-item">Particles: <span id="particle-count">45,000</span></div>
+        <div class="info-item">Galaxies: <span id="galaxy-count">6</span></div>
+        <div class="info-item">Position: <span id="camera-position">0, 0, 400</span></div>
+        <div class="info-item">Target: <span id="current-target">Free Movement</span></div>
+        <div class="info-item">Speed: <span id="camera-speed">25</span></div>
+    </div>
+    
+    <!-- Enhanced Audio Controls -->
+    <div id="audio-controls" onclick="toggleAudio()">
+        🎵 <span id="audio-status">Click to Start Music</span>
+    </div>
+    
+    <!-- Controls Help Modal -->
+    <div class="controls-help" id="controls-help">
+        <h3>Galaxy Explorer Controls</h3>
+        <div class="control-group">
+            <span class="control-key">WASD</span> - Move camera (Free mode)
+        </div>
+        <div class="control-group">
+            <span class="control-key">Mouse</span> - Look around (Free mode)
+        </div>
+        <div class="control-group">
+            <span class="control-key">Scroll</span> - Zoom in/out
+        </div>
+        <div class="control-group">
+            <span class="control-key">Q/E</span> - Move up/down
+        </div>
+        <div class="control-group">
+            <span class="control-key">Space</span> - Move up (alternative)
+        </div>
+        <div class="control-group">
+            <span class="control-key">Shift</span> - Move down (alternative)
+        </div>
+        <div class="control-group">
+            <span class="control-key">ESC</span> - Close this help
+        </div>
+        <div style="text-align: center; margin-top: 15px;">
+            <div class="nav-option" onclick="toggleControlsHelp()">Close</div>
+        </div>
+    </div>
+    
+    <!-- Audio element for background music -->
+    <audio id="background-music" loop preload="auto">
+        <source src="Cosmic Groove.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        class NeuralGenesis {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.particles = null;
+                this.time = 0;
+                this.mouseX = 0;
+                this.mouseY = 0;
+                
+                // Enhanced galaxy systems
+                this.galaxySystems = [];
+                
+                // Camera controls
+                this.keys = {};
+                this.isDragging = false;
+                this.lastMouseX = 0;
+                this.lastMouseY = 0;
+                this.cameraRotationX = 0;
+                this.cameraRotationY = 0;
+                this.cameraSpeed = 25;
+                this.cameraVelocity = new THREE.Vector3();
+                this.cameraDamping = 0.85;
+                
+                // Navigation mode controls
+                this.navigationMode = 'auto';
+                this.autoNavigation = {
+                    enabled: false,
+                    currentTarget: 0,
+                    targetPosition: new THREE.Vector3(),
+                    targetLookAt: new THREE.Vector3(),
+                    transitionProgress: 0,
+                    transitionDuration: 8000,
+                    pauseDuration: 3000,
+                    isPausing: false,
+                    pauseStart: 0,
+                    startPosition: new THREE.Vector3(),
+                    startLookAt: new THREE.Vector3()
+                };
+                
+                // Enhanced galaxy targets for auto navigation
+                this.galaxyTargets = [
+                    { position: [0, 200, 800], lookAt: [0, 0, 0], name: "Galaxy Core" },
+                    { position: [500, -300, 600], lookAt: [-200, 100, -300], name: "Spiral Arms" },
+                    { position: [300, 400, -1400], lookAt: [0, 0, -2200], name: "Outer Nebula" },
+                    { position: [-400, 200, -1800], lookAt: [200, -100, -2400], name: "Deep Space" },
+                    { position: [1800, 600, -300], lookAt: [1800, 0, -800], name: "Dwarf Galaxy" },
+                    { position: [0, 1500, 0], lookAt: [0, 0, -1000], name: "Binary System" },
+                    { position: [-1200, -800, -500], lookAt: [-800, -400, -800], name: "Star Cluster" },
+                    { position: [2500, 0, -1500], lookAt: [1500, 0, -1000], name: "Void Region" }
+                ];
+                
+                this.init();
+                this.animate();
+                this.setupEventListeners();
+                this.setNavigationMode('auto');
+                this.updateInfoPanel();
+                
+                window.neuralGenesis = this;
+            }
+            
+            init() {
+                this.scene = new THREE.Scene();
+                this.scene.fog = new THREE.Fog(0x000000, 50, 3000);
+                
+                this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 6000);
+                this.camera.position.z = 400;
+                
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true, 
+                    alpha: true,
+                    powerPreference: "high-performance"
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.setClearColor(0x000000, 1);
+                document.getElementById('canvas-container').appendChild(this.renderer.domElement);
+                
+                this.createEnhancedGalaxySystem();
+            }
+            
+            createEnhancedGalaxySystem() {
+                const particleCount = 45000;
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+                const sizes = new Float32Array(particleCount);
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const i3 = i * 3;
+                    
+                    // Enhanced galaxy distribution with 6 major systems
+                    if (i < particleCount * 0.35) {
+                        // Main spiral galaxy - enhanced spiral structure
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = 200 + Math.pow(Math.random(), 0.4) * 1200;
+                        const spiral = radius * 0.004;
+                        const armOffset = Math.floor(Math.random() * 4) * Math.PI * 0.5;
+                        const height = (Math.random() - 0.5) * (300 - radius * 0.1);
+                        
+                        positions[i3] = Math.cos(angle + spiral + armOffset) * radius;
+                        positions[i3 + 1] = height;
+                        positions[i3 + 2] = Math.sin(angle + spiral + armOffset) * radius;
+                        
+                        // Orange/amber core with red outer regions
+                        const coreDistance = radius / 1200;
+                        colors[i3] = 1.0;
+                        colors[i3 + 1] = 0.4 + (1 - coreDistance) * 0.4;
+                        colors[i3 + 2] = coreDistance * 0.2;
+                        
+                    } else if (i < particleCount * 0.55) {
+                        // Background galaxy - blue spherical
+                        const radius = Math.pow(Math.random(), 0.7) * 1800;
+                        const theta = Math.random() * Math.PI * 2;
+                        const phi = Math.acos(2 * Math.random() - 1);
+                        
+                        positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+                        positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                        positions[i3 + 2] = radius * Math.cos(phi) - 2500;
+                        
+                        colors[i3] = 0.1;
+                        colors[i3 + 1] = 0.4;
+                        colors[i3 + 2] = 1.0;
+                        
+                    } else if (i < particleCount * 0.7) {
+                        // Side elliptical galaxy - green
+                        const radius = Math.pow(Math.random(), 1.3) * 900;
+                        const theta = Math.random() * Math.PI * 2;
+                        const phi = Math.acos(2 * Math.random() - 1);
+                        
+                        positions[i3] = radius * Math.sin(phi) * Math.cos(theta) * 1.5 + 1800;
+                        positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta) * 0.6;
+                        positions[i3 + 2] = radius * Math.cos(phi) - 1000;
+                        
+                        colors[i3] = 0.0;
+                        colors[i3 + 1] = 1.0;
+                        colors[i3 + 2] = 0.4;
+                        
+                    } else if (i < particleCount * 0.82) {
+                        // Dwarf galaxy - purple/violet
+                        const radius = Math.pow(Math.random(), 2.0) * 400;
+                        const theta = Math.random() * Math.PI * 2;
+                        const phi = Math.acos(2 * Math.random() - 1);
+                        
+                        positions[i3] = radius * Math.sin(phi) * Math.cos(theta) - 1500;
+                        positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta) + 1200;
+                        positions[i3 + 2] = radius * Math.cos(phi) - 600;
+                        
+                        colors[i3] = 0.8;
+                        colors[i3 + 1] = 0.2;
+                        colors[i3 + 2] = 1.0;
+                        
+                    } else if (i < particleCount * 0.93) {
+                        // Ring galaxy - cyan/white
+                        const innerRadius = 400 + Math.random() * 200;
+                        const outerRadius = innerRadius + 300;
+                        const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
+                        const angle = Math.random() * Math.PI * 2;
+                        const height = (Math.random() - 0.5) * 100;
+                        
+                        positions[i3] = Math.cos(angle) * radius + 2200;
+                        positions[i3 + 1] = height;
+                        positions[i3 + 2] = Math.sin(angle) * radius - 1600;
+                        
+                        colors[i3] = 0.6;
+                        colors[i3 + 1] = 1.0;
+                        colors[i3 + 2] = 1.0;
+                        
+                    } else {
+                        // Scattered field stars - white/yellow
+                        const x = (Math.random() - 0.5) * 8000;
+                        const y = (Math.random() - 0.5) * 4000;
+                        const z = (Math.random() - 0.5) * 6000;
+                        
+                        positions[i3] = x;
+                        positions[i3 + 1] = y;
+                        positions[i3 + 2] = z;
+                        
+                        colors[i3] = 1.0;
+                        colors[i3 + 1] = 1.0;
+                        colors[i3 + 2] = 0.8;
+                    }
+                    
+                    sizes[i] = Math.random() * 4 + 1;
+                }
+                
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+                
+                const material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        time: { value: 0 },
+                        cameraPosition: { value: this.camera.position }
+                    },
+                    vertexShader: `
+                        attribute float size;
+                        attribute vec3 color;
+                        varying vec3 vColor;
+                        varying float vDistance;
+                        uniform float time;
+                        uniform vec3 cameraPosition;
+                        
+                        void main() {
+                            vColor = color;
+                            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                            
+                            float dist = distance(position, cameraPosition);
+                            vDistance = dist;
+                            
+                            float pulse = sin(time * 3.0 + position.x * 0.01 + position.z * 0.01) * 0.3 + 1.0;
+                            float depthScale = 1.0 / (1.0 + dist * 0.0005);
+                            
+                            gl_PointSize = size * pulse * depthScale * (300.0 / -mvPosition.z);
+                            gl_Position = projectionMatrix * mvPosition;
+                        }
+                    `,
+                    fragmentShader: `
+                        varying vec3 vColor;
+                        varying float vDistance;
+                        
+                        void main() {
+                            vec2 center = gl_PointCoord - 0.5;
+                            float dist = length(center);
+                            
+                            if (dist > 0.5) discard;
+                            
+                            float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+                            float glow = 1.0 - smoothstep(0.0, 0.3, dist);
+                            float brightness = 1.0 / (1.0 + vDistance * 0.001);
+                            
+                            vec3 finalColor = vColor + glow * 0.6;
+                            gl_FragColor = vec4(finalColor, alpha * brightness * 0.9);
+                        }
+                    `,
+                    blending: THREE.AdditiveBlending,
+                    depthTest: false,
+                    transparent: true,
+                    vertexColors: true
+                });
+                
+                this.particles = new THREE.Points(geometry, material);
+                this.scene.add(this.particles);
+            }
+            
+            setNavigationMode(mode) {
+                this.navigationMode = mode;
+                
+                document.getElementById('free-movement').classList.remove('active');
+                document.getElementById('auto-navigation').classList.remove('active');
+                
+                if (mode === 'free') {
+                    document.getElementById('free-movement').classList.add('active');
+                    this.autoNavigation.enabled = false;
+                    document.getElementById('current-target').textContent = 'Free Movement';
+                } else if (mode === 'auto') {
+                    document.getElementById('auto-navigation').classList.add('active');
+                    this.autoNavigation.enabled = true;
+                    this.startAutoNavigation();
+                }
+            }
+            
+            jumpToTarget(targetIndex) {
+                if (targetIndex >= 0 && targetIndex < this.galaxyTargets.length) {
+                    this.setNavigationMode('free');
+                    const target = this.galaxyTargets[targetIndex];
+                    
+                    // Smooth transition to target
+                    const startPos = this.camera.position.clone();
+                    const targetPos = new THREE.Vector3(target.position[0], target.position[1], target.position[2]);
+                    const targetLook = new THREE.Vector3(target.lookAt[0], target.lookAt[1], target.lookAt[2]);
+                    
+                    const duration = 2000;
+                    const startTime = Date.now();
+                    
+                    const animateJump = () => {
+                        const elapsed = Date.now() - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easedProgress = this.easeInOutCubic(progress);
+                        
+                        this.camera.position.lerpVectors(startPos, targetPos, easedProgress);
+                        this.camera.lookAt(targetLook);
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(animateJump);
+                        }
+                    };
+                    
+                    animateJump();
+                    document.getElementById('current-target').textContent = target.name;
+                }
+            }
+            
+            resetCamera() {
+                this.camera.position.set(0, 0, 400);
+                this.camera.lookAt(0, 0, 0);
+                this.cameraRotationX = 0;
+                this.cameraRotationY = 0;
+                this.cameraVelocity.set(0, 0, 0);
+                document.getElementById('current-target').textContent = 'Reset View';
+            }
+            
+            startAutoNavigation() {
+                this.autoNavigation.currentTarget = 0;
+                this.autoNavigation.transitionProgress = 0;
+                this.autoNavigation.isPausing = false;
+                
+                this.autoNavigation.startPosition.copy(this.camera.position);
+                this.autoNavigation.startLookAt.set(0, 0, 0);
+                
+                const target = this.galaxyTargets[this.autoNavigation.currentTarget];
+                this.autoNavigation.targetPosition.set(target.position[0], target.position[1], target.position[2]);
+                this.autoNavigation.targetLookAt.set(target.lookAt[0], target.lookAt[1], target.lookAt[2]);
+                
+                document.getElementById('current-target').textContent = target.name;
+            }
+            
+            updateAutoNavigation() {
+                if (!this.autoNavigation.enabled) return;
+                
+                const currentTime = performance.now();
+                
+                if (this.autoNavigation.isPausing) {
+                    if (currentTime - this.autoNavigation.pauseStart > this.autoNavigation.pauseDuration) {
+                        this.autoNavigation.isPausing = false;
+                        this.autoNavigation.transitionProgress = 0;
+                        
+                        this.autoNavigation.currentTarget = (this.autoNavigation.currentTarget + 1) % this.galaxyTargets.length;
+                        
+                        this.autoNavigation.startPosition.copy(this.camera.position);
+                        this.autoNavigation.startLookAt.copy(this.autoNavigation.targetLookAt);
+                        
+                        const target = this.galaxyTargets[this.autoNavigation.currentTarget];
+                        this.autoNavigation.targetPosition.set(
+                            target.position[0] + (Math.random() - 0.5) * 500,
+                            target.position[1] + (Math.random() - 0.5) * 400,
+                            target.position[2] + (Math.random() - 0.5) * 500
+                        );
+                        this.autoNavigation.targetLookAt.set(target.lookAt[0], target.lookAt[1], target.lookAt[2]);
+                        
+                        document.getElementById('current-target').textContent = target.name;
+                    }
+                } else {
+                    this.autoNavigation.transitionProgress += 16;
+                    
+                    if (this.autoNavigation.transitionProgress >= this.autoNavigation.transitionDuration) {
+                        this.autoNavigation.isPausing = true;
+                        this.autoNavigation.pauseStart = currentTime;
+                        this.autoNavigation.transitionProgress = this.autoNavigation.transitionDuration;
+                    }
+                    
+                    const progress = this.autoNavigation.transitionProgress / this.autoNavigation.transitionDuration;
+                    const easedProgress = this.easeInOutCubic(progress);
+                    
+                    this.camera.position.lerpVectors(
+                        this.autoNavigation.startPosition,
+                        this.autoNavigation.targetPosition,
+                        easedProgress
+                    );
+                    
+                    const currentLookAt = new THREE.Vector3().lerpVectors(
+                        this.autoNavigation.startLookAt,
+                        this.autoNavigation.targetLookAt,
+                        easedProgress
+                    );
+                    
+                    this.camera.lookAt(currentLookAt);
+                }
+            }
+            
+            updateInfoPanel() {
+                const pos = this.camera.position;
+                document.getElementById('camera-position').textContent = 
+                    `${Math.round(pos.x)}, ${Math.round(pos.y)}, ${Math.round(pos.z)}`;
+                document.getElementById('camera-speed').textContent = this.cameraSpeed;
+            }
+            
+            easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
+            
+            setupEventListeners() {
+                window.addEventListener('resize', () => this.onWindowResize());
+                window.addEventListener('mousemove', (event) => this.onMouseMove(event));
+                window.addEventListener('keydown', (event) => this.onKeyDown(event));
+                window.addEventListener('keyup', (event) => this.onKeyUp(event));
+                window.addEventListener('wheel', (event) => this.onMouseWheel(event));
+                window.addEventListener('mousedown', (event) => this.onMouseDown(event));
+                window.addEventListener('mouseup', (event) => this.onMouseUp(event));
+                window.addEventListener('contextmenu', (event) => event.preventDefault());
+            }
+            
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            
+            onMouseMove(event) {
+                if (!this.isDragging) {
+                    this.mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                    this.mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+                }
+                
+                if (this.isDragging && this.navigationMode === 'free') {
+                    const deltaX = event.clientX - this.lastMouseX;
+                    const deltaY = event.clientY - this.lastMouseY;
+                    
+                    this.cameraRotationY -= deltaX * 0.005;
+                    this.cameraRotationX -= deltaY * 0.005;
+                    
+                    this.cameraRotationX = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.cameraRotationX));
+                    
+                    this.lastMouseX = event.clientX;
+                    this.lastMouseY = event.clientY;
+                }
+            }
+            
+            onKeyDown(event) {
+                if (event.code === 'Escape') {
+                    toggleControlsHelp();
+                    return;
+                }
+                
+                if (this.navigationMode === 'auto') return;
+                this.keys[event.code] = true;
+                if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'Space', 'ShiftLeft'].includes(event.code)) {
+                    event.preventDefault();
+                }
+            }
+            
+            onKeyUp(event) {
+                if (this.navigationMode === 'auto') return;
+                this.keys[event.code] = false;
+            }
+            
+            onMouseWheel(event) {
+                if (this.navigationMode === 'auto') return;
+                event.preventDefault();
+                const zoomSpeed = 15;
+                const direction = new THREE.Vector3();
+                this.camera.getWorldDirection(direction);
+                
+                if (event.deltaY < 0) {
+                    this.camera.position.addScaledVector(direction, zoomSpeed);
+                } else {
+                    this.camera.position.addScaledVector(direction, -zoomSpeed);
+                }
+            }
+            
+            onMouseDown(event) {
+                if (this.navigationMode === 'auto') return;
+                if (event.button === 0) {
+                    this.isDragging = true;
+                    this.lastMouseX = event.clientX;
+                    this.lastMouseY = event.clientY;
+                }
+            }
+            
+            onMouseUp(event) {
+                if (event.button === 0) {
+                    this.isDragging = false;
+                }
+            }
+            
+            updateCameraControls() {
+                if (this.navigationMode === 'auto') {
+                    this.updateAutoNavigation();
+                    return;
+                }
+                
+                const moveSpeed = this.cameraSpeed;
+                const direction = new THREE.Vector3();
+                const right = new THREE.Vector3();
+                const up = new THREE.Vector3(0, 1, 0);
+                
+                this.camera.getWorldDirection(direction);
+                right.crossVectors(direction, up).normalize();
+                
+                if (this.keys['KeyW']) this.cameraVelocity.addScaledVector(direction, moveSpeed);
+                if (this.keys['KeyS']) this.cameraVelocity.addScaledVector(direction, -moveSpeed);
+                if (this.keys['KeyA']) this.cameraVelocity.addScaledVector(right, -moveSpeed);
+                if (this.keys['KeyD']) this.cameraVelocity.addScaledVector(right, moveSpeed);
+                if (this.keys['KeyQ'] || this.keys['Space']) this.cameraVelocity.y += moveSpeed;
+                if (this.keys['KeyE'] || this.keys['ShiftLeft']) this.cameraVelocity.y -= moveSpeed;
+                
+                this.camera.position.add(this.cameraVelocity);
+                this.cameraVelocity.multiplyScalar(this.cameraDamping);
+                
+                this.camera.rotation.order = 'YXZ';
+                this.camera.rotation.y = this.cameraRotationY;
+                this.camera.rotation.x = this.cameraRotationX;
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                this.time += 0.01;
+                
+                if (this.particles && this.particles.material.uniforms) {
+                    this.particles.material.uniforms.time.value = this.time;
+                    this.particles.material.uniforms.cameraPosition.value = this.camera.position;
+                }
+                
+                this.updateCameraControls();
+                this.updateInfoPanel();
+                
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+        
+        // UI Control Functions
+        function toggleControlsHelp() {
+            const helpPanel = document.getElementById('controls-help');
+            helpPanel.style.display = helpPanel.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        // Audio control functions
+        let audioInitialized = false;
+        let audioPlaying = false;
+        
+        function initializeAudio() {
+            const audio = document.getElementById('background-music');
+            const audioStatus = document.getElementById('audio-status');
+            
+            if (!audio) return;
+            
+            audio.play().then(() => {
+                audioPlaying = true;
+                audioStatus.textContent = 'Music Playing';
+                audioInitialized = true;
+            }).catch(() => {
+                audioStatus.textContent = 'Click to Start Music';
+            });
+            
+            audio.addEventListener('canplaythrough', () => {
+                console.log('Audio loaded and ready to play');
+            });
+            
+            audio.addEventListener('error', (e) => {
+                audioStatus.textContent = 'Audio Error';
+                console.log('Audio error:', e);
+            });
+        }
+        
+        function toggleAudio() {
+            const audio = document.getElementById('background-music');
+            const audioStatus = document.getElementById('audio-status');
+            
+            if (!audio) return;
+            
+            if (audioPlaying) {
+                audio.pause();
+                audioPlaying = false;
+                audioStatus.textContent = 'Music Paused - Click to Resume';
+            } else {
+                audio.play().then(() => {
+                    audioPlaying = true;
+                    audioStatus.textContent = 'Music Playing';
+                    audioInitialized = true;
+                }).catch((e) => {
+                    audioStatus.textContent = 'Audio Error';
+                    console.log('Audio play error:', e);
+                });
+            }
+        }
+        
+        // Initialize everything when page loads
+        window.addEventListener('load', () => {
+            new NeuralGenesis();
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                window.audioContext = audioContext;
+            } catch (e) {
+                console.log('Audio context not available');
+            }
+            
+            initializeAudio();
+        });
+        
+        // Handle page visibility changes for audio
+        document.addEventListener('visibilitychange', () => {
+            const audio = document.getElementById('background-music');
+            if (!audio || !audioInitialized) return;
+            
+            if (document.visibilityState === 'hidden') {
+                if (audioPlaying) {
+                    audio.pause();
+                }
+            } else {
+                if (audioPlaying) {
+                    audio.play().catch(console.log);
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

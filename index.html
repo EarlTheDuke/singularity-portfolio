@@ -76,7 +76,43 @@
             overflow: hidden;
         }
 
+        #galaxy-explorer-canvas {
+            position: fixed;
+            top: 170px;
+            right: 20px;
+            width: 75px;
+            height: 75px;
+            z-index: 5;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        #galaxy-explorer-canvas:hover {
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            transform: scale(1.02);
+        }
+
         .holographic-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(0, 204, 102, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at center, rgba(0, 0, 0, 0.8) 0%, #000000 100%);
+        }
+
+        .galaxy-container {
             position: relative;
             width: 100%;
             height: 100%;
@@ -851,6 +887,13 @@
                 right: 10px;
             }
 
+            #galaxy-explorer-canvas {
+                width: 50px;
+                height: 50px;
+                top: 130px;
+                right: 10px;
+            }
+
             .holo-chamber {
                 width: 45px;
                 height: 45px;
@@ -859,6 +902,21 @@
             .neural-brain {
                 width: 40px;
                 height: 40px;
+            }
+
+            .galaxy-explorer {
+                width: 40px;
+                height: 40px;
+            }
+
+            .galaxy-core {
+                width: 8px;
+                height: 8px;
+            }
+
+            .galaxy-star {
+                width: 1.5px;
+                height: 1.5px;
             }
 
             .neural-core {
@@ -932,6 +990,13 @@
                 right: 10px;
             }
 
+            #galaxy-explorer-canvas {
+                width: 40px;
+                height: 40px;
+                top: 220px;
+                right: 10px;
+            }
+
             .holo-chamber {
                 width: 35px;
                 height: 35px;
@@ -988,6 +1053,21 @@
                 width: 12px;
                 height: 12px;
             }
+
+            .galaxy-explorer {
+                width: 32px;
+                height: 32px;
+            }
+
+            .galaxy-core {
+                width: 6px;
+                height: 6px;
+            }
+
+            .galaxy-star {
+                width: 1px;
+                height: 1px;
+            }
         }
 
         /* Very small phones - minimize displays */
@@ -1010,6 +1090,13 @@
                 width: 35px;
                 height: 35px;
                 top: 160px;
+                right: 5px;
+            }
+
+            #galaxy-explorer-canvas {
+                width: 35px;
+                height: 35px;
+                top: 205px;
                 right: 5px;
             }
 
@@ -1671,6 +1758,139 @@
                 opacity: 0;
             }
         }
+
+        @keyframes galaxyCorePulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.4);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes galaxyRingRotate {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        @keyframes galaxyStarTwinkle {
+            0%, 100% {
+                opacity: 0.4;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+
+        .galaxy-explorer {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            background: radial-gradient(circle at center, 
+                rgba(0, 255, 136, 0.1) 0%, 
+                rgba(0, 204, 102, 0.05) 50%, 
+                transparent 100%);
+        }
+
+        .galaxy-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, #00ff88, #00cc66);
+            box-shadow: 
+                0 0 15px #00ff88,
+                0 0 25px rgba(0, 255, 136, 0.5),
+                0 0 35px rgba(0, 255, 136, 0.3);
+            animation: galaxyCorePulse 3s ease-in-out infinite;
+        }
+
+        .galaxy-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            animation: galaxyRingRotate 20s linear infinite;
+        }
+
+        .galaxy-ring-1 {
+            width: 35px;
+            height: 35px;
+            animation-delay: 0s;
+        }
+
+        .galaxy-ring-2 {
+            width: 45px;
+            height: 45px;
+            animation-delay: -5s;
+        }
+
+        .galaxy-ring-3 {
+            width: 55px;
+            height: 55px;
+            animation-delay: -10s;
+        }
+
+        .galaxy-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background: rgba(0, 255, 136, 0.8);
+            box-shadow: 0 0 4px rgba(0, 255, 136, 0.6);
+            animation: galaxyStarTwinkle 4s ease-in-out infinite;
+        }
+
+        .galaxy-star-1 {
+            top: 20%;
+            left: 25%;
+            animation-delay: 0s;
+        }
+
+        .galaxy-star-2 {
+            top: 35%;
+            right: 20%;
+            animation-delay: 1s;
+        }
+
+        .galaxy-star-3 {
+            bottom: 25%;
+            right: 30%;
+            animation-delay: 2s;
+        }
+
+        .galaxy-star-4 {
+            bottom: 40%;
+            left: 20%;
+            animation-delay: 3s;
+        }
+
+        .galaxy-star-5 {
+            top: 40%;
+            left: 35%;
+            animation-delay: 0.5s;
+        }
+
+        .galaxy-star-6 {
+            top: 60%;
+            right: 40%;
+            animation-delay: 1.5s;
+        }
     </style>
 </head>
 <body>
@@ -1750,6 +1970,23 @@
             <div class="holo-projection-base"></div>
             <div class="holo-interference-layer"></div>
             <div class="holo-glitch-overlay"></div>
+        </div>
+    </div>
+    
+    <div id="galaxy-explorer-canvas">
+        <div class="galaxy-container">
+            <div class="galaxy-explorer">
+                <div class="galaxy-core"></div>
+                <div class="galaxy-ring galaxy-ring-1"></div>
+                <div class="galaxy-ring galaxy-ring-2"></div>
+                <div class="galaxy-ring galaxy-ring-3"></div>
+                <div class="galaxy-star galaxy-star-1"></div>
+                <div class="galaxy-star galaxy-star-2"></div>
+                <div class="galaxy-star galaxy-star-3"></div>
+                <div class="galaxy-star galaxy-star-4"></div>
+                <div class="galaxy-star galaxy-star-5"></div>
+                <div class="galaxy-star galaxy-star-6"></div>
+            </div>
         </div>
     </div>
     
@@ -2348,6 +2585,14 @@
             if (neuralGenesisCanvas) {
                 neuralGenesisCanvas.addEventListener('click', () => {
                     window.location.href = 'neural-genesis.html';
+                });
+            }
+
+            // Add click navigation to galaxy explorer
+            const galaxyExplorerCanvas = document.getElementById('galaxy-explorer-canvas');
+            if (galaxyExplorerCanvas) {
+                galaxyExplorerCanvas.addEventListener('click', () => {
+                    window.location.href = 'galaxy-explorer.html';
                 });
             }
         });
