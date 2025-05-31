@@ -3,21 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Evolution Timeline - The Singularity Test Site</title>
+    <title>Data Flow Visualization - The Singularity Test Site</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body, html {
-            height: 100%;
-            overflow: hidden;
-            background: #000;
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: #1a1a1a; 
             font-family: 'Arial', sans-serif;
-            cursor: none;
         }
+        canvas { display: block; }
         
         .back-button {
             position: fixed;
@@ -43,569 +38,161 @@
             box-shadow: 0 10px 25px rgba(0, 255, 136, 0.5);
         }
         
-        #canvas {
+        .info-panel {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: radial-gradient(circle at center, #1a0f0a 0%, #000000 100%);
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+            max-width: 250px;
         }
         
-        .era-info {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            color: #ff6b35;
-            font-size: 24px;
+        .info-title {
+            color: #00ff88;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 2s ease;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
         }
         
-        .era-subtitle {
-            font-size: 14px;
-            color: #ffaa80;
-            margin-top: 5px;
-            font-weight: normal;
-        }
-        
-        .progress-bar {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff6b35, #ff9f5a);
-            width: 0%;
-            transition: width 60s linear;
-            border-radius: 2px;
-        }
-        
-        /* Include all the original CSS animations and styles from the provided code */
-        .cave-wall {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse at 20% 30%, rgba(101, 67, 33, 0.4) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 60%, rgba(101, 67, 33, 0.3) 0%, transparent 40%),
-                linear-gradient(180deg, rgba(20, 15, 10, 0.8) 0%, rgba(40, 30, 20, 0.6) 100%);
-        }
-        
-        .fire {
-            position: absolute;
-            bottom: 15%;
-            left: 30%;
-            width: 120px;
-            height: 140px;
-        }
-        
-        .flame-core {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 60px;
-            background: 
-                linear-gradient(0deg, #ff0000 0%, #ff3300 20%, #ff6600 40%, #ff9900 60%, #ffcc00 80%, #ffff00 100%);
-            border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
-            animation: coreFlicker 1.2s ease-in-out infinite;
-        }
-        
-        .flame-outer {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 100px;
-            background: 
-                radial-gradient(ellipse 40% 70% at 50% 90%, rgba(255, 0, 0, 0.8) 0%, rgba(255, 102, 0, 0.6) 40%, rgba(255, 204, 0, 0.4) 70%, transparent 100%);
-            border-radius: 50% 50% 50% 50% / 20% 20% 80% 80%;
-            animation: outerFlicker 1s ease-in-out infinite alternate;
-        }
-        
-        /* Add all the keyframe animations and other styles from the original code... */
-        @keyframes coreFlicker {
-            0% { 
-                transform: translateX(-50%) scale(1) rotate(0deg);
-                height: 60px;
-            }
-            25% {
-                transform: translateX(-50%) scale(1.1) rotate(-2deg);
-                height: 65px;
-            }
-            50% {
-                transform: translateX(-50%) scale(0.95) rotate(1deg);
-                height: 55px;
-            }
-            75% {
-                transform: translateX(-50%) scale(1.05) rotate(-1deg);
-                height: 70px;
-            }
-            100% { 
-                transform: translateX(-50%) scale(1) rotate(0deg);
-                height: 60px;
-            }
-        }
-        
-        @keyframes outerFlicker {
-            0% { 
-                transform: translateX(-50%) scale(1) rotate(0deg);
-                opacity: 0.8;
-            }
-            50% {
-                transform: translateX(-50%) scale(1.15) rotate(2deg);
-                opacity: 0.6;
-            }
-            100% { 
-                transform: translateX(-50%) scale(1.05) rotate(-1deg);
-                opacity: 0.9;
-            }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes sparkFly {
-            0% {
-                transform: translate(0, 0) scale(1) rotate(0deg);
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.8;
-            }
-            100% {
-                transform: translate(var(--spark-x, 20px), var(--spark-y, -60px)) scale(0) rotate(360deg);
-                opacity: 0;
-            }
-        }
-        
-        /* Add remaining styles and animations here... */
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #ff6b35;
-            border-radius: 50%;
-            pointer-events: none;
+        .info-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
     <a href="index.html" class="back-button">← Back to Main</a>
     
-    <canvas id="canvas"></canvas>
-    
-    <div class="era-info" id="eraInfo">
-        <div>Dawn of Tools</div>
-        <div class="era-subtitle">The first spark of human innovation</div>
-    </div>
-    
-    <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
-    
-    <!-- Cave Environment -->
-    <div class="cave-wall"></div>
-    
-    <!-- Fire -->
-    <div class="fire">
-        <div class="flame-core"></div>
-        <div class="flame-outer"></div>
-        <div class="sparks" id="sparks"></div>
+    <div class="info-panel">
+        <div class="info-title">Data Flow Visualization</div>
+        <div class="info-text">Interactive network visualization showing data particles flowing through connected nodes. Move your mouse to attract particles and observe the emergent patterns.</div>
     </div>
 
     <script>
-        // Complete Evolution Timeline class with full era transitions
-        class EvolutionTimeline {
-            constructor() {
-                this.canvas = document.getElementById('canvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.particles = [];
-                this.currentEra = 0;
-                this.eraDuration = 60000; // 60 seconds per era
-                this.eras = [
-                    {
-                        name: "Dawn of Tools",
-                        subtitle: "The first spark of human innovation",
-                        setup: () => this.setupPrimitiveEra(),
-                        cleanup: () => this.cleanupPrimitiveEra()
-                    },
-                    {
-                        name: "Industrial Revolution", 
-                        subtitle: "Steam, steel, and the birth of machinery",
-                        setup: () => this.setupIndustrialEra(),
-                        cleanup: () => this.cleanupIndustrialEra()
-                    },
-                    {
-                        name: "Computing Dawn",
-                        subtitle: "Electronic brains and digital dreams",
-                        setup: () => this.setupComputingEra(),
-                        cleanup: () => this.cleanupComputingEra()
-                    },
-                    {
-                        name: "Internet Age",
-                        subtitle: "Connecting the world in a web of information",
-                        setup: () => this.setupInternetEra(),
-                        cleanup: () => this.cleanupInternetEra()
-                    },
-                    {
-                        name: "AI Consciousness",
-                        subtitle: "The emergence of artificial intelligence",
-                        setup: () => this.setupAIEra(),
-                        cleanup: () => this.cleanupAIEra()
-                    }
-                ];
-                
-                this.initCanvas();
-                this.createSparks();
-                this.startTimeline();
-                this.animate();
-                
-                setTimeout(() => {
-                    document.getElementById('eraInfo').style.opacity = '1';
-                }, 1000);
-            }
-            
-            initCanvas() {
-                this.resizeCanvas();
-                window.addEventListener('resize', () => this.resizeCanvas());
-            }
-            
-            resizeCanvas() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-            }
-            
-            setupPrimitiveEra() {
-                // Primitive era elements are already in HTML (cave, fire)
-                document.body.style.background = 'radial-gradient(circle at center, #1a0f0a 0%, #000000 100%)';
-            }
-            
-            cleanupPrimitiveEra() {
-                // Hide primitive era elements
-                document.querySelector('.cave-wall').style.opacity = '0';
-                document.querySelector('.fire').style.opacity = '0';
-            }
-            
-            setupIndustrialEra() {
-                document.body.style.background = 'radial-gradient(circle at center, #2a2a2a 0%, #000000 100%)';
-                
-                // Create factory elements
-                const factory = document.createElement('div');
-                factory.className = 'era-element industrial-backdrop';
-                factory.style.cssText = `
-                    position: absolute; width: 100%; height: 100%;
-                    background: linear-gradient(180deg, rgba(40,40,40,0.8) 0%, rgba(80,70,60,0.4) 100%);
-                    opacity: 0; animation: fadeIn 3s ease forwards;
-                `;
-                document.body.appendChild(factory);
-                
-                // Create steam engine
-                const engine = document.createElement('div');
-                engine.className = 'era-element steam-engine';
-                engine.style.cssText = `
-                    position: absolute; left: 20%; bottom: 20%; width: 200px; height: 120px;
-                    background: linear-gradient(45deg, #4a4a4a 0%, #6a6a6a 50%, #4a4a4a 100%);
-                    border-radius: 20px; opacity: 0; animation: fadeIn 3s ease forwards 1s;
-                    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-                `;
-                engine.innerHTML = `
-                    <div style="position: absolute; top: 20px; left: 30px; width: 80px; height: 40px;
-                        background: linear-gradient(90deg, #333 0%, #555 50%, #333 100%); 
-                        border-radius: 20px; border: 2px solid #777;"></div>
-                `;
-                document.body.appendChild(engine);
-                
-                // Create gears
-                for(let i = 0; i < 3; i++) {
-                    const gear = document.createElement('div');
-                    gear.className = 'era-element gear';
-                    gear.style.cssText = `
-                        position: absolute; right: ${15 + i * 15}%; top: ${30 + i * 20}%;
-                        width: ${60 + i * 20}px; height: ${60 + i * 20}px;
-                        background: radial-gradient(circle, #666 30%, #888 50%, #444 70%);
-                        border-radius: 50%; opacity: 0; border: 3px solid #999;
-                        animation: fadeIn 2s ease forwards ${2 + i * 0.5}s, spin ${8 - i * 2}s linear infinite ${3 + i * 0.5}s;
-                    `;
-                    document.body.appendChild(gear);
+    let nodes = [];
+    let edges = [];
+    let flowField = [];
+    let particles = [];
+    const gridSize = 50;
+    let cellWidth, cellHeight;
+    const numNodes = 50;
+    const numParticles = 200;
+    const speed = 1;
+    const mouseThreshold = 100;
+    const attractionStrength = 0.1;
+
+    function setup() {
+        createCanvas(windowWidth, windowHeight);
+        cellWidth = width / gridSize;
+        cellHeight = height / gridSize;
+
+        // Generate nodes
+        for (let i = 0; i < numNodes; i++) {
+            nodes.push(createVector(random(width), random(height)));
+        }
+
+        // Generate edges (connect to 3 nearest neighbors)
+        for (let i = 0; i < nodes.length; i++) {
+            let distances = nodes.map((n, j) => ({ dist: p5.Vector.dist(nodes[i], n), idx: j }));
+            distances.sort((a, b) => a.dist - b.dist);
+            for (let j = 1; j <= 3 && j < distances.length; j++) {
+                let n1 = i, n2 = distances[j].idx;
+                if (!edges.some(e => (e.n1 === n1 && e.n2 === n2) || (e.n1 === n2 && e.n2 === n1))) {
+                    edges.push({ n1, n2, dir: p5.Vector.sub(nodes[n2], nodes[n1]).normalize() });
                 }
-            }
-            
-            cleanupIndustrialEra() {
-                document.querySelectorAll('.era-element').forEach(el => el.remove());
-            }
-            
-            setupComputingEra() {
-                document.body.style.background = 'radial-gradient(circle at center, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
-                
-                // Create mainframe
-                const mainframe = document.createElement('div');
-                mainframe.className = 'era-element mainframe';
-                mainframe.style.cssText = `
-                    position: absolute; left: 15%; bottom: 15%; width: 300px; height: 200px;
-                    background: linear-gradient(145deg, #2c2c54 0%, #40407a 50%, #2c2c54 100%);
-                    border-radius: 10px; opacity: 0; animation: fadeIn 3s ease forwards 0.5s;
-                    border: 3px solid #6c5ce7; box-shadow: 0 0 20px rgba(108, 92, 231, 0.3);
-                `;
-                mainframe.innerHTML = `
-                    <div style="position: absolute; top: 20px; left: 20px; width: 120px; height: 80px;
-                        background: linear-gradient(135deg, #0f0f0f 0%, #2d3436 100%); border: 2px solid #00b894;
-                        border-radius: 5px; display: flex; flex-wrap: wrap; padding: 5px; gap: 3px;">
-                        ${Array(24).fill().map(() => '<div style="width: 12px; height: 8px; background: #00b894; border-radius: 1px;"></div>').join('')}
-                    </div>
-                `;
-                document.body.appendChild(mainframe);
-                
-                // Create vacuum tubes
-                for(let i = 0; i < 6; i++) {
-                    const tube = document.createElement('div');
-                    tube.className = 'era-element vacuum-tube';
-                    tube.style.cssText = `
-                        position: absolute; right: ${10 + (i % 3) * 25}%; top: ${20 + Math.floor(i / 3) * 30}%;
-                        width: 40px; height: 80px; border-radius: 20px 20px 8px 8px; border: 2px solid #cd7f32;
-                        background: linear-gradient(180deg, rgba(255,165,0,0.8) 0%, rgba(139,69,19,0.8) 100%);
-                        opacity: 0; animation: fadeIn 2s ease forwards ${1 + i * 0.3}s, glow 2s ease-in-out infinite alternate;
-                        box-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
-                    `;
-                    document.body.appendChild(tube);
-                }
-            }
-            
-            cleanupComputingEra() {
-                document.querySelectorAll('.era-element').forEach(el => el.remove());
-            }
-            
-            setupInternetEra() {
-                document.body.style.background = 'radial-gradient(circle at center, #0a0a0a 0%, #1a1a2e 30%, #16213e 70%, #0f3460 100%)';
-                
-                // Create network nodes
-                const nodePositions = [
-                    {x: 15, y: 20}, {x: 85, y: 25}, {x: 25, y: 60}, 
-                    {x: 75, y: 70}, {x: 45, y: 35}, {x: 60, y: 50}
-                ];
-                
-                nodePositions.forEach((pos, i) => {
-                    const node = document.createElement('div');
-                    node.className = 'era-element network-node';
-                    node.style.cssText = `
-                        position: absolute; left: ${pos.x}%; top: ${pos.y}%; width: 20px; height: 20px;
-                        background: radial-gradient(circle, #00cec9 0%, #0984e3 100%); border-radius: 50%;
-                        opacity: 0; animation: fadeIn 2s ease forwards ${i * 0.3}s, pulse 2s ease-in-out infinite alternate;
-                        box-shadow: 0 0 15px rgba(0, 206, 201, 0.6); border: 2px solid #74b9ff;
-                    `;
-                    document.body.appendChild(node);
-                });
-                
-                // Create browser windows
-                const sites = [
-                    {name: 'Yahoo!', color: '#e17055', x: 60, y: 20},
-                    {name: 'AOL', color: '#0984e3', x: 15, y: 40}
-                ];
-                
-                sites.forEach((site, i) => {
-                    const browser = document.createElement('div');
-                    browser.className = 'era-element browser-window';
-                    browser.style.cssText = `
-                        position: absolute; left: ${site.x}%; top: ${site.y}%; width: 150px; height: 100px;
-                        background: linear-gradient(180deg, #ddd 0%, #f0f0f0 20%, #fff 100%);
-                        border-radius: 6px 6px 0 0; opacity: 0; border: 2px solid #636e72;
-                        animation: fadeIn 2s ease forwards ${2 + i * 0.4}s; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                    `;
-                    browser.innerHTML = `
-                        <div style="height: 20px; background: ${site.color}; color: white; font-size: 10px; 
-                            font-weight: bold; display: flex; align-items: center; padding: 0 8px;">${site.name}</div>
-                        <div style="padding: 4px; font-size: 6px; line-height: 8px;">
-                            Welcome to the World Wide Web!<br>
-                            <span style="color: blue;">Click here to browse</span>
-                        </div>
-                    `;
-                    document.body.appendChild(browser);
-                });
-            }
-            
-            cleanupInternetEra() {
-                document.querySelectorAll('.era-element').forEach(el => el.remove());
-            }
-            
-            setupAIEra() {
-                document.body.style.background = `
-                    radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.3) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 70%, rgba(75, 0, 130, 0.3) 0%, transparent 50%),
-                    linear-gradient(135deg, #000000 0%, #1a1a1a 100%)
-                `;
-                
-                // Create neural network
-                const network = document.createElement('div');
-                network.className = 'era-element neural-network';
-                network.style.cssText = `
-                    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
-                `;
-                document.body.appendChild(network);
-                
-                // Create neurons
-                for(let layer = 0; layer < 4; layer++) {
-                    const neuronsInLayer = layer === 0 || layer === 3 ? 6 : 8;
-                    for(let i = 0; i < neuronsInLayer; i++) {
-                        const neuron = document.createElement('div');
-                        neuron.className = 'era-element neuron';
-                        neuron.style.cssText = `
-                            position: absolute; left: ${20 + layer * 20}%; top: ${20 + (i * (60 / neuronsInLayer))}%;
-                            width: 12px; height: 12px; border-radius: 50%;
-                            background: radial-gradient(circle, #ff6b9d 0%, #c44569 100%);
-                            opacity: 0; animation: fadeIn 1s ease forwards ${layer * 0.5 + i * 0.1}s, pulse 2s ease-in-out infinite;
-                            box-shadow: 0 0 15px rgba(255, 107, 157, 0.6);
-                        `;
-                        network.appendChild(neuron);
-                    }
-                }
-                
-                // Create digital brain
-                const brain = document.createElement('div');
-                brain.className = 'era-element digital-brain';
-                brain.style.cssText = `
-                    position: absolute; right: 15%; top: 30%; width: 150px; height: 120px;
-                    opacity: 0; animation: fadeIn 3s ease forwards 3s, pulse 4s ease-in-out infinite;
-                `;
-                brain.innerHTML = `
-                    <div style="position: absolute; left: 0; top: 0; width: 70px; height: 100px;
-                        background: radial-gradient(ellipse, rgba(138, 43, 226, 0.6) 0%, rgba(75, 0, 130, 0.8) 100%);
-                        border-radius: 50px 20px 30px 50px; border: 2px solid #ff6b9d;
-                        box-shadow: 0 0 25px rgba(138, 43, 226, 0.6);"></div>
-                    <div style="position: absolute; right: 0; top: 0; width: 70px; height: 100px;
-                        background: radial-gradient(ellipse, rgba(138, 43, 226, 0.6) 0%, rgba(75, 0, 130, 0.8) 100%);
-                        border-radius: 20px 50px 50px 30px; border: 2px solid #ff6b9d;
-                        box-shadow: 0 0 25px rgba(138, 43, 226, 0.6);"></div>
-                `;
-                document.body.appendChild(brain);
-                
-                // Create singularity point
-                const singularity = document.createElement('div');
-                singularity.className = 'era-element singularity-point';
-                singularity.style.cssText = `
-                    position: absolute; left: 50%; top: 50%; width: 20px; height: 20px;
-                    transform: translate(-50%, -50%); border-radius: 50%;
-                    background: radial-gradient(circle, #ffffff 0%, #ff6b9d 30%, #8a2be2 70%, #000000 100%);
-                    opacity: 0; animation: fadeIn 4s ease forwards 5s, pulse 2s ease-in-out infinite;
-                    box-shadow: 0 0 50px rgba(255, 255, 255, 0.8), 0 0 100px rgba(255, 107, 157, 0.6);
-                `;
-                document.body.appendChild(singularity);
-            }
-            
-            cleanupAIEra() {
-                document.querySelectorAll('.era-element').forEach(el => el.remove());
-            }
-            
-            createSparks() {
-                const sparksContainer = document.getElementById('sparks');
-                if (!sparksContainer) return;
-                
-                setInterval(() => {
-                    const spark = document.createElement('div');
-                    spark.className = 'particle';
-                    spark.style.left = Math.random() * 100 + 'px';
-                    spark.style.bottom = Math.random() * 20 + 'px';
-                    spark.style.animation = 'sparkFly 3s linear forwards';
-                    spark.style.setProperty('--spark-x', (Math.random() - 0.5) * 120 + 'px');
-                    spark.style.setProperty('--spark-y', -Math.random() * 150 - 60 + 'px');
-                    
-                    sparksContainer.appendChild(spark);
-                    
-                    setTimeout(() => {
-                        if (spark.parentNode) spark.remove();
-                    }, 3000);
-                }, 200);
-            }
-            
-            startTimeline() {
-                setTimeout(() => {
-                    document.getElementById('progressFill').style.width = '100%';
-                }, 500);
-                
-                setTimeout(() => {
-                    this.transitionToNextEra();
-                }, this.eraDuration);
-            }
-            
-            transitionToNextEra() {
-                // Cleanup current era
-                if (this.eras[this.currentEra]?.cleanup) {
-                    this.eras[this.currentEra].cleanup();
-                }
-                
-                // Move to next era
-                this.currentEra = (this.currentEra + 1) % this.eras.length;
-                const era = this.eras[this.currentEra];
-                
-                // Update era info
-                const eraInfo = document.getElementById('eraInfo');
-                eraInfo.innerHTML = `
-                    <div>${era.name}</div>
-                    <div class="era-subtitle">${era.subtitle}</div>
-                `;
-                
-                // Setup new era visuals
-                setTimeout(() => {
-                    era.setup();
-                }, 1000);
-                
-                // Reset progress bar
-                const progressFill = document.getElementById('progressFill');
-                progressFill.style.transition = 'none';
-                progressFill.style.width = '0%';
-                
-                setTimeout(() => {
-                    progressFill.style.transition = 'width 60s linear';
-                    progressFill.style.width = '100%';
-                }, 100);
-                
-                setTimeout(() => {
-                    this.transitionToNextEra();
-                }, this.eraDuration);
-            }
-            
-            animate() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                requestAnimationFrame(() => this.animate());
             }
         }
-        
-        // Add missing CSS animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
+
+        // Compute average edge length
+        let totalLength = 0;
+        edges.forEach(e => totalLength += p5.Vector.dist(nodes[e.n1], nodes[e.n2]));
+        let avgLength = totalLength / edges.length;
+        let sigma = avgLength * 2;
+
+        // Initialize flow field
+        for (let i = 0; i < gridSize; i++) {
+            flowField[i] = [];
+            for (let j = 0; j < gridSize; j++) {
+                let sumVector = createVector(0, 0);
+                let totalWeight = 0;
+                let cellX = (i + 0.5) * cellWidth;
+                let cellY = (j + 0.5) * cellHeight;
+                edges.forEach(e => {
+                    let p1 = nodes[e.n1];
+                    let p2 = nodes[e.n2];
+                    let dir = e.dir;
+                    let len = p5.Vector.dist(p1, p2);
+                    let proj = constrain(p5.Vector.dot(p5.Vector.sub(createVector(cellX, cellY), p1), dir), 0, len);
+                    let closest = p5.Vector.add(p1, p5.Vector.mult(dir, proj));
+                    let dist = p5.Vector.dist(createVector(cellX, cellY), closest);
+                    let weight = exp(-(dist * dist) / (sigma * sigma));
+                    sumVector.add(p5.Vector.mult(dir, weight));
+                    totalWeight += weight;
+                });
+                flowField[i][j] = totalWeight > 0 ? sumVector.div(totalWeight) : p5.Vector.random2D();
             }
-            @keyframes pulse {
-                0% { transform: scale(1); opacity: 0.8; }
-                100% { transform: scale(1.2); opacity: 1; }
+        }
+
+        // Initialize particles
+        for (let i = 0; i < numParticles; i++) {
+            particles.push(createVector(random(width), random(height)));
+        }
+    }
+
+    function draw() {
+        background(26, 26, 26, 10); // Dark gray with fading trails
+
+        // Draw edges
+        stroke(0, 77, 102, 76); // Dark neon blue, low opacity
+        strokeWeight(1);
+        edges.forEach(e => line(nodes[e.n1].x, nodes[e.n1].y, nodes[e.n2].x, nodes[e.n2].y));
+
+        // Draw nodes
+        fill(255, 204); // White, medium opacity
+        noStroke();
+        nodes.forEach(n => ellipse(n.x, n.y, 4, 4));
+
+        // Update and draw particles
+        fill(0, 204, 255, 178); // Light neon blue, higher opacity
+        noStroke();
+        particles.forEach(p => {
+            let i = constrain(floor(p.x / cellWidth), 0, gridSize - 2);
+            let j = constrain(floor(p.y / cellHeight), 0, gridSize - 2);
+            let dx = (p.x % cellWidth) / cellWidth;
+            let dy = (p.y % cellHeight) / cellHeight;
+            let v00 = flowField[i][j];
+            let v10 = flowField[i + 1][j];
+            let v01 = flowField[i][j + 1];
+            let v11 = flowField[i + 1][j + 1];
+            let v0 = p5.Vector.lerp(v00, v10, dx);
+            let v1 = p5.Vector.lerp(v01, v11, dx);
+            let flowDir = p5.Vector.lerp(v0, v1, dy);
+
+            let velocity = flowDir.copy().mult(speed);
+            let mouse = createVector(mouseX, mouseY);
+            let distToMouse = p5.Vector.dist(p, mouse);
+            if (distToMouse < mouseThreshold) {
+                let attract = p5.Vector.sub(mouse, p).normalize().mult(attractionStrength);
+                velocity.add(attract);
             }
-            @keyframes glow {
-                0% { box-shadow: 0 0 15px rgba(255, 140, 0, 0.5); }
-                100% { box-shadow: 0 0 25px rgba(255, 140, 0, 0.8); }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        window.addEventListener('load', () => {
-            new EvolutionTimeline();
+
+            p.add(velocity);
+            p.x = (p.x + width) % width;
+            p.y = (p.y + height) % height;
+            ellipse(p.x, p.y, 3, 3);
         });
+    }
+
+    function windowResized() {
+        resizeCanvas(windowWidth, windowHeight);
+        // Note: For a fully responsive flow field, recompute nodes, edges, and flowField here
+    }
     </script>
 </body>
 </html> 
