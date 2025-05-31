@@ -220,6 +220,21 @@
                 padding: 80px 15px 30px;
             }
         }
+        
+        .twitter-embed-container {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .twitter-embed-container .twitter-tweet {
+            margin: 0 !important;
+            max-width: 100% !important;
+        }
+        
+        /* Style the twitter embed to match our theme */
+        .twitter-tweet iframe {
+            border-radius: 8px !important;
+        }
     </style>
 </head>
 <body>
@@ -247,6 +262,32 @@
                     <div class="player-controls">
                         <a href="bard-times.mp4" class="download-btn" download>Download MP4</a>
                         <div class="file-info">Video file ready for download</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Twitter/X.com Video Track -->
+            <div class="track-card">
+                <div class="track-info">
+                    <div class="track-title">Latest Track Preview</div>
+                    <div class="track-details">Social Media • Twitter/X.com Video</div>
+                </div>
+                
+                <div class="audio-player">
+                    <div class="twitter-embed-container" style="max-height: 400px; overflow: hidden;">
+                        <blockquote class="twitter-tweet" data-theme="dark" data-width="100%">
+                            <p lang="en" dir="ltr">
+                                <a href="https://x.com/Jim49209892/status/1905464940347228319?ref_src=twsrc%5Etfw">
+                                    View this post on X
+                                </a>
+                            </p>
+                        </blockquote>
+                        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                    </div>
+                    
+                    <div class="player-controls">
+                        <a href="https://x.com/Jim49209892/status/1905464940347228319" class="download-btn" target="_blank">View on X/Twitter</a>
+                        <div class="file-info">Social media content</div>
                     </div>
                 </div>
             </div>
