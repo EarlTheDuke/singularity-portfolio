@@ -3,31 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Genesis - The Singularity Test Site</title>
+    <title>Data Flow Visualization - The Singularity Test Site</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: #1a1a1a; 
+            font-family: 'Arial', sans-serif;
         }
-        
-        body {
-            background: #000;
-            overflow: hidden;
-            font-family: 'Courier New', monospace;
-        }
-        
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-        }
-        
-        canvas {
-            display: block;
-        }
+        canvas { display: block; }
         
         .back-button {
             position: fixed;
@@ -47,7 +32,6 @@
             display: inline-block;
             backdrop-filter: blur(10px);
             opacity: 0.6;
-            font-family: 'Courier New', monospace;
         }
         
         .back-button:hover {
@@ -57,368 +41,167 @@
             border-color: rgba(0, 255, 136, 0.5);
         }
         
-        #navigation-toggle {
+        .info-panel {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 136, 0.2);
             border-radius: 8px;
-            padding: 15px;
-            color: #ffffff;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-            opacity: 0;
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            transform: translateX(10px);
+            padding: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            max-width: 200px;
+            opacity: 0.4;
+            transition: opacity 0.3s ease;
         }
         
-        #navigation-toggle:hover {
-            opacity: 1.0;
-            transform: translateX(0px);
+        .info-panel:hover {
+            opacity: 0.9;
         }
         
-        .nav-option {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            padding: 8px 12px;
-            margin: 3px 0;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-size: 10px;
+        .info-title {
+            color: rgba(0, 255, 136, 0.7);
+            font-weight: normal;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
         }
         
-        .nav-option:hover {
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
-        }
-        
-        .nav-option.active {
-            background: rgba(0, 255, 255, 0.4);
-            border-color: #00ffff;
-            box-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
-            color: #00ffff;
+        .info-text {
+            font-size: 0.7rem;
+            line-height: 1.3;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
     <a href="index.html" class="back-button">← Back to Main</a>
     
-    <div id="canvas-container"></div>
-    
-    <!-- Audio element for background music -->
-    <audio id="background-music" preload="auto">
-        <source src="Cosmic Groove.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-    
-    <!-- Audio control indicator -->
-    <div id="audio-indicator" style="position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 8px; padding: 10px; color: #ffffff; font-family: 'Courier New', monospace; font-size: 10px; z-index: 100; backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.4s ease, transform 0.4s ease; transform: translateX(10px); cursor: pointer;" onclick="toggleAudio()" onmouseover="this.style.opacity='1.0'; this.style.transform='translateX(0px)';" onmouseout="this.style.opacity='0'; this.style.transform='translateX(10px)';">
-        🎵 <span id="audio-status">Click to Start Playlist</span><br>
-        <span id="track-info" style="font-size: 8px; color: #888;">Track 1/3</span>
-    </div>
-    
-    <div id="navigation-toggle">
-        <div style="margin-bottom: 8px; font-weight: bold; color: #00ffff;">🎮 Navigation Mode</div>
-        <div class="nav-option active" id="free-movement" onclick="neuralGenesis.setNavigationMode('free')">
-            Free Movement
-        </div>
-        <div class="nav-option" id="auto-navigation" onclick="neuralGenesis.setNavigationMode('auto')">
-            Auto-Navigation
-        </div>
-        <div style="margin-top: 8px; font-size: 9px; color: #888; line-height: 1.2;">
-            Free: WASD + Mouse<br>
-            Auto: Screensaver Mode
-        </div>
+    <div class="info-panel">
+        <div class="info-title">Data Flow Visualization</div>
+        <div class="info-text">Interactive network visualization showing data particles flowing through connected nodes. Move your mouse to attract particles and observe the emergent patterns.</div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        class NeuralGenesis {
-            constructor() {
-                this.scene = null;
-                this.camera = null;
-                this.renderer = null;
-                this.particles = null;
-                this.connections = null;
-                this.dataStreams = null;
-                this.emergenceClusters = null;
-                this.quantumField = null;
-                // Background galaxy
-                this.backgroundParticles = null;
-                this.backgroundConnections = null;
-                this.backgroundPositions = [];
-                this.backgroundActiveConnections = [];
-                // Third galaxy - green solar system
-                this.thirdParticles = null;
-                this.thirdConnections = null;
-                this.thirdPositions = [];
-                this.thirdActiveConnections = [];
-                this.particleCount = 45000;  // Increased from 25000 for more density
-                this.connectionCount = 12500;  // Reduced by 50% from 25000
-                this.streamCount = 300;
-                // Background galaxy settings
-                this.backgroundParticleCount = 30000;  // Increased from 15000
-                this.backgroundConnectionCount = 7500;  // Reduced by 50% from 15000
-                // Third galaxy settings
-                this.thirdParticleCount = 20000;
-                this.thirdConnectionCount = 6000;
-                this.mouseX = 0;
-                this.mouseY = 0;
-                this.time = 0;
-                this.frameCount = 0;
-                this.lastTime = 0;
-                this.particlePositions = [];
-                this.activeConnections = [];
-                this.mouseInfluence = new THREE.Vector3();
-                this.emergencePoints = [];
-                this.quantumDistortion = 0;
-                this.currentMode = 'neural';
-                this.showConnections = true;
-                this.showStreams = true;
-                this.showField = true;
-                this.performanceLevel = 'auto';
-                this.targetFPS = 60;
-                this.fpsHistory = [];
-                
-                // Camera controls
-                this.keys = {};
-                this.isDragging = false;
-                this.lastMouseX = 0;
-                this.lastMouseY = 0;
-                this.cameraRotationX = 0;
-                this.cameraRotationY = 0;
-                this.cameraSpeed = 25;  // Reduced by 50% from 50
-                this.cameraVelocity = new THREE.Vector3();
-                this.cameraDamping = 0.85;
-                
-                // Navigation mode controls
-                this.navigationMode = 'auto'; // 'free' or 'auto' - Start in auto mode
-                this.autoNavigation = {
-                    enabled: false,
-                    currentTarget: 0,
-                    targetPosition: new THREE.Vector3(),
-                    targetLookAt: new THREE.Vector3(),
-                    transitionProgress: 0,
-                    transitionDuration: 8000, // 8 seconds per transition
-                    pauseDuration: 3000, // 3 seconds pause at each location
-                    isPausing: false,
-                    pauseStart: 0,
-                    startPosition: new THREE.Vector3(),
-                    startLookAt: new THREE.Vector3()
-                };
-                
-                // Spacecraft traveling between solar systems
-                this.spacecraft = null;
-                this.spacecraftTravel = {
-                    currentSystemIndex: 8, // Start at white giant galaxy (index 8 in solarSystemCenters)
-                    targetSystemIndex: 0, // First target is Orange Main
-                    progress: 0,
-                    speed: 0.001, // Travel speed between systems
-                    pauseAtSystem: 3000, // 3 seconds pause at each system
-                    pauseStart: 0,
-                    isPausing: true, // Start with a pause
-                    currentPosition: new THREE.Vector3(),
-                    startPosition: new THREE.Vector3(),
-                    targetPosition: new THREE.Vector3()
-                };
-                
-                // Define all solar system centers
-                this.solarSystemCenters = [
-                    { name: "Orange Main", position: [0, 0, 0] }, // Main galaxy
-                    { name: "Blue Background", position: [0, 0, -2200] }, // Background galaxy  
-                    { name: "Green Third", position: [1800, 0, -800] }, // Third galaxy
-                    // Additional galaxies
-                    { name: "Purple Irregular", position: [-1200, 400, -600] },
-                    { name: "Red Dwarf", position: [1200, -600, -1200] },
-                    { name: "Yellow Lenticular", position: [-800, -400, 200] },
-                    { name: "Cyan Ring", position: [600, 800, -400] },
-                    { name: "Pink Compact", position: [-1600, -200, -1000] },
-                    { name: "White Giant", position: [2200, 200, -500] }, // Starting system
-                    { name: "Lime Satellite", position: [-400, 1000, -800] },
-                    { name: "Orange Elliptical", position: [400, -800, 300] }
-                ];
-                
-                // Define target locations around each galaxy cluster
-                this.galaxyTargets = [
-                    // Main orange galaxy cluster
-                    { position: [0, 200, 800], lookAt: [0, 0, 0], name: "Orange Spiral Core" },
-                    { position: [500, -300, 600], lookAt: [-200, 100, -300], name: "Orange Spiral Arms" },
-                    
-                    // Blue background galaxy
-                    { position: [300, 400, -1400], lookAt: [0, 0, -2200], name: "Blue Barred Galaxy" },
-                    { position: [-400, 200, -1800], lookAt: [200, -100, -2400], name: "Blue Spiral Arms" },
-                    
-                    // Green third galaxy
-                    { position: [1800, 600, -300], lookAt: [1800, 0, -800], name: "Green Elliptical" },
-                    { position: [2200, -200, -600], lookAt: [1600, 200, -1000], name: "Green Ring Structure" },
-                    
-                    // Purple irregular galaxy
-                    { position: [-1200, 800, -200], lookAt: [-1200, 400, -600], name: "Purple Irregular" },
-                    
-                    // Red dwarf galaxy
-                    { position: [1000, -400, -800], lookAt: [1200, -600, -1200], name: "Red Dwarf" },
-                    
-                    // Yellow lenticular galaxy
-                    { position: [-600, -100, 400], lookAt: [-800, -400, 200], name: "Yellow Lenticular" },
-                    
-                    // Cyan ring galaxy
-                    { position: [800, 1000, -200], lookAt: [600, 800, -400], name: "Cyan Ring" },
-                    
-                    // Pink compact galaxy
-                    { position: [-1400, 100, -600], lookAt: [-1600, -200, -1000], name: "Pink Compact" },
-                    
-                    // White giant galaxy
-                    { position: [2400, 400, -300], lookAt: [2200, 200, -500], name: "White Giant" },
-                    
-                    // Lime satellite galaxy
-                    { position: [-200, 1200, -600], lookAt: [-400, 1000, -800], name: "Lime Satellite" },
-                    
-                    // Deep orange elliptical
-                    { position: [600, -600, 500], lookAt: [400, -800, 300], name: "Orange Elliptical" },
-                    
-                    // Overview positions
-                    { position: [0, 1500, 0], lookAt: [0, 0, -1000], name: "Cluster Overview" },
-                    { position: [-2000, 0, 1000], lookAt: [1000, 0, -1000], name: "Side Panorama" }
-                ];
-                
-                // Galaxy rotation system
-                this.rotatingGalaxies = {
-                    // Main orange galaxy (foreground) - index 0
-                    main: { 
-                        enabled: true, 
-                        currentAngle: 0, 
-                        speed: Math.PI * 2 / 60000, // One full rotation per minute (60000ms)
-                        center: [0, 0, 0]
-                    },
-                    // White giant galaxy - index 5 in additional galaxies
-                    giant: { 
-                        enabled: true, 
-                        currentAngle: 0, 
-                        speed: Math.PI * 2 / 60000,
-                        center: [2200, 200, -500] // From galaxy config
-                    },
-                    // Cyan ring galaxy - index 3 in additional galaxies  
-                    ring: { 
-                        enabled: true, 
-                        currentAngle: 0, 
-                        speed: Math.PI * 2 / 60000,
-                        center: [600, 800, -400] // From galaxy config
-                    }
-                };
-                
-                // Additional galaxies array (8 more systems)
-                this.additionalGalaxies = [];
-                this.galaxyConfigs = [
-                    // Galaxy 4 - Purple/Violet
-                    { 
-                        color: [0.8, 0.2, 1.0], 
-                        position: [-1200, 400, -600], 
-                        particles: 15000, 
-                        connections: 4500,
-                        type: 'irregular',
-                        pulseRate: 2.2
-                    },
-                    // Galaxy 5 - Red/Crimson
-                    { 
-                        color: [1.0, 0.1, 0.2], 
-                        position: [1200, -600, -1200], 
-                        particles: 18000, 
-                        connections: 5000,
-                        type: 'dwarf',
-                        pulseRate: 1.8
-                    },
-                    // Galaxy 6 - Yellow/Gold
-                    { 
-                        color: [1.0, 0.9, 0.1], 
-                        position: [-800, -400, 200], 
-                        particles: 22000, 
-                        connections: 6500,
-                        type: 'lenticular',
-                        pulseRate: 2.5
-                    },
-                    // Galaxy 7 - Cyan/Teal
-                    { 
-                        color: [0.0, 0.8, 0.9], 
-                        position: [600, 800, -400], 
-                        particles: 16000, 
-                        connections: 4800,
-                        type: 'ring',
-                        pulseRate: 1.9
-                    },
-                    // Galaxy 8 - Pink/Magenta
-                    { 
-                        color: [1.0, 0.3, 0.8], 
-                        position: [-1600, -200, -1000], 
-                        particles: 14000, 
-                        connections: 4200,
-                        type: 'compact',
-                        pulseRate: 2.8
-                    },
-                    // Galaxy 9 - White/Silver
-                    { 
-                        color: [0.9, 0.9, 0.9], 
-                        position: [2200, 200, -500], 
-                        particles: 25000, 
-                        connections: 7000,
-                        type: 'giant',
-                        pulseRate: 1.5
-                    },
-                    // Galaxy 10 - Lime/Bright Green
-                    { 
-                        color: [0.5, 1.0, 0.0], 
-                        position: [-400, 1000, -800], 
-                        particles: 12000, 
-                        connections: 3600,
-                        type: 'satellite',
-                        pulseRate: 3.0
-                    },
-                    // Galaxy 11 - Deep Orange/Red-Orange
-                    { 
-                        color: [1.0, 0.4, 0.0], 
-                        position: [400, -800, 300], 
-                        particles: 20000, 
-                        connections: 6000,
-                        type: 'elliptical',
-                        pulseRate: 2.1
-                    }
-                ];
-                
-                this.init();
-                this.animate();
-                this.setupEventListeners();
-                
-                // Start in auto navigation mode
-                this.setNavigationMode('auto');
-                
-                window.neuralGenesis = this;
-            }
+    let nodes = [];
+    let edges = [];
+    let flowField = [];
+    let particles = [];
+    const gridSize = 50;
+    let cellWidth, cellHeight;
+    const numNodes = 50;
+    const numParticles = 200;
+    const speed = 1;
+    const mouseThreshold = 100;
+    const attractionStrength = 0.1;
 
-            init() {
-                // Implementation of init method
-            }
+    function setup() {
+        createCanvas(windowWidth, windowHeight);
+        cellWidth = width / gridSize;
+        cellHeight = height / gridSize;
 
-            animate() {
-                // Implementation of animate method
-            }
+        // Generate nodes
+        for (let i = 0; i < numNodes; i++) {
+            nodes.push(createVector(random(width), random(height)));
+        }
 
-            setupEventListeners() {
-                // Implementation of setupEventListeners method
-            }
-
-            setNavigationMode(mode) {
-                // Implementation of setNavigationMode method
-            }
-
-            toggleAudio() {
-                // Implementation of toggleAudio method
+        // Generate edges (connect to 3 nearest neighbors)
+        for (let i = 0; i < nodes.length; i++) {
+            let distances = nodes.map((n, j) => ({ dist: p5.Vector.dist(nodes[i], n), idx: j }));
+            distances.sort((a, b) => a.dist - b.dist);
+            for (let j = 1; j <= 3 && j < distances.length; j++) {
+                let n1 = i, n2 = distances[j].idx;
+                if (!edges.some(e => (e.n1 === n1 && e.n2 === n2) || (e.n1 === n2 && e.n2 === n1))) {
+                    edges.push({ n1, n2, dir: p5.Vector.sub(nodes[n2], nodes[n1]).normalize() });
+                }
             }
         }
+
+        // Compute average edge length
+        let totalLength = 0;
+        edges.forEach(e => totalLength += p5.Vector.dist(nodes[e.n1], nodes[e.n2]));
+        let avgLength = totalLength / edges.length;
+        let sigma = avgLength * 2;
+
+        // Initialize flow field
+        for (let i = 0; i < gridSize; i++) {
+            flowField[i] = [];
+            for (let j = 0; j < gridSize; j++) {
+                let sumVector = createVector(0, 0);
+                let totalWeight = 0;
+                let cellX = (i + 0.5) * cellWidth;
+                let cellY = (j + 0.5) * cellHeight;
+                edges.forEach(e => {
+                    let p1 = nodes[e.n1];
+                    let p2 = nodes[e.n2];
+                    let dir = e.dir;
+                    let len = p5.Vector.dist(p1, p2);
+                    let proj = constrain(p5.Vector.dot(p5.Vector.sub(createVector(cellX, cellY), p1), dir), 0, len);
+                    let closest = p5.Vector.add(p1, p5.Vector.mult(dir, proj));
+                    let dist = p5.Vector.dist(createVector(cellX, cellY), closest);
+                    let weight = exp(-(dist * dist) / (sigma * sigma));
+                    sumVector.add(p5.Vector.mult(dir, weight));
+                    totalWeight += weight;
+                });
+                flowField[i][j] = totalWeight > 0 ? sumVector.div(totalWeight) : p5.Vector.random2D();
+            }
+        }
+
+        // Initialize particles
+        for (let i = 0; i < numParticles; i++) {
+            particles.push(createVector(random(width), random(height)));
+        }
+    }
+
+    function draw() {
+        background(26, 26, 26, 10); // Dark gray with fading trails
+
+        // Draw edges
+        stroke(0, 77, 102, 76); // Dark neon blue, low opacity
+        strokeWeight(1);
+        edges.forEach(e => line(nodes[e.n1].x, nodes[e.n1].y, nodes[e.n2].x, nodes[e.n2].y));
+
+        // Draw nodes
+        fill(255, 204); // White, medium opacity
+        noStroke();
+        nodes.forEach(n => ellipse(n.x, n.y, 4, 4));
+
+        // Update and draw particles
+        fill(0, 204, 255, 178); // Light neon blue, higher opacity
+        noStroke();
+        particles.forEach(p => {
+            let i = constrain(floor(p.x / cellWidth), 0, gridSize - 2);
+            let j = constrain(floor(p.y / cellHeight), 0, gridSize - 2);
+            let dx = (p.x % cellWidth) / cellWidth;
+            let dy = (p.y % cellHeight) / cellHeight;
+            let v00 = flowField[i][j];
+            let v10 = flowField[i + 1][j];
+            let v01 = flowField[i][j + 1];
+            let v11 = flowField[i + 1][j + 1];
+            let v0 = p5.Vector.lerp(v00, v10, dx);
+            let v1 = p5.Vector.lerp(v01, v11, dx);
+            let flowDir = p5.Vector.lerp(v0, v1, dy);
+
+            let velocity = flowDir.copy().mult(speed);
+            let mouse = createVector(mouseX, mouseY);
+            let distToMouse = p5.Vector.dist(p, mouse);
+            if (distToMouse < mouseThreshold) {
+                let attract = p5.Vector.sub(mouse, p).normalize().mult(attractionStrength);
+                velocity.add(attract);
+            }
+
+            p.add(velocity);
+            p.x = (p.x + width) % width;
+            p.y = (p.y + height) % height;
+            ellipse(p.x, p.y, 3, 3);
+        });
+    }
+
+    function windowResized() {
+        resizeCanvas(windowWidth, windowHeight);
+        // Note: For a fully responsive flow field, recompute nodes, edges, and flowField here
+    }
     </script>
 </body>
 </html> 
