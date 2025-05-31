@@ -374,23 +374,58 @@
             }
             
             init() {
+                console.log('Galaxy Explorer: Initializing...');
+                
                 this.scene = new THREE.Scene();
                 this.scene.fog = new THREE.Fog(0x000000, 50, 3000);
                 
                 this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 6000);
                 this.camera.position.z = 400;
                 
-                this.renderer = new THREE.WebGLRenderer({ 
-                    antialias: true, 
-                    alpha: true,
-                    powerPreference: "high-performance"
-                });
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                this.renderer.setClearColor(0x000000, 1);
-                document.getElementById('canvas-container').appendChild(this.renderer.domElement);
+                // Check WebGL support
+                if (!THREE.WEBGL.isWebGLAvailable()) {
+                    console.error('Galaxy Explorer: WebGL not supported');
+                    document.getElementById('canvas-container').innerHTML = 
+                        '<div style="color: white; text-align: center; padding: 50px; font-family: monospace;">' +
+                        'WebGL not supported in this browser.<br>' +
+                        'Please try a different browser or update your graphics drivers.' +
+                        '</div>';
+                    return;
+                }
                 
-                this.createEnhancedGalaxySystem();
+                try {
+                    this.renderer = new THREE.WebGLRenderer({ 
+                        antialias: true, 
+                        alpha: true,
+                        powerPreference: "high-performance"
+                    });
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                    this.renderer.setClearColor(0x000000, 1);
+                    
+                    // Test WebGL context
+                    const gl = this.renderer.getContext();
+                    if (!gl) {
+                        throw new Error('Failed to get WebGL context');
+                    }
+                    
+                    console.log('Galaxy Explorer: WebGL context created successfully');
+                    console.log('Galaxy Explorer: Renderer info:', this.renderer.info);
+                    
+                    document.getElementById('canvas-container').appendChild(this.renderer.domElement);
+                    
+                    this.createEnhancedGalaxySystem();
+                    console.log('Galaxy Explorer: Initialization complete');
+                    
+                } catch (error) {
+                    console.error('Galaxy Explorer: Initialization failed:', error);
+                    document.getElementById('canvas-container').innerHTML = 
+                        '<div style="color: white; text-align: center; padding: 50px; font-family: monospace;">' +
+                        'Failed to initialize Galaxy Explorer.<br>' +
+                        'Error: ' + error.message + '<br>' +
+                        'Please try refreshing the page or using a different browser.' +
+                        '</div>';
+                }
             }
             
             createEnhancedGalaxySystem() {
@@ -502,59 +537,83 @@
                 geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
                 geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
                 
-                const material = new THREE.ShaderMaterial({
-                    uniforms: {
-                        time: { value: 0 },
-                        cameraPosition: { value: this.camera.position }
-                    },
-                    vertexShader: `
-                        attribute float size;
-                        attribute vec3 color;
-                        varying vec3 vColor;
-                        varying float vDistance;
-                        uniform float time;
-                        uniform vec3 cameraPosition;
-                        
-                        void main() {
-                            vColor = color;
-                            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                // Try advanced shader first, fall back to basic material if it fails
+                let material;
+                
+                try {
+                    material = new THREE.ShaderMaterial({
+                        uniforms: {
+                            time: { value: 0 },
+                            cameraPosition: { value: this.camera.position }
+                        },
+                        vertexShader: `
+                            precision mediump float;
+                            attribute float size;
+                            attribute vec3 color;
+                            varying vec3 vColor;
+                            varying float vDistance;
+                            uniform float time;
+                            uniform vec3 cameraPosition;
                             
-                            float dist = distance(position, cameraPosition);
-                            vDistance = dist;
+                            void main() {
+                                vColor = color;
+                                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                                
+                                float dist = distance(position, cameraPosition);
+                                vDistance = dist;
+                                
+                                float pulse = sin(time * 3.0 + position.x * 0.01 + position.z * 0.01) * 0.3 + 1.0;
+                                float depthScale = 1.0 / (1.0 + dist * 0.0005);
+                                
+                                gl_PointSize = size * pulse * depthScale * (300.0 / max(-mvPosition.z, 1.0));
+                                gl_Position = projectionMatrix * mvPosition;
+                            }
+                        `,
+                        fragmentShader: `
+                            precision mediump float;
+                            varying vec3 vColor;
+                            varying float vDistance;
                             
-                            float pulse = sin(time * 3.0 + position.x * 0.01 + position.z * 0.01) * 0.3 + 1.0;
-                            float depthScale = 1.0 / (1.0 + dist * 0.0005);
-                            
-                            gl_PointSize = size * pulse * depthScale * (300.0 / -mvPosition.z);
-                            gl_Position = projectionMatrix * mvPosition;
-                        }
-                    `,
-                    fragmentShader: `
-                        varying vec3 vColor;
-                        varying float vDistance;
-                        
-                        void main() {
-                            vec2 center = gl_PointCoord - 0.5;
-                            float dist = length(center);
-                            
-                            if (dist > 0.5) discard;
-                            
-                            float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-                            float glow = 1.0 - smoothstep(0.0, 0.3, dist);
-                            float brightness = 1.0 / (1.0 + vDistance * 0.001);
-                            
-                            vec3 finalColor = vColor + glow * 0.6;
-                            gl_FragColor = vec4(finalColor, alpha * brightness * 0.9);
-                        }
-                    `,
-                    blending: THREE.AdditiveBlending,
-                    depthTest: false,
-                    transparent: true,
-                    vertexColors: true
-                });
+                            void main() {
+                                vec2 center = gl_PointCoord - 0.5;
+                                float dist = length(center);
+                                
+                                if (dist > 0.5) discard;
+                                
+                                float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+                                float glow = 1.0 - smoothstep(0.0, 0.3, dist);
+                                float brightness = 1.0 / (1.0 + vDistance * 0.001);
+                                
+                                vec3 finalColor = vColor + glow * 0.6;
+                                gl_FragColor = vec4(finalColor, alpha * brightness * 0.9);
+                            }
+                        `,
+                        blending: THREE.AdditiveBlending,
+                        depthTest: false,
+                        transparent: true,
+                        vertexColors: true
+                    });
+                    
+                    console.log('Galaxy Explorer: Advanced shader material created successfully');
+                    
+                } catch (error) {
+                    console.warn('Galaxy Explorer: Advanced shader failed, using fallback material:', error);
+                    
+                    // Fallback to basic point material
+                    material = new THREE.PointsMaterial({
+                        size: 3,
+                        vertexColors: true,
+                        transparent: true,
+                        opacity: 0.8,
+                        blending: THREE.AdditiveBlending,
+                        sizeAttenuation: true
+                    });
+                }
                 
                 this.particles = new THREE.Points(geometry, material);
                 this.scene.add(this.particles);
+                
+                console.log('Galaxy Explorer: Particle system created with', particleCount, 'particles');
             }
             
             setNavigationMode(mode) {
@@ -811,15 +870,24 @@
                 
                 this.time += 0.01;
                 
+                // Update shader uniforms if using advanced material
                 if (this.particles && this.particles.material.uniforms) {
-                    this.particles.material.uniforms.time.value = this.time;
-                    this.particles.material.uniforms.cameraPosition.value = this.camera.position;
+                    try {
+                        this.particles.material.uniforms.time.value = this.time;
+                        this.particles.material.uniforms.cameraPosition.value = this.camera.position;
+                    } catch (error) {
+                        console.warn('Galaxy Explorer: Shader uniform update failed:', error);
+                    }
                 }
                 
                 this.updateCameraControls();
                 this.updateInfoPanel();
                 
-                this.renderer.render(this.scene, this.camera);
+                try {
+                    this.renderer.render(this.scene, this.camera);
+                } catch (error) {
+                    console.error('Galaxy Explorer: Render failed:', error);
+                }
             }
         }
         
