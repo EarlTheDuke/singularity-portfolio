@@ -19,23 +19,26 @@
             top: 20px;
             left: 20px;
             z-index: 1000;
-            background: linear-gradient(45deg, #00ff88, #00cc66);
-            color: #000000;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: bold;
+            background: rgba(0, 255, 136, 0.1);
+            color: rgba(0, 255, 136, 0.7);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: normal;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+            backdrop-filter: blur(10px);
+            opacity: 0.6;
         }
         
         .back-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(0, 255, 136, 0.5);
+            opacity: 1;
+            background: rgba(0, 255, 136, 0.2);
+            color: rgba(0, 255, 136, 1);
+            border-color: rgba(0, 255, 136, 0.5);
         }
         
         .info-panel {
@@ -43,26 +46,32 @@
             top: 20px;
             right: 20px;
             z-index: 1000;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            color: #ffffff;
-            backdrop-filter: blur(10px);
-            max-width: 250px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            max-width: 200px;
+            opacity: 0.4;
+            transition: opacity 0.3s ease;
+        }
+        
+        .info-panel:hover {
+            opacity: 0.9;
         }
         
         .info-title {
-            color: #00ff88;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
+            color: rgba(0, 255, 136, 0.7);
+            font-weight: normal;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
         }
         
         .info-text {
-            font-size: 0.9rem;
-            line-height: 1.4;
-            opacity: 0.9;
+            font-size: 0.7rem;
+            line-height: 1.3;
+            opacity: 0.8;
         }
     </style>
 </head>
