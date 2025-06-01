@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGI Progress Blog - The Singularity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 255, 136, 0.1);
+            color: rgba(0, 255, 136, 0.7);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: normal;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+            opacity: 0.6;
+        }
+        
+        .back-button:hover {
+            opacity: 1;
+            background: rgba(0, 255, 136, 0.2);
+            color: rgba(0, 255, 136, 1);
+            border-color: rgba(0, 255, 136, 0.5);
+            transform: translateX(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px 50px;
+        }
+        
+        .blog-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .blog-header h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, #00ff88, #88ffcc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            margin-bottom: 20px;
+            animation: textGlow 3s ease-in-out infinite alternate;
+        }
+        
+        .blog-header p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        
+        .blog-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: #ffffff;
+            font-size: 1rem;
+            width: 300px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: rgba(0, 255, 136, 0.6);
+            color: #00ff88;
+            transform: translateY(-2px);
+        }
+        
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .post-card {
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.8) 0%, rgba(20, 20, 20, 0.9) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .post-card:hover {
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.2);
+            transform: translateY(-8px);
+        }
+        
+        .post-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00ff88, #88ffcc, #00ff88);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .post-date {
+            color: #00ff88;
+        }
+        
+        .post-category {
+            background: rgba(0, 255, 136, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .post-title {
+            font-size: 1.6rem;
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+        
+        .post-excerpt {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .read-time {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+        
+        .read-more {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .read-more:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .no-posts {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            margin: 100px 0;
+        }
+        
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 30px rgba(0, 255, 136, 0.5); }
+            100% { text-shadow: 0 0 40px rgba(0, 255, 136, 0.8), 0 0 60px rgba(0, 255, 136, 0.3); }
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        @media (max-width: 768px) {
+            .blog-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .posts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .blog-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .search-box {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .container {
+                padding: 80px 15px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Main</a>
+    
+    <div class="container">
+        <div class="blog-header">
+            <h1>🤖 AGI Progress Blog</h1>
+            <p>Tracking the journey to Artificial General Intelligence, exploring ASI developments, and discussing the approaching technological singularity with deep tech insights and community perspectives.</p>
+        </div>
+        
+        <div class="blog-controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search posts about AGI, ASI, singularity...">
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-category="all">All Posts</button>
+                <button class="filter-btn" data-category="agi">AGI Research</button>
+                <button class="filter-btn" data-category="asi">ASI Theory</button>
+                <button class="filter-btn" data-category="singularity">Singularity</button>
+                <button class="filter-btn" data-category="ethics">AI Ethics</button>
+                <button class="filter-btn" data-category="tech">Tech Insights</button>
+            </div>
+        </div>
+        
+        <div class="posts-grid" id="postsGrid">
+            <!-- Post 1: AGI Breakthrough -->
+            <div class="post-card" data-category="agi" onclick="window.location.href='posts/agi-breakthrough-2024.html'">
+                <div class="post-meta">
+                    <span class="post-date">January 15, 2025</span>
+                    <span class="post-category">AGI Research</span>
+                </div>
+                <h2 class="post-title">The AGI Breakthrough: What OpenAI's Latest Model Means for Humanity</h2>
+                <p class="post-excerpt">
+                    Analyzing the recent developments in AGI capabilities and their implications for the timeline to artificial general intelligence. We explore the technical achievements, limitations, and what this means for our approach to the singularity.
+                </p>
+                <div class="post-footer">
+                    <span class="read-time">⏱️ 8 min read</span>
+                    <a href="posts/agi-breakthrough-2024.html" class="read-more">Read Full Analysis</a>
+                </div>
+            </div>
+            
+            <!-- Post 2: Singularity Timeline -->
+            <div class="post-card" data-category="singularity" onclick="window.location.href='posts/singularity-timeline-updated.html'">
+                <div class="post-meta">
+                    <span class="post-date">January 12, 2025</span>
+                    <span class="post-category">Singularity</span>
+                </div>
+                <h2 class="post-title">Updated Singularity Timeline: Are We Ahead of Schedule?</h2>
+                <p class="post-excerpt">
+                    Recent AI developments suggest we might reach the technological singularity sooner than predicted. This comprehensive analysis examines current progress, expert predictions, and potential acceleration factors.
+                </p>
+                <div class="post-footer">
+                    <span class="read-time">⏱️ 12 min read</span>
+                    <a href="posts/singularity-timeline-updated.html" class="read-more">Read Full Analysis</a>
+                </div>
+            </div>
+            
+            <!-- Post 3: ASI Safety -->
+            <div class="post-card" data-category="asi" onclick="window.location.href='posts/asi-safety-frameworks.html'">
+                <div class="post-meta">
+                    <span class="post-date">January 10, 2025</span>
+                    <span class="post-category">ASI Theory</span>
+                </div>
+                <h2 class="post-title">ASI Safety Frameworks: Building Guardrails for Superintelligence</h2>
+                <p class="post-excerpt">
+                    As we approach artificial superintelligence, safety frameworks become critical. Exploring current research, alignment strategies, and the technical challenges of controlling systems smarter than their creators.
+                </p>
+                <div class="post-footer">
+                    <span class="read-time">⏱️ 15 min read</span>
+                    <a href="posts/asi-safety-frameworks.html" class="read-more">Read Full Analysis</a>
+                </div>
+            </div>
+            
+            <!-- Post 4: AI Ethics -->
+            <div class="post-card" data-category="ethics" onclick="window.location.href='posts/ai-consciousness-debate.html'">
+                <div class="post-meta">
+                    <span class="post-date">January 8, 2025</span>
+                    <span class="post-category">AI Ethics</span>
+                </div>
+                <h2 class="post-title">The AI Consciousness Debate: When Machines Become Sentient</h2>
+                <p class="post-excerpt">
+                    As AI systems become more sophisticated, questions of consciousness and sentience emerge. Examining the philosophical, ethical, and practical implications of potentially conscious artificial minds.
+                </p>
+                <div class="post-footer">
+                    <span class="read-time">⏱️ 10 min read</span>
+                    <a href="posts/ai-consciousness-debate.html" class="read-more">Read Full Analysis</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="no-posts" id="noPosts" style="display: none;">
+            <p>No posts found matching your search criteria.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Search and Filter Functionality
+        const searchBox = document.getElementById('searchBox');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const postsGrid = document.getElementById('postsGrid');
+        const noPosts = document.getElementById('noPosts');
+        const allPosts = document.querySelectorAll('.post-card');
+        
+        let currentCategory = 'all';
+        let currentSearch = '';
+        
+        // Search functionality
+        searchBox.addEventListener('input', (e) => {
+            currentSearch = e.target.value.toLowerCase();
+            filterPosts();
+        });
+        
+        // Category filter functionality
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active button
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                currentCategory = btn.getAttribute('data-category');
+                filterPosts();
+            });
+        });
+        
+        // Filter posts based on search and category
+        function filterPosts() {
+            let visiblePosts = 0;
+            
+            allPosts.forEach(post => {
+                const postCategory = post.getAttribute('data-category');
+                const postText = post.textContent.toLowerCase();
+                
+                const matchesCategory = currentCategory === 'all' || postCategory === currentCategory;
+                const matchesSearch = currentSearch === '' || postText.includes(currentSearch);
+                
+                if (matchesCategory && matchesSearch) {
+                    post.style.display = 'block';
+                    visiblePosts++;
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no posts message
+            if (visiblePosts === 0) {
+                noPosts.style.display = 'block';
+                postsGrid.style.display = 'none';
+            } else {
+                noPosts.style.display = 'none';
+                postsGrid.style.display = 'grid';
+            }
+        }
+        
+        // Add click events to post cards for better UX
+        allPosts.forEach(post => {
+            post.addEventListener('mouseenter', () => {
+                post.style.cursor = 'pointer';
+            });
+        });
+    </script>
+</body>
+</html> 
