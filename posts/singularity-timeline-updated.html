@@ -408,6 +408,70 @@
             font-style: italic;
         }
         
+        /* Published Comments Styles */
+        .published-comments {
+            margin: 30px 0;
+        }
+
+        .published-comments h4 {
+            color: #ff8800;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .comment {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(255, 136, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .comment::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff8800, #ffaa44);
+            border-radius: 2px 2px 0 0;
+        }
+
+        .comment-author {
+            color: #ff8800;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment-author::before {
+            content: '👤';
+            font-size: 0.9rem;
+        }
+
+        .comment-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .comment-date {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            text-align: right;
+            font-style: italic;
+        }
+        
         @media (max-width: 768px) {
             .article-title {
                 font-size: 2rem;
@@ -497,6 +561,15 @@
                 
                 <p class="comment-note">Comments are moderated and will be reviewed before publication.</p>
             </form>
+        </div>
+        
+        <div class="published-comments">
+            <h4>Published Comments</h4>
+            <div class="comment">
+                <div class="comment-author">Joe</div>
+                <p class="comment-text">It is coming exponentially...</p>
+                <div class="comment-date">January 15, 2025</div>
+            </div>
         </div>
         
         <div class="navigation">
