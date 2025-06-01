@@ -286,6 +286,105 @@
             50% { opacity: 0.5; }
         }
         
+        /* Comment Form Styles */
+        .comment-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(255, 204, 85, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(255, 204, 85, 0.2);
+        }
+
+        .comment-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .comment-form label {
+            display: block;
+            color: #ffcc55;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .comment-form input,
+        .comment-form textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .comment-form input:focus,
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: #ffcc55;
+            box-shadow: 0 0 15px rgba(255, 204, 85, 0.3);
+            background: rgba(10, 10, 10, 0.95);
+        }
+
+        .comment-form textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .comment-submit-btn {
+            background: linear-gradient(45deg, #ffcc55, #ffaa77);
+            color: #000000;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .comment-submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.4s ease;
+        }
+
+        .comment-submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .comment-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 204, 85, 0.4);
+        }
+
+        .comment-note {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            margin-top: 15px;
+            font-style: italic;
+        }
+        
         @media (max-width: 768px) {
             .article-title {
                 font-size: 2rem;
@@ -302,6 +401,10 @@
             .navigation {
                 flex-direction: column;
                 gap: 15px;
+            }
+            
+            .comment-form {
+                padding: 20px;
             }
         }
     </style>
@@ -542,13 +645,29 @@
                 </p>
             </div>
             
-            <script src="https://utteranc.es/client.js"
-                    repo="EarlTheDuke/singularity-portfolio"
-                    issue-term="pathname"
-                    theme="dark"
-                    crossorigin="anonymous"
-                    async>
-            </script>
+            <form class="comment-form" action="https://formspree.io/f/mpwdegky" method="POST">
+                <input type="hidden" name="blog-post" value="The AI Consciousness Debate: When Machines Become Sentient">
+                <input type="hidden" name="post-url" value="/posts/ai-consciousness-debate.html">
+                
+                <div class="form-group">
+                    <label for="comment-name">Name</label>
+                    <input type="text" id="comment-name" name="name" placeholder="Your name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comment-email">Email</label>
+                    <input type="email" id="comment-email" name="email" placeholder="Your email (won't be published)" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comment-text">Comment</label>
+                    <textarea id="comment-text" name="comment" placeholder="Share your thoughts on AI consciousness..." required></textarea>
+                </div>
+                
+                <button type="submit" class="comment-submit-btn">Submit Comment</button>
+                
+                <p class="comment-note">Comments are moderated and will be reviewed before publication.</p>
+            </form>
         </div>
         
         <div class="navigation">
