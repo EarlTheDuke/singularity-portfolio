@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Ballistics Physics Engine Simulator</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c1426 0%, #1a2332 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #00ff88;
+            font-size: 2.5em;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #cccccc;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: fit-content;
+        }
+        
+        .content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-header {
+            color: #00ff88;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .subsection {
+            margin-bottom: 25px;
+        }
+        
+        .subsection h3 {
+            color: #00ff88;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #cccccc;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #000000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #cccccc;
+            margin-top: 5px;
+        }
+        
+        .data-table {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        th {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #cccccc;
+        }
+        
+        .tab.active {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            color: #00ff88;
+        }
+        
+        .status.error {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid rgba(255, 68, 68, 0.4);
+            color: #ff4444;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00cc6a);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Ballistics Physics Engine Simulator</h1>
+            <p class="subtitle">Advanced trajectory calculation with environmental factors and validation</p>
+        </div>
+        
+        <div class="main-layout">
+            <!-- Sidebar Controls -->
+            <div class="sidebar">
+                <h2 class="section-header">🔧 Configuration</h2>
+                
+                <div class="subsection">
+                    <h3>Bullet Parameters</h3>
+                    <div class="input-group">
+                        <label for="muzzleVelocity">Muzzle Velocity (fps)</label>
+                        <input type="range" id="muzzleVelocity" min="1000" max="4000" value="2600" step="25" oninput="updateValue('muzzleVelocity')">
+                        <div style="text-align: center; color: #00ff88; font-weight: bold;" id="muzzleVelocityValue">2600</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="ballisticCoefficient">Ballistic Coefficient (G1)</label>
+                        <input type="range" id="ballisticCoefficient" min="0.200" max="0.800" value="0.462" step="0.010" oninput="updateValue('ballisticCoefficient')">
+                        <div style="text-align: center; color: #00ff88; font-weight: bold;" id="ballisticCoefficientValue">0.462</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="bulletWeight">Bullet Weight (grains)</label>
+                        <input type="range" id="bulletWeight" min="100" max="300" value="168" step="5" oninput="updateValue('bulletWeight')">
+                        <div style="text-align: center; color: #00ff88; font-weight: bold;" id="bulletWeightValue">168</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="bulletDiameter">Bullet Diameter (inches)</label>
+                        <input type="range" id="bulletDiameter" min="0.224" max="0.500" value="0.308" step="0.001" oninput="updateValue('bulletDiameter')">
+                        <div style="text-align: center; color: #00ff88; font-weight: bold;" id="bulletDiameterValue">0.308</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="zeroRange">Zero Range (yards)</label>
+                        <select id="zeroRange" onchange="updateValue('zeroRange')">
+                            <option value="100">100</option>
+                            <option value="200" selected>200</option>
+                            <option value="300">300</option>
+                            <option value="400">400</option>
+                            <option value="500">500</option>
+                            <option value="600">600</option>
+                            <option value="700">700</option>
+                            <option value="800">800</option>
+                            <option value="900">900</option>
+                            <option value="1000">1000</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Environmental Conditions</h3>
+                    <div class="input-group">
+                        <label for="temperature">Temperature (°F)</label>
+                        <input type="range" id="temperature" min="-20" max="120" value="59" step="1" oninput="updateValue('temperature')">
+                        <div style="text-align: center; color: #00ff88; font-weight: bold;" id="temperatureValue">59</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="pressure">Barometric Pressure (inHg)</label>
+                        <input type="range" id="pressure" min="25.0" max="32.0" value="29.92" step="0.1" oninput="updateValue('pressure')">
+                        <div style="text-align: center; color: #00ff88; font-weight: bold;" id="pressureValue">29.92</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="humidity">Humidity (%)</label>
+                        <input type="range" id="humidity" min="0" max="100" value="0" step="5" oninput="updateValue('humidity')">
+                        <div style="text-align: center; color: #00ff88; font-weight: bold;" id="humidityValue">0</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="altitude">Altitude (ft)</label>
+                        <input type="range" id="altitude" min="0" max="10000" value="0" step="100" oninput="updateValue('altitude')">
+                        <div style="text-align: center; color: #00ff88; font-weight: bold;" id="altitudeValue">0</div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Advanced Options</h3>
+                    <div class="input-group">
+                        <label for="maxRange">Maximum Range (yards)</label>
+                        <input type="range" id="maxRange" min="500" max="2000" value="1000" step="100" oninput="updateValue('maxRange')">
+                        <div style="text-align: center; color: #00ff88; font-weight: bold;" id="maxRangeValue">1000</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="timeStep">Integration Time Step (seconds)</label>
+                        <select id="timeStep">
+                            <option value="0.01" selected>0.01</option>
+                            <option value="0.005">0.005</option>
+                            <option value="0.001">0.001</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="calculate-btn" onclick="calculateTrajectory()">🚀 Calculate Trajectory</button>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="content">
+                <h2 class="section-header">📊 Trajectory Analysis</h2>
+                
+                <div id="statusContainer"></div>
+                <div id="progressContainer"></div>
+                
+                <div class="chart-container">
+                    <div id="trajectoryPlot"></div>
+                </div>
+                
+                <div id="validationSection" style="display: none;">
+                    <h3 style="color: #00ff88; margin: 20px 0 10px 0;">🎯 Validation Against Reference Data</h3>
+                    <div class="chart-container">
+                        <div id="validationPlot"></div>
+                    </div>
+                    
+                    <div class="metrics" id="validationMetrics"></div>
+                </div>
+                
+                <div class="data-table">
+                    <h3 style="color: #00ff88; margin-bottom: 15px;">📋 Trajectory Data</h3>
+                    <div id="trajectoryTable"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Environmental Sensitivity Analysis -->
+        <div class="content">
+            <h2 class="section-header">🌡️ Environmental Sensitivity Analysis</h2>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('temperature')">Temperature</div>
+                <div class="tab" onclick="showTab('pressure')">Pressure</div>
+                <div class="tab" onclick="showTab('humidity')">Humidity</div>
+                <div class="tab" onclick="showTab('altitude')">Altitude</div>
+            </div>
+            
+            <div id="temperature-tab" class="tab-content active">
+                <h3>Temperature Sensitivity</h3>
+                <div class="chart-container">
+                    <div id="temperaturePlot"></div>
+                </div>
+            </div>
+            
+            <div id="pressure-tab" class="tab-content">
+                <h3>Pressure Sensitivity</h3>
+                <div class="chart-container">
+                    <div id="pressurePlot"></div>
+                </div>
+            </div>
+            
+            <div id="humidity-tab" class="tab-content">
+                <h3>Humidity Sensitivity</h3>
+                <div class="chart-container">
+                    <div id="humidityPlot"></div>
+                </div>
+            </div>
+            
+            <div id="altitude-tab" class="tab-content">
+                <h3>Altitude Sensitivity</h3>
+                <div class="chart-container">
+                    <div id="altitudePlot"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <p style="color: #cccccc;"><strong>Ballistics Physics Engine Simulator</strong> - Advanced trajectory modeling with environmental corrections</p>
+        </div>
+    </div>
+
+    <script>
+        // Federal Match .308 cal 168-Gr Reference Data
+        const TRAJECTORY_TABLE = {
+            100: { 100: 0.0, 200: -4.5, 300: -15.9, 400: -35.5, 500: -64.6, 600: -105, 700: -159, 800: -228, 900: -315, 1000: -421 },
+            200: { 100: 3.0, 200: 0.0, 300: -8.4, 400: -23.6, 500: -46.8, 600: -79.2, 700: -122, 800: -177, 900: -246, 1000: -331 },
+            300: { 100: 5.3, 200: 6.1, 300: 0.0, 400: -14.3, 500: -38.1, 600: -73.2, 700: -121, 800: -185, 900: -267, 1000: -369 },
+            400: { 100: 8.9, 200: 13.3, 300: 10.8, 400: 0.0, 500: -20.1, 600: -57.6, 700: -96.3, 800: -157, 900: -235, 1000: -333 },
+            500: { 100: 13.0, 200: 21.5, 300: 23.1, 400: 16.5, 500: 0.0, 600: -27.0, 700: -67.6, 800: -124, 900: -198, 1000: -292 }
+        };
+        
+        const VELOCITY_ENERGY_TABLE = {
+            0: {velocity: 2600, energy: 2520}, 100: {velocity: 2420, energy: 2180}, 200: {velocity: 2240, energy: 1870},
+            300: {velocity: 2070, energy: 1600}, 400: {velocity: 1910, energy: 1355}, 500: {velocity: 1760, energy: 1150},
+            600: {velocity: 1610, energy: 970}, 700: {velocity: 1480, energy: 815}, 800: {velocity: 1360, energy: 690},
+            900: {velocity: 1260, energy: 590}, 1000: {velocity: 1170, energy: 510}
+        };
+        
+        // Physics constants
+        const GRAVITY = 32.174; // ft/s²
+        const AIR_DENSITY_STANDARD = 0.0751; // lb/ft³
+        const STANDARD_TEMP = 59.0; // °F
+        const STANDARD_PRESSURE = 29.92; // inHg
+        
+        // Global variables
+        let currentTrajectory = null;
+        let currentConditions = null;
+        
+        // Utility functions
+        function updateValue(elementId) {
+            const element = document.getElementById(elementId);
+            const valueElement = document.getElementById(elementId + 'Value');
+            if (valueElement) {
+                valueElement.textContent = element.value;
+            }
+        }
+        
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Calculate sensitivity analysis for the selected tab
+            if (currentTrajectory) {
+                calculateSensitivityAnalysis(tabName);
+            }
+        }
+        
+        function showStatus(message, type = 'info') {
+            const container = document.getElementById('statusContainer');
+            container.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function showProgress(percent) {
+            const container = document.getElementById('progressContainer');
+            if (percent === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = `
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${percent}%"></div>
+                </div>
+            `;
+        }
+        
+        // Physics calculations
+        function calculateAirDensityFactor(temperature, pressure, humidity, altitude) {
+            const tempRatio = (459.67 + STANDARD_TEMP) / (459.67 + temperature);
+            const pressureRatio = pressure / STANDARD_PRESSURE;
+            const humidityFactor = 1.0 - 0.0753 * (humidity / 100.0);
+            const altitudeFactor = Math.exp(-altitude / 28000.0);
+            
+            return tempRatio * pressureRatio * humidityFactor * altitudeFactor;
+        }
+        
+        function dragCoefficientG1(velocity) {
+            const mach = velocity / 1116.0;
+            
+            if (mach < 0.8) {
+                return 0.1198 + 0.0975 * mach + 0.0028 * mach * mach;
+            } else if (mach < 1.2) {
+                return 0.2008 + 0.0642 * mach - 0.0113 * mach * mach;
+            } else {
+                return 0.2306 + 0.0347 * mach - 0.0033 * mach * mach;
+            }
+        }
+        
+        function calculateDragForce(velocity, bc, bulletDiameter, airDensityFactor) {
+            if (velocity <= 0) return 0.0;
+            
+            const cd = dragCoefficientG1(velocity);
+            const area = Math.PI * Math.pow(bulletDiameter / 12.0 / 2, 2);
+            const airDensity = AIR_DENSITY_STANDARD * airDensityFactor;
+            
+            return (airDensity * velocity * velocity * cd * area) / (2.0 * bc);
+        }
+        
+        function calculateZeroAngle(muzzleVelocity, bc, bulletWeight, bulletDiameter, zeroRange, airDensityFactor) {
+            // Simplified zero angle calculation using iterative approximation
+            let angle = 0.001; // Start with small angle
+            const zeroRangeFt = zeroRange * 3.0;
+            
+            for (let iteration = 0; iteration < 10; iteration++) {
+                const simpleTrajectory = calculateSimpleTrajectory(muzzleVelocity, bc, bulletWeight, bulletDiameter, angle, zeroRange * 1.2, airDensityFactor);
+                
+                // Find point closest to zero range
+                let closestPoint = null;
+                let minDistance = Infinity;
+                
+                for (const point of simpleTrajectory) {
+                    const distanceDiff = Math.abs(point.distance - zeroRange);
+                    if (distanceDiff < minDistance) {
+                        minDistance = distanceDiff;
+                        closestPoint = point;
+                    }
+                }
+                
+                if (closestPoint && Math.abs(closestPoint.drop) < 0.1) {
+                    break;
+                }
+                
+                if (closestPoint) {
+                    angle += closestPoint.drop * 0.00001; // Adjust angle based on drop
+                }
+            }
+            
+            return angle;
+        }
+        
+        function calculateSimpleTrajectory(muzzleVelocity, bc, bulletWeight, bulletDiameter, angle, maxRange, airDensityFactor) {
+            const bulletMass = bulletWeight / 7000.0;
+            const maxRangeFt = maxRange * 3.0;
+            const timeStep = 0.01;
+            
+            let t = 0.0, x = 0.0, y = 0.0;
+            let vx = muzzleVelocity * Math.cos(angle);
+            let vy = muzzleVelocity * Math.sin(angle);
+            
+            const trajectory = [];
+            
+            while (x < maxRangeFt && t < 10.0) {
+                const v = Math.sqrt(vx * vx + vy * vy);
+                if (v < 100.0) break;
+                
+                const dragForce = calculateDragForce(v, bc, bulletDiameter, airDensityFactor);
+                const dragAx = -dragForce * (vx / v) / bulletMass;
+                const dragAy = -dragForce * (vy / v) / bulletMass;
+                
+                vx += dragAx * timeStep;
+                vy += (dragAy - GRAVITY) * timeStep;
+                x += vx * timeStep;
+                y += vy * timeStep;
+                t += timeStep;
+                
+                if (trajectory.length === 0 || (x / 3.0) - trajectory[trajectory.length - 1].distance >= 10.0) {
+                    const distance = x / 3.0;
+                    const yInches = y * 12.0;
+                    const lineOfSightHeight = x * Math.tan(angle) * 12.0;
+                    const drop = -(lineOfSightHeight - yInches);
+                    const energy = 0.5 * bulletMass * v * v * 32.174;
+                    
+                    trajectory.push({
+                        time: t, distance: distance, x: x / 3.0, y: yInches,
+                        velocity: v, velocityX: vx, velocityY: vy, energy: energy, drop: drop
+                    });
+                }
+            }
+            
+            return trajectory;
+        }
+        
+        function calculateFullTrajectory() {
+            showProgress(20);
+            showStatus("Setting up environmental conditions...");
+            
+            const params = getParameters();
+            currentConditions = params;
+            
+            showProgress(40);
+            showStatus("Initializing physics engine...");
+            
+            const airDensityFactor = calculateAirDensityFactor(
+                params.temperature, params.pressure, params.humidity, params.altitude
+            );
+            
+            showProgress(60);
+            showStatus("Computing trajectory...");
+            
+            const zeroAngle = calculateZeroAngle(
+                params.muzzleVelocity, params.ballisticCoefficient, params.bulletWeight,
+                params.bulletDiameter, params.zeroRange, airDensityFactor
+            );
+            
+            const trajectory = calculateSimpleTrajectory(
+                params.muzzleVelocity, params.ballisticCoefficient, params.bulletWeight,
+                params.bulletDiameter, zeroAngle, params.maxRange, airDensityFactor
+            );
+            
+            showProgress(100);
+            showStatus(`✅ Trajectory calculated with ${trajectory.length} points`, 'success');
+            
+            setTimeout(() => {
+                showProgress(0);
+                document.getElementById('statusContainer').innerHTML = '';
+            }, 2000);
+            
+            return trajectory;
+        }
+        
+        function getParameters() {
+            return {
+                muzzleVelocity: parseFloat(document.getElementById('muzzleVelocity').value),
+                ballisticCoefficient: parseFloat(document.getElementById('ballisticCoefficient').value),
+                bulletWeight: parseFloat(document.getElementById('bulletWeight').value),
+                bulletDiameter: parseFloat(document.getElementById('bulletDiameter').value),
+                zeroRange: parseInt(document.getElementById('zeroRange').value),
+                temperature: parseFloat(document.getElementById('temperature').value),
+                pressure: parseFloat(document.getElementById('pressure').value),
+                humidity: parseFloat(document.getElementById('humidity').value),
+                altitude: parseFloat(document.getElementById('altitude').value),
+                maxRange: parseInt(document.getElementById('maxRange').value),
+                timeStep: parseFloat(document.getElementById('timeStep').value)
+            };
+        }
+        
+        function plotTrajectory(trajectory, title = "Ballistics Trajectory") {
+            const trace = {
+                x: trajectory.map(p => p.distance),
+                y: trajectory.map(p => p.drop),
+                type: 'scatter',
+                mode: 'lines',
+                line: { color: '#00ff88', width: 3 },
+                name: 'Trajectory'
+            };
+            
+            const layout = {
+                title: { text: title, font: { color: '#ffffff', size: 18 } },
+                xaxis: { title: 'Range (yards)', color: '#ffffff', gridcolor: 'rgba(255,255,255,0.2)' },
+                yaxis: { title: 'Drop (inches)', color: '#ffffff', gridcolor: 'rgba(255,255,255,0.2)' },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#ffffff' }
+            };
+            
+            Plotly.newPlot('trajectoryPlot', [trace], layout, { responsive: true });
+        }
+        
+        function validateTrajectory(trajectory, zeroRange) {
+            if (!TRAJECTORY_TABLE[zeroRange]) {
+                document.getElementById('validationSection').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('validationSection').style.display = 'block';
+            
+            const refData = TRAJECTORY_TABLE[zeroRange];
+            const simTraces = [];
+            const refTraces = [];
+            
+            // Create comparison data
+            for (const range in refData) {
+                const rangeYards = parseInt(range);
+                const refDrop = refData[range];
+                
+                // Find closest simulated point
+                let closestPoint = null;
+                let minDistance = Infinity;
+                
+                for (const point of trajectory) {
+                    const distance = Math.abs(point.distance - rangeYards);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestPoint = point;
+                    }
+                }
+                
+                if (closestPoint) {
+                    simTraces.push({ x: rangeYards, y: closestPoint.drop });
+                    refTraces.push({ x: rangeYards, y: refDrop });
+                }
+            }
+            
+            const traces = [
+                {
+                    x: simTraces.map(p => p.x),
+                    y: simTraces.map(p => p.y),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { color: '#00ff88', width: 2 },
+                    marker: { size: 8 },
+                    name: 'Simulated'
+                },
+                {
+                    x: refTraces.map(p => p.x),
+                    y: refTraces.map(p => p.y),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { color: '#ff6b6b', width: 2, dash: 'dot' },
+                    marker: { size: 8 },
+                    name: 'Reference Data'
+                }
+            ];
+            
+            const layout = {
+                title: { text: `Validation - ${zeroRange} yard zero`, font: { color: '#ffffff', size: 16 } },
+                xaxis: { title: 'Range (yards)', color: '#ffffff', gridcolor: 'rgba(255,255,255,0.2)' },
+                yaxis: { title: 'Drop (inches)', color: '#ffffff', gridcolor: 'rgba(255,255,255,0.2)' },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#ffffff' }
+            };
+            
+            Plotly.newPlot('validationPlot', traces, layout, { responsive: true });
+            
+            // Calculate validation metrics
+            let sumSquaredErrors = 0;
+            let maxError = 0;
+            let sumErrors = 0;
+            let count = 0;
+            
+            for (let i = 0; i < simTraces.length; i++) {
+                const error = Math.abs(simTraces[i].y - refTraces[i].y);
+                sumSquaredErrors += error * error;
+                maxError = Math.max(maxError, error);
+                sumErrors += error;
+                count++;
+            }
+            
+            const rmse = Math.sqrt(sumSquaredErrors / count);
+            const meanError = sumErrors / count;
+            
+            // Calculate correlation
+            const simMean = simTraces.reduce((sum, p) => sum + p.y, 0) / simTraces.length;
+            const refMean = refTraces.reduce((sum, p) => sum + p.y, 0) / refTraces.length;
+            
+            let numerator = 0, simSumSq = 0, refSumSq = 0;
+            for (let i = 0; i < simTraces.length; i++) {
+                const simDiff = simTraces[i].y - simMean;
+                const refDiff = refTraces[i].y - refMean;
+                numerator += simDiff * refDiff;
+                simSumSq += simDiff * simDiff;
+                refSumSq += refDiff * refDiff;
+            }
+            
+            const correlation = numerator / Math.sqrt(simSumSq * refSumSq);
+            
+            // Display metrics
+            document.getElementById('validationMetrics').innerHTML = `
+                <div class="metric">
+                    <div class="metric-value">${rmse.toFixed(2)}"</div>
+                    <div class="metric-label">RMSE</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">${maxError.toFixed(2)}"</div>
+                    <div class="metric-label">Max Error</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">${meanError.toFixed(2)}"</div>
+                    <div class="metric-label">Mean Error</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">${correlation.toFixed(4)}</div>
+                    <div class="metric-label">Correlation</div>
+                </div>
+            `;
+        }
+        
+        function generateTrajectoryTable(trajectory) {
+            const keyRanges = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Range (yds)</th>
+                            <th>Drop (in)</th>
+                            <th>Velocity (fps)</th>
+                            <th>Energy (ft-lbs)</th>
+                            <th>Time (s)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            for (const range of keyRanges) {
+                let closestPoint = null;
+                let minDistance = Infinity;
+                
+                for (const point of trajectory) {
+                    const distance = Math.abs(point.distance - range);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestPoint = point;
+                    }
+                }
+                
+                if (closestPoint && minDistance < 10) {
+                    tableHTML += `
+                        <tr>
+                            <td>${Math.round(closestPoint.distance)}</td>
+                            <td>${closestPoint.drop.toFixed(1)}</td>
+                            <td>${Math.round(closestPoint.velocity)}</td>
+                            <td>${Math.round(closestPoint.energy)}</td>
+                            <td>${closestPoint.time.toFixed(3)}</td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            tableHTML += '</tbody></table>';
+            document.getElementById('trajectoryTable').innerHTML = tableHTML;
+        }
+        
+        function calculateSensitivityAnalysis(type) {
+            if (!currentTrajectory || !currentConditions) return;
+            
+            const params = { ...currentConditions };
+            const variations = {};
+            
+            if (type === 'temperature') {
+                const baseTemp = params.temperature;
+                [-20, -10, 0, 10, 20].forEach(offset => {
+                    if (offset !== 0) {
+                        const varParams = { ...params, temperature: baseTemp + offset };
+                        variations[`${baseTemp + offset}°F`] = calculateVariationTrajectory(varParams);
+                    }
+                });
+            } else if (type === 'pressure') {
+                const basePress = params.pressure;
+                [-2.0, -1.0, 0, 1.0, 2.0].forEach(offset => {
+                    if (offset !== 0) {
+                        const varParams = { ...params, pressure: basePress + offset };
+                        variations[`${(basePress + offset).toFixed(1)} inHg`] = calculateVariationTrajectory(varParams);
+                    }
+                });
+            } else if (type === 'humidity') {
+                [0, 25, 50, 75, 100].forEach(humid => {
+                    if (humid !== params.humidity) {
+                        const varParams = { ...params, humidity: humid };
+                        variations[`${humid}% Humidity`] = calculateVariationTrajectory(varParams);
+                    }
+                });
+            } else if (type === 'altitude') {
+                [0, 2000, 4000, 6000, 8000].forEach(alt => {
+                    if (alt !== params.altitude) {
+                        const varParams = { ...params, altitude: alt };
+                        variations[`${alt} ft`] = calculateVariationTrajectory(varParams);
+                    }
+                });
+            }
+            
+            plotSensitivityAnalysis(currentTrajectory, variations, type);
+        }
+        
+        function calculateVariationTrajectory(params) {
+            const airDensityFactor = calculateAirDensityFactor(
+                params.temperature, params.pressure, params.humidity, params.altitude
+            );
+            
+            const zeroAngle = calculateZeroAngle(
+                params.muzzleVelocity, params.ballisticCoefficient, params.bulletWeight,
+                params.bulletDiameter, params.zeroRange, airDensityFactor
+            );
+            
+            return calculateSimpleTrajectory(
+                params.muzzleVelocity, params.ballisticCoefficient, params.bulletWeight,
+                params.bulletDiameter, zeroAngle, params.maxRange, airDensityFactor
+            );
+        }
+        
+        function plotSensitivityAnalysis(baseTrajectory, variations, type) {
+            const traces = [
+                {
+                    x: baseTrajectory.map(p => p.distance),
+                    y: baseTrajectory.map(p => p.drop),
+                    type: 'scatter',
+                    mode: 'lines',
+                    line: { color: '#00ff88', width: 3 },
+                    name: 'Baseline'
+                }
+            ];
+            
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'];
+            let colorIndex = 0;
+            
+            for (const [label, trajectory] of Object.entries(variations)) {
+                traces.push({
+                    x: trajectory.map(p => p.distance),
+                    y: trajectory.map(p => p.drop),
+                    type: 'scatter',
+                    mode: 'lines',
+                    line: { color: colors[colorIndex % colors.length], width: 2 },
+                    name: label
+                });
+                colorIndex++;
+            }
+            
+            const layout = {
+                title: { text: `${type.charAt(0).toUpperCase() + type.slice(1)} Sensitivity`, font: { color: '#ffffff', size: 16 } },
+                xaxis: { title: 'Range (yards)', color: '#ffffff', gridcolor: 'rgba(255,255,255,0.2)' },
+                yaxis: { title: 'Drop (inches)', color: '#ffffff', gridcolor: 'rgba(255,255,255,0.2)' },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#ffffff' }
+            };
+            
+            Plotly.newPlot(`${type}Plot`, traces, layout, { responsive: true });
+        }
+        
+        function calculateTrajectory() {
+            try {
+                currentTrajectory = calculateFullTrajectory();
+                const params = getParameters();
+                
+                plotTrajectory(currentTrajectory, `Ballistics Trajectory - ${params.zeroRange} yard zero`);
+                validateTrajectory(currentTrajectory, params.zeroRange);
+                generateTrajectoryTable(currentTrajectory);
+                
+                // Calculate sensitivity analysis for current tab
+                const activeTab = document.querySelector('.tab.active').textContent.toLowerCase();
+                calculateSensitivityAnalysis(activeTab);
+                
+            } catch (error) {
+                showStatus(`❌ Calculation failed: ${error.message}`, 'error');
+                console.error('Calculation error:', error);
+            }
+        }
+        
+        // Initialize on page load
+        window.onload = function() {
+            // Update all slider values
+            ['muzzleVelocity', 'ballisticCoefficient', 'bulletWeight', 'bulletDiameter', 
+             'temperature', 'pressure', 'humidity', 'altitude', 'maxRange'].forEach(id => {
+                updateValue(id);
+            });
+            
+            // Calculate initial trajectory
+            calculateTrajectory();
+        };
+    </script>
+</body>
+</html> 
