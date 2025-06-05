@@ -20,6 +20,33 @@
             padding: 20px;
         }
         
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 255, 136, 0.1);
+            color: rgba(0, 255, 136, 0.7);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: normal;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+            opacity: 0.6;
+        }
+        
+        .back-button:hover {
+            opacity: 1;
+            background: rgba(0, 255, 136, 0.2);
+            color: rgba(0, 255, 136, 1);
+            border-color: rgba(0, 255, 136, 0.5);
+        }
+        
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -286,6 +313,7 @@
     </style>
 </head>
 <body>
+    <a href="index.html" class="back-button">← Back to Main</a>
     <div class="container">
         <div class="header">
             <h1>🎯 Ballistics Physics Engine Simulator</h1>
