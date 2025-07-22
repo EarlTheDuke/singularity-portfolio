@@ -880,12 +880,7 @@
                 left: 10px;
             }
 
-            #quantum-field-canvas {
-                width: 50px;
-                height: 50px;
-                top: 190px;
-                left: 10px;
-            }
+
 
             #holographic-display-canvas {
                 width: 50px;
@@ -990,24 +985,19 @@
                 left: 10px;
             }
 
-            #quantum-field-canvas {
-                width: 40px;
-                height: 40px;
-                top: 170px;
-                left: 10px;
-            }
+
 
             #holographic-display-canvas {
                 width: 40px;
                 height: 40px;
-                top: 220px;
+                top: 170px;
                 right: 10px;
             }
 
             #galaxy-explorer-canvas {
                 width: 40px;
                 height: 40px;
-                top: 270px;
+                top: 220px;
                 right: 10px;
             }
 
@@ -1031,20 +1021,7 @@
                 height: 2px;
             }
 
-            .quantum-field {
-                width: 32px;
-                height: 32px;
-            }
 
-            .quantum-core {
-                width: 4px;
-                height: 4px;
-            }
-
-            .quantum-particle {
-                width: 2px;
-                height: 2px;
-            }
 
             .holo-display {
                 width: 25px;
@@ -1115,24 +1092,19 @@
                 left: 5px;
             }
 
-            #quantum-field-canvas {
-                width: 35px;
-                height: 35px;
-                top: 160px;
-                left: 5px;
-            }
+
 
             #holographic-display-canvas {
                 width: 35px;
                 height: 35px;
-                top: 205px;
+                top: 160px;
                 right: 5px;
             }
 
             #galaxy-explorer-canvas {
                 width: 35px;
                 height: 35px;
-                top: 250px;
+                top: 205px;
                 right: 5px;
             }
 
@@ -1156,20 +1128,7 @@
                 height: 2px;
             }
 
-            .quantum-field {
-                width: 28px;
-                height: 28px;
-            }
 
-            .quantum-core {
-                width: 3px;
-                height: 3px;
-            }
-
-            .quantum-particle {
-                width: 1.5px;
-                height: 1.5px;
-            }
 
             .holo-display {
                 width: 20px;
@@ -1734,28 +1693,7 @@
             transform: scale(1.02);
         }
 
-        #quantum-field-canvas {
-            position: fixed;
-            top: 260px;
-            left: 20px;
-            width: 75px;
-            height: 75px;
-            z-index: 5;
-            border-radius: 15px;
-            background: rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            pointer-events: auto;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
 
-        #quantum-field-canvas:hover {
-            border-color: rgba(0, 255, 136, 0.6);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-            transform: scale(1.02);
-        }
 
         .neural-container {
             position: relative;
@@ -2032,281 +1970,7 @@
             }
         }
 
-        .quantum-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: 
-                radial-gradient(circle at 30% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 70% 80%, rgba(0, 204, 102, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at center, rgba(0, 0, 0, 0.8) 0%, #000000 100%);
-        }
 
-        .quantum-field {
-            position: relative;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            background: radial-gradient(circle at center, 
-                rgba(0, 255, 136, 0.1) 0%, 
-                rgba(0, 204, 102, 0.05) 50%, 
-                transparent 100%);
-        }
-
-        .quantum-core {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #00ff88;
-            box-shadow: 
-                0 0 8px #00ff88,
-                0 0 16px rgba(0, 255, 136, 0.5),
-                0 0 24px rgba(0, 255, 136, 0.3);
-            animation: quantumCorePulse 2.5s ease-in-out infinite;
-        }
-
-        .quantum-particle {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            background: rgba(0, 255, 136, 0.9);
-            box-shadow: 0 0 6px rgba(0, 255, 136, 0.7);
-            animation: quantumParticleOrbit 8s linear infinite;
-        }
-
-        .quantum-particle-1 {
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            animation-delay: 0s;
-        }
-
-        .quantum-particle-2 {
-            top: 35%;
-            right: 25%;
-            animation-delay: 1s;
-        }
-
-        .quantum-particle-3 {
-            top: 50%;
-            right: 15%;
-            animation-delay: 2s;
-        }
-
-        .quantum-particle-4 {
-            bottom: 35%;
-            right: 25%;
-            animation-delay: 3s;
-        }
-
-        .quantum-particle-5 {
-            bottom: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            animation-delay: 4s;
-        }
-
-        .quantum-particle-6 {
-            bottom: 35%;
-            left: 25%;
-            animation-delay: 5s;
-        }
-
-        .quantum-particle-7 {
-            top: 50%;
-            left: 15%;
-            animation-delay: 6s;
-        }
-
-        .quantum-particle-8 {
-            top: 35%;
-            left: 25%;
-            animation-delay: 7s;
-        }
-
-        .quantum-entanglement {
-            position: absolute;
-            background: linear-gradient(45deg, 
-                rgba(0, 255, 136, 0.4), 
-                transparent, 
-                rgba(0, 255, 136, 0.4));
-            border-radius: 1px;
-            animation: quantumEntanglementFlow 3s ease-in-out infinite;
-        }
-
-        .quantum-entangle-1 {
-            top: 25%;
-            left: 48%;
-            width: 1px;
-            height: 20px;
-            transform: rotate(30deg);
-            animation-delay: 0s;
-        }
-
-        .quantum-entangle-2 {
-            top: 40%;
-            right: 30%;
-            width: 1px;
-            height: 15px;
-            transform: rotate(60deg);
-            animation-delay: 0.8s;
-        }
-
-        .quantum-entangle-3 {
-            bottom: 40%;
-            right: 30%;
-            width: 1px;
-            height: 15px;
-            transform: rotate(-60deg);
-            animation-delay: 1.6s;
-        }
-
-        .quantum-entangle-4 {
-            bottom: 25%;
-            left: 48%;
-            width: 1px;
-            height: 20px;
-            transform: rotate(-30deg);
-            animation-delay: 2.4s;
-        }
-
-        .quantum-wave {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 30px;
-            height: 30px;
-            border: 1px solid rgba(0, 255, 136, 0.4);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            animation: quantumWaveExpand 4s ease-out infinite;
-        }
-
-        .quantum-wave-2 {
-            animation-delay: 1s;
-            border-color: rgba(0, 204, 102, 0.3);
-        }
-
-        .quantum-wave-3 {
-            animation-delay: 2s;
-            border-color: rgba(136, 255, 204, 0.2);
-        }
-
-        .quantum-flux {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            border-radius: 50%;
-            background: #88ffcc;
-            box-shadow: 0 0 4px #88ffcc;
-            animation: quantumFluxMove 6s linear infinite;
-        }
-
-        .quantum-flux-1 {
-            top: 30%;
-            left: 20%;
-            animation-delay: 0s;
-        }
-
-        .quantum-flux-2 {
-            top: 60%;
-            right: 20%;
-            animation-delay: 2s;
-        }
-
-        .quantum-flux-3 {
-            bottom: 30%;
-            left: 30%;
-            animation-delay: 4s;
-        }
-
-        @keyframes quantumCorePulse {
-            0%, 100% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.5);
-                opacity: 0.7;
-            }
-        }
-
-        @keyframes quantumParticleOrbit {
-            0% {
-                transform: rotate(0deg) translateX(15px) rotate(0deg);
-                opacity: 0.9;
-            }
-            25% {
-                opacity: 1;
-            }
-            50% {
-                transform: rotate(180deg) translateX(20px) rotate(-180deg);
-                opacity: 0.7;
-            }
-            75% {
-                opacity: 1;
-            }
-            100% {
-                transform: rotate(360deg) translateX(15px) rotate(-360deg);
-                opacity: 0.9;
-            }
-        }
-
-        @keyframes quantumEntanglementFlow {
-            0%, 100% {
-                opacity: 0.2;
-                box-shadow: 0 0 2px rgba(0, 255, 136, 0.2);
-                transform: scaleY(0.8);
-            }
-            50% {
-                opacity: 0.9;
-                box-shadow: 0 0 8px rgba(0, 255, 136, 0.7);
-                transform: scaleY(1.2);
-            }
-        }
-
-        @keyframes quantumWaveExpand {
-            0% {
-                transform: translate(-50%, -50%) scale(0.5);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(2);
-                opacity: 0;
-            }
-        }
-
-        @keyframes quantumFluxMove {
-            0% {
-                transform: translateX(0) translateY(0) scale(0.8);
-                opacity: 0.5;
-            }
-            25% {
-                transform: translateX(15px) translateY(-8px) scale(1.2);
-                opacity: 1;
-            }
-            50% {
-                transform: translateX(-5px) translateY(10px) scale(0.9);
-                opacity: 0.8;
-            }
-            75% {
-                transform: translateX(-15px) translateY(-5px) scale(1.1);
-                opacity: 1;
-            }
-            100% {
-                transform: translateX(0) translateY(0) scale(0.8);
-                opacity: 0.5;
-            }
-        }
 
         .galaxy-explorer {
             position: relative;
@@ -2438,32 +2102,7 @@
         </div>
     </div>
     
-    <div id="quantum-field-canvas">
-        <div class="quantum-container">
-            <div class="quantum-field">
-                <div class="quantum-core"></div>
-                <div class="quantum-particle quantum-particle-1"></div>
-                <div class="quantum-particle quantum-particle-2"></div>
-                <div class="quantum-particle quantum-particle-3"></div>
-                <div class="quantum-particle quantum-particle-4"></div>
-                <div class="quantum-particle quantum-particle-5"></div>
-                <div class="quantum-particle quantum-particle-6"></div>
-                <div class="quantum-particle quantum-particle-7"></div>
-                <div class="quantum-particle quantum-particle-8"></div>
-                <div class="quantum-entanglement quantum-entangle-1"></div>
-                <div class="quantum-entanglement quantum-entangle-2"></div>
-                <div class="quantum-entanglement quantum-entangle-3"></div>
-                <div class="quantum-entanglement quantum-entangle-4"></div>
-                <div class="quantum-wave quantum-wave-1"></div>
-                <div class="quantum-wave quantum-wave-2"></div>
-                <div class="quantum-wave quantum-wave-3"></div>
-                <div class="quantum-flux quantum-flux-1"></div>
-                <div class="quantum-flux quantum-flux-2"></div>
-                <div class="quantum-flux quantum-flux-3"></div>
-            </div>
-        </div>
-    </div>
-    
+
     <div id="holographic-display-canvas">
         <div class="holographic-container">
             <div class="holo-data-streams">
@@ -3166,13 +2805,7 @@
                 });
             }
 
-            // Add click navigation to quantum field
-            const quantumFieldCanvas = document.getElementById('quantum-field-canvas');
-            if (quantumFieldCanvas) {
-                quantumFieldCanvas.addEventListener('click', () => {
-                    window.location.href = 'neural-genesis-temp.html';
-                });
-            }
+
 
             // Add click navigation to galaxy explorer
             const galaxyExplorerCanvas = document.getElementById('galaxy-explorer-canvas');
