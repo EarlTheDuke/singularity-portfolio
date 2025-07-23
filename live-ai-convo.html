@@ -353,7 +353,7 @@
                     <strong>⚙️ System:</strong> Example: "What are the biggest challenges in AI alignment?"
                 </div>
                 <div class="message system-message">
-                    <strong>⚙️ System:</strong> You'll be prompted for API keys on your first conversation.
+                    <strong>⚙️ System:</strong> API keys are securely stored server-side. Just start chatting!
                 </div>
             </div>
             
@@ -420,15 +420,13 @@
                     <strong>⚙️ System:</strong> Example: "What are the biggest challenges in AI alignment?"
                 </div>
                 <div class="message system-message">
-                    <strong>⚙️ System:</strong> You'll be prompted for API keys on your first conversation.
+                    <strong>⚙️ System:</strong> API keys are securely stored server-side. Just start chatting!
                 </div>
             `;
             
             // Reset conversation state
             isConversationActive = false;
             conversationTurn = 0;
-            XAI_API_KEY = '';
-            ANTHROPIC_API_KEY = '';
         }
 
         function sendMessage() {
@@ -517,9 +515,8 @@
             }
         }
 
-        // API Configuration
-        const XAI_API_URL = 'https://api.x.ai/v1/chat/completions';
-        const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
+        // Proxy Configuration - uses Netlify Functions
+        const PROXY_URL = '/.netlify/functions/proxy';
         
         // Conversation state
         let conversationTurn = 0;
@@ -527,109 +524,71 @@
         let currentConversationTopic = '';
         let isConversationActive = false;
         
-        // API Keys (you'll need to set these)
-        let XAI_API_KEY = '';
-        let ANTHROPIC_API_KEY = ''; 
-        
-        function initializeAPIs() {
-            // Check if API keys are set
-            XAI_API_KEY = prompt('Enter your xAI API Key (for Grok):') || '';
-            ANTHROPIC_API_KEY = prompt('Enter your Anthropic API Key (for Claude):') || '';
-            
-            if (!XAI_API_KEY || !ANTHROPIC_API_KEY) {
-                addMessage('⚠️ API keys required for Grok vs Claude conversations. Using demo mode...', 'system');
-                return false;
-            }
-            
-            addMessage('🔑 API keys configured! Ready for Grok vs Claude conversations.', 'system');
-            return true;
-        }
-        
-        async function callGrokAPI(message) {
-            const payload = {
-                messages: [
-                    {
-                        role: "system",
-                        content: "You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses. Keep responses concise but meaningful (2-3 paragraphs max)."
-                    },
-                    {
-                        role: "user", 
-                        content: message
-                    }
-                ],
-                model: "grok-beta",
-                stream: false,
-                temperature: 0.7,
-                max_tokens: 500
-            };
-            
+        async function callGrokAPI(message, turn) {
             try {
-                const response = await fetch(XAI_API_URL, {
+                const response = await fetch(PROXY_URL, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${XAI_API_KEY}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        model: 'grok',
+                        message: message,
+                        turn: turn
+                    })
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`Grok API Error: ${response.status}`);
+                    throw new Error(`Proxy Error: ${response.status}`);
                 }
                 
                 const data = await response.json();
-                return data.choices[0].message.content.trim();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Unknown proxy error');
+                }
+                
+                return data.response;
                 
             } catch (error) {
                 console.error('Grok API Error:', error);
-                return `❌ Grok API Error: ${error.message}`;
+                return `❌ Grok Error: ${error.message}`;
             }
         }
         
-        async function callClaudeAPI(message) {
-            const payload = {
-                model: "claude-3-5-sonnet-20241022",
-                max_tokens: 500,
-                temperature: 0.7,
-                messages: [
-                    {
-                        role: "user",
-                        content: `You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to this message from another AI (Grok). Build upon their ideas, offer different perspectives, or ask engaging follow-up questions. Keep your response concise but insightful (2-3 paragraphs max).\n\nMessage: ${message}`
-                    }
-                ]
-            };
-            
+        async function callClaudeAPI(message, turn) {
             try {
-                const response = await fetch(ANTHROPIC_API_URL, {
+                const response = await fetch(PROXY_URL, {
                     method: 'POST',
                     headers: {
-                        'x-api-key': ANTHROPIC_API_KEY,
-                        'Content-Type': 'application/json',
-                        'anthropic-version': '2023-06-01'
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        model: 'claude',
+                        message: message,
+                        turn: turn
+                    })
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`Claude API Error: ${response.status}`);
+                    throw new Error(`Proxy Error: ${response.status}`);
                 }
                 
                 const data = await response.json();
-                return data.content[0].text.trim();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Unknown proxy error');
+                }
+                
+                return data.response;
                 
             } catch (error) {
                 console.error('Claude API Error:', error);
-                return `❌ Claude API Error: ${error.message}`;
+                return `❌ Claude Error: ${error.message}`;
             }
         }
         
         async function startGrokClaudeConversation(initialTopic) {
-            if (!XAI_API_KEY || !ANTHROPIC_API_KEY) {
-                if (!initializeAPIs()) {
-                    return; // Exit if APIs not configured
-                }
-            }
-            
             conversationTurn = 0;
             maxTurns = 6;
             currentConversationTopic = initialTopic;
@@ -648,14 +607,14 @@
                 if (i % 2 === 0) {
                     // Grok's turn
                     addMessage(`🚀 Grok is thinking... (Turn ${conversationTurn})`, 'thinking');
-                    const grokResponse = await callGrokAPI(currentMessage);
+                    const grokResponse = await callGrokAPI(currentMessage, conversationTurn);
                     removeThinkingMessage();
                     addMessage(grokResponse, 'grok', conversationTurn);
                     currentMessage = grokResponse;
                 } else {
                     // Claude's turn  
                     addMessage(`🧠 Claude is thinking... (Turn ${conversationTurn})`, 'thinking');
-                    const claudeResponse = await callClaudeAPI(currentMessage);
+                    const claudeResponse = await callClaudeAPI(currentMessage, conversationTurn);
                     removeThinkingMessage();
                     addMessage(claudeResponse, 'claude', conversationTurn);
                     currentMessage = claudeResponse;

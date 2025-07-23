@@ -1,0 +1,18 @@
+{
+  "name": "singularity-portfolio",
+  "version": "1.0.0",
+  "description": "AI-powered portfolio website with secure Grok vs Claude conversations",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "keywords": ["ai", "portfolio", "grok", "claude", "singularity"],
+  "author": "Your Name",
+  "license": "MIT"
+} 
