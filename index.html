@@ -880,7 +880,12 @@
                 left: 10px;
             }
 
-
+            #live-ai-convo-canvas {
+                width: 50px;
+                height: 50px;
+                top: 190px;
+                left: 10px;
+            }
 
             #holographic-display-canvas {
                 width: 50px;
@@ -929,6 +934,21 @@
             .neural-node {
                 width: 3px;
                 height: 3px;
+            }
+
+            .ai-chat-interface {
+                width: 40px;
+                height: 40px;
+            }
+
+            .ai-core-processor {
+                width: 6px;
+                height: 6px;
+            }
+
+            .message-bubble {
+                width: 9px;
+                height: 6px;
             }
 
             .holo-display {
@@ -985,19 +1005,24 @@
                 left: 10px;
             }
 
-
+            #live-ai-convo-canvas {
+                width: 40px;
+                height: 40px;
+                top: 170px;
+                left: 10px;
+            }
 
             #holographic-display-canvas {
                 width: 40px;
                 height: 40px;
-                top: 170px;
+                top: 220px;
                 right: 10px;
             }
 
             #galaxy-explorer-canvas {
                 width: 40px;
                 height: 40px;
-                top: 220px;
+                top: 270px;
                 right: 10px;
             }
 
@@ -1021,7 +1046,20 @@
                 height: 2px;
             }
 
+            .ai-chat-interface {
+                width: 32px;
+                height: 32px;
+            }
 
+            .ai-core-processor {
+                width: 4px;
+                height: 4px;
+            }
+
+            .message-bubble {
+                width: 8px;
+                height: 5px;
+            }
 
             .holo-display {
                 width: 25px;
@@ -1092,19 +1130,24 @@
                 left: 5px;
             }
 
-
+            #live-ai-convo-canvas {
+                width: 35px;
+                height: 35px;
+                top: 160px;
+                left: 5px;
+            }
 
             #holographic-display-canvas {
                 width: 35px;
                 height: 35px;
-                top: 160px;
+                top: 205px;
                 right: 5px;
             }
 
             #galaxy-explorer-canvas {
                 width: 35px;
                 height: 35px;
-                top: 205px;
+                top: 250px;
                 right: 5px;
             }
 
@@ -1128,7 +1171,20 @@
                 height: 2px;
             }
 
+            .ai-chat-interface {
+                width: 28px;
+                height: 28px;
+            }
 
+            .ai-core-processor {
+                width: 3px;
+                height: 3px;
+            }
+
+            .message-bubble {
+                width: 7px;
+                height: 4px;
+            }
 
             .holo-display {
                 width: 20px;
@@ -1693,7 +1749,292 @@
             transform: scale(1.02);
         }
 
+        #live-ai-convo-canvas {
+            position: fixed;
+            top: 260px;
+            left: 20px;
+            width: 75px;
+            height: 75px;
+            z-index: 5;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
 
+        #live-ai-convo-canvas:hover {
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            transform: scale(1.02);
+                }
+
+        .ai-convo-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(0, 204, 102, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at center, rgba(0, 0, 0, 0.8) 0%, #000000 100%);
+        }
+
+        .ai-chat-interface {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            background: radial-gradient(circle at center, 
+                rgba(0, 255, 136, 0.1) 0%, 
+                rgba(0, 204, 102, 0.05) 50%, 
+                transparent 100%);
+        }
+
+        .ai-core-processor {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            box-shadow: 
+                0 0 10px #00ff88,
+                0 0 20px rgba(0, 255, 136, 0.5),
+                0 0 30px rgba(0, 255, 136, 0.3);
+            animation: aiCorePulse 2s ease-in-out infinite;
+        }
+
+        .message-bubble {
+            position: absolute;
+            width: 12px;
+            height: 8px;
+            background: rgba(0, 255, 136, 0.6);
+            border-radius: 6px 6px 6px 2px;
+            box-shadow: 0 0 6px rgba(0, 255, 136, 0.4);
+            animation: messageBubbleFloat 4s ease-in-out infinite;
+        }
+
+        .message-bubble-1 {
+            top: 15%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .message-bubble-2 {
+            top: 25%;
+            right: 15%;
+            transform: scaleX(-1);
+            background: rgba(0, 204, 102, 0.6);
+            animation-delay: 1s;
+        }
+
+        .message-bubble-3 {
+            bottom: 25%;
+            left: 20%;
+            animation-delay: 2s;
+        }
+
+        .message-bubble-4 {
+            bottom: 15%;
+            right: 20%;
+            transform: scaleX(-1);
+            background: rgba(136, 255, 204, 0.6);
+            animation-delay: 3s;
+        }
+
+        .data-stream-vertical {
+            position: absolute;
+            width: 1px;
+            height: 25px;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                rgba(0, 255, 136, 0.8) 30%, 
+                rgba(0, 255, 136, 0.4) 70%, 
+                transparent 100%);
+            animation: dataStreamFlow 3s linear infinite;
+        }
+
+        .data-stream-1 {
+            top: 20%;
+            left: 40%;
+            animation-delay: 0s;
+        }
+
+        .data-stream-2 {
+            top: 30%;
+            right: 35%;
+            animation-delay: 1s;
+        }
+
+        .data-stream-3 {
+            bottom: 20%;
+            left: 60%;
+            animation-delay: 2s;
+        }
+
+        .ai-thinking-dots {
+            position: absolute;
+            display: flex;
+            gap: 3px;
+            top: 40%;
+            left: 35%;
+        }
+
+        .thinking-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(0, 255, 136, 0.8);
+            animation: thinkingDotPulse 1.5s ease-in-out infinite;
+        }
+
+        .thinking-dot-1 {
+            animation-delay: 0s;
+        }
+
+        .thinking-dot-2 {
+            animation-delay: 0.3s;
+        }
+
+        .thinking-dot-3 {
+            animation-delay: 0.6s;
+        }
+
+        .conversation-waves {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: conversationWaveExpand 3s ease-out infinite;
+        }
+
+        .conversation-wave-2 {
+            animation-delay: 1s;
+            border-color: rgba(0, 204, 102, 0.2);
+        }
+
+        .conversation-wave-3 {
+            animation-delay: 2s;
+            border-color: rgba(136, 255, 204, 0.1);
+        }
+
+        .ai-signal-bars {
+            position: absolute;
+            top: 10%;
+            right: 15%;
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+        }
+
+        .signal-bar {
+            width: 2px;
+            background: rgba(0, 255, 136, 0.7);
+            animation: signalBarPulse 2s ease-in-out infinite;
+        }
+
+        .signal-bar-1 {
+            height: 6px;
+            animation-delay: 0s;
+        }
+
+        .signal-bar-2 {
+            height: 9px;
+            animation-delay: 0.2s;
+        }
+
+        .signal-bar-3 {
+            height: 12px;
+            animation-delay: 0.4s;
+        }
+
+        .signal-bar-4 {
+            height: 8px;
+            animation-delay: 0.6s;
+        }
+
+        @keyframes aiCorePulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes messageBubbleFloat {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-3px) scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes dataStreamFlow {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px) scaleY(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(0px) scaleY(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(10px) scaleY(0.5);
+            }
+        }
+
+        @keyframes thinkingDotPulse {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes conversationWaveExpand {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes signalBarPulse {
+            0%, 100% {
+                opacity: 0.4;
+                transform: scaleY(0.7);
+            }
+            50% {
+                opacity: 1;
+                transform: scaleY(1);
+            }
+        }
 
         .neural-container {
             position: relative;
@@ -2102,6 +2443,34 @@
         </div>
     </div>
     
+    <div id="live-ai-convo-canvas">
+        <div class="ai-convo-container">
+            <div class="ai-chat-interface">
+                <div class="ai-core-processor"></div>
+                <div class="message-bubble message-bubble-1"></div>
+                <div class="message-bubble message-bubble-2"></div>
+                <div class="message-bubble message-bubble-3"></div>
+                <div class="message-bubble message-bubble-4"></div>
+                <div class="data-stream-vertical data-stream-1"></div>
+                <div class="data-stream-vertical data-stream-2"></div>
+                <div class="data-stream-vertical data-stream-3"></div>
+                <div class="ai-thinking-dots">
+                    <div class="thinking-dot thinking-dot-1"></div>
+                    <div class="thinking-dot thinking-dot-2"></div>
+                    <div class="thinking-dot thinking-dot-3"></div>
+                </div>
+                <div class="conversation-waves conversation-wave-1"></div>
+                <div class="conversation-waves conversation-wave-2"></div>
+                <div class="conversation-waves conversation-wave-3"></div>
+                <div class="ai-signal-bars">
+                    <div class="signal-bar signal-bar-1"></div>
+                    <div class="signal-bar signal-bar-2"></div>
+                    <div class="signal-bar signal-bar-3"></div>
+                    <div class="signal-bar signal-bar-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="holographic-display-canvas">
         <div class="holographic-container">
@@ -2805,7 +3174,13 @@
                 });
             }
 
-
+            // Add click navigation to live AI convo
+            const liveAiConvoCanvas = document.getElementById('live-ai-convo-canvas');
+            if (liveAiConvoCanvas) {
+                liveAiConvoCanvas.addEventListener('click', () => {
+                    window.location.href = 'live-ai-convo.html';
+                });
+            }
 
             // Add click navigation to galaxy explorer
             const galaxyExplorerCanvas = document.getElementById('galaxy-explorer-canvas');

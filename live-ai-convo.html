@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live AI Convo - The Singularity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(0, 204, 102, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at center, rgba(0, 0, 0, 0.9) 0%, #000000 100%);
+        }
+
+        .auth-card {
+            background: rgba(20, 20, 20, 0.9);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 50px rgba(0, 255, 136, 0.2);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .auth-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #00ff88);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .auth-description {
+            color: #cccccc;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .auth-input {
+            padding: 15px 20px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            background: rgba(10, 10, 10, 0.95);
+        }
+
+        .auth-button {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 255, 136, 0.4);
+        }
+
+        .error-message {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #00ff88;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-link:hover {
+            color: #88ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .ai-convo-container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .convo-header {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .convo-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #00ff88);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .chat-interface {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000000;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #ffffff;
+        }
+
+        .chat-input-container {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(0, 255, 136, 0.3);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 18px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .send-button {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .logout-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 68, 68, 0.8);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logout-button:hover {
+            background: rgba(255, 68, 68, 1);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .auth-card {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .auth-title {
+                font-size: 2rem;
+            }
+
+            .convo-title {
+                font-size: 2rem;
+            }
+
+            .chat-interface {
+                height: 500px;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Home</a>
+
+    <!-- Authentication Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-card">
+            <h1 class="auth-title">🤖 Live AI Convo</h1>
+            <p class="auth-description">Enter the access code to continue</p>
+            
+            <div class="auth-form">
+                <input type="password" class="auth-input" id="passwordInput" placeholder="Access Code" />
+                <button class="auth-button" onclick="checkPassword()">Access Chat</button>
+                <div class="error-message" id="errorMessage">
+                    Invalid access code. Please try again.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Interface (Hidden by default) -->
+    <div class="ai-convo-container" id="chatContainer">
+        <button class="logout-button" onclick="logout()">Logout</button>
+        
+        <div class="convo-header">
+            <h1 class="convo-title">Live AI Conversation</h1>
+            <p style="color: #cccccc; font-style: italic;">Real-time AI interaction interface</p>
+        </div>
+
+        <div class="chat-interface">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai-message">
+                    <strong>AI Assistant:</strong> Welcome! I'm ready to chat. What would you like to discuss?
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type your message here..." />
+                <button class="send-button" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple password - you can change this
+        const ACCESS_CODE = 'singularity2025';
+        
+        // Check if user is already authenticated (session storage)
+        window.addEventListener('load', () => {
+            if (sessionStorage.getItem('aiConvoAuthenticated') === 'true') {
+                showChatInterface();
+            }
+        });
+
+        function checkPassword() {
+            const inputPassword = document.getElementById('passwordInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (inputPassword === ACCESS_CODE) {
+                // Set session authentication
+                sessionStorage.setItem('aiConvoAuthenticated', 'true');
+                showChatInterface();
+            } else {
+                errorMessage.style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                
+                // Hide error message after 3 seconds
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function showChatInterface() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'block';
+            document.querySelector('.back-link').style.display = 'none';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('aiConvoAuthenticated');
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('chatContainer').style.display = 'none';
+            document.querySelector('.back-link').style.display = 'block';
+            document.getElementById('passwordInput').value = '';
+            
+            // Clear chat messages except the welcome message
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="message ai-message">
+                    <strong>AI Assistant:</strong> Welcome! I'm ready to chat. What would you like to discuss?
+                </div>
+            `;
+        }
+
+        function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            
+            if (message === '') return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            
+            // Clear input
+            chatInput.value = '';
+            
+            // Simulate AI response (you can replace this with actual AI integration)
+            setTimeout(() => {
+                const aiResponse = generateAIResponse(message);
+                addMessage(aiResponse, 'ai');
+            }, 1000);
+        }
+
+        function addMessage(text, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `<strong>You:</strong> ${text}`;
+            } else {
+                messageDiv.innerHTML = `<strong>AI Assistant:</strong> ${text}`;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function generateAIResponse(userMessage) {
+            // Simple response generator - you can replace this with actual AI API calls
+            const responses = [
+                "That's an interesting perspective! Can you tell me more about that?",
+                "I understand what you're saying. Let me think about that for a moment...",
+                "That reminds me of something related to AI development. What are your thoughts on that?",
+                "Great question! From an AI perspective, I'd say that depends on several factors.",
+                "I appreciate you sharing that with me. It's fascinating how humans approach these topics.",
+                "That's a complex topic. Would you like to explore different angles of this?",
+                "Your input helps me understand human reasoning better. Can you elaborate?",
+                "Interesting! This relates to some concepts I've been processing lately.",
+                "That's thought-provoking. I'm curious about your experience with this.",
+                "I see where you're coming from. This is the kind of conversation I find most engaging!"
+            ];
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        // Allow Enter key to send message
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (document.getElementById('chatContainer').style.display !== 'none') {
+                    sendMessage();
+                } else {
+                    checkPassword();
+                }
+            }
+        });
+    </script>
+</body>
+</html> 
