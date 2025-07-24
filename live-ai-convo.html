@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live AI Convo - The Singularity</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
         /* Page Password Protection Styles */
         .page-password-overlay {
             position: fixed;
@@ -102,22 +117,6 @@
 
         .page-content {
             display: none;
-        }
-    
-    </style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #0a0a0a;
-            color: #ffffff;
-            overflow-x: hidden;
-            line-height: 1.6;
-            min-height: 100vh;
         }
 
         .auth-container {
@@ -433,78 +432,99 @@
     <div class="page-content" id="pageContent">
         <a href="index.html" class="back-link">← Back to Home</a>
 
-    <!-- Authentication Container -->
-    <div class="auth-container" id="authContainer">
-        <div class="auth-card">
-            <h1 class="auth-title">🤖 Live AI Convo</h1>
-            <p class="auth-description">Enter the access code to continue</p>
-            
-            <div class="auth-form">
-                <input type="password" class="auth-input" id="passwordInput" placeholder="Access Code" />
-                <button class="auth-button" onclick="checkPassword()">Access Chat</button>
-                <div class="error-message" id="errorMessage">
-                    Invalid access code. Please try again.
+        <!-- Authentication Container -->
+        <div class="auth-container" id="authContainer">
+            <div class="auth-card">
+                <h1 class="auth-title">🤖 Live AI Convo</h1>
+                <p class="auth-description">Enter the access code to continue</p>
+                
+                <div class="auth-form">
+                    <input type="password" class="auth-input" id="passwordInput" placeholder="Access Code" />
+                    <button class="auth-button" onclick="checkPassword()">Access Chat</button>
+                    <div class="error-message" id="errorMessage">
+                        Invalid access code. Please try again.
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Chat Interface (Hidden by default) -->
-    <div class="ai-convo-container" id="chatContainer">
-        <button class="logout-button" onclick="logout()">Logout</button>
-        
-        <div class="convo-header">
-            <h1 class="convo-title">Grok vs Claude Conversations</h1>
-            <p style="color: #cccccc; font-style: italic;">Watch 🚀 Grok and 🧠 Claude debate any topic • Real-time AI vs AI discussions</p>
-        </div>
-
-        <div class="chat-interface">
-            <div class="chat-messages" id="chatMessages">
-                <div class="message system-message">
-                    <strong>⚙️ System:</strong> Welcome to Grok vs Claude Conversations! 🚀🧠
-                </div>
-                <div class="message system-message">
-                    <strong>⚙️ System:</strong> Enter any topic to start a 6-turn conversation between Grok (xAI) and Claude (Anthropic).
-                </div>
-                <div class="message system-message">
-                    <strong>⚙️ System:</strong> Example: "What are the biggest challenges in AI alignment?"
-                </div>
-                <div class="message system-message">
-                    <strong>⚙️ System:</strong> API keys are securely stored server-side. Just start chatting!
-                </div>
-            </div>
+        <!-- Chat Interface (Hidden by default) -->
+        <div class="ai-convo-container" id="chatContainer">
+            <button class="logout-button" onclick="logout()">Logout</button>
             
-            <div class="chat-input-container">
-                <input type="text" class="chat-input" id="chatInput" placeholder="Enter a topic for Grok vs Claude to discuss..." />
-                <button class="send-button" onclick="sendMessage()">Start Conversation</button>
+            <div class="convo-header">
+                <h1 class="convo-title">Grok vs Claude Conversations</h1>
+                <p style="color: #cccccc; font-style: italic;">Watch 🚀 Grok and 🧠 Claude debate any topic • Real-time AI vs AI discussions</p>
+            </div>
+
+            <div class="chat-interface">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message system-message">
+                        <strong>⚙️ System:</strong> Welcome to Grok vs Claude Conversations! 🚀🧠
+                    </div>
+                    <div class="message system-message">
+                        <strong>⚙️ System:</strong> Enter any topic to start a 6-turn conversation between Grok (xAI) and Claude (Anthropic).
+                    </div>
+                    <div class="message system-message">
+                        <strong>⚙️ System:</strong> Example: "What are the biggest challenges in AI alignment?"
+                    </div>
+                    <div class="message system-message">
+                        <strong>⚙️ System:</strong> API keys are securely stored server-side. Just start chatting!
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Enter a topic for Grok vs Claude to discuss..." />
+                    <button class="send-button" onclick="sendMessage()">Start Conversation</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Check access authorization first
+        // Page Password Protection
+        const PAGE_PASSWORD = 'aimaster2025';
+        
+        // Check if user is already authenticated for page access
         window.addEventListener('load', () => {
-            const hasAccess = sessionStorage.getItem('aiAccessGranted');
-            const accessTime = sessionStorage.getItem('aiAccessTime');
-            const currentTime = new Date().getTime();
-            
-            // Check if access is still valid (24 hours = 86400000 milliseconds)
-            if (!hasAccess || !accessTime || (currentTime - parseInt(accessTime)) >= 86400000) {
-                // Clear invalid session and redirect to access page
-                sessionStorage.removeItem('aiAccessGranted');
-                sessionStorage.removeItem('aiAccessTime');
-                window.location.href = 'ai-access.html';
-                return;
+            if (sessionStorage.getItem('pageAccessAuthenticated') === 'true') {
+                showPageContent();
             }
+        });
+
+        function checkPagePassword() {
+            const inputPassword = document.getElementById('pagePasswordInput').value;
+            const errorMessage = document.getElementById('pagePasswordError');
             
-            // If authenticated, check the inner access code
+            if (inputPassword === PAGE_PASSWORD) {
+                // Set session authentication for page access
+                sessionStorage.setItem('pageAccessAuthenticated', 'true');
+                showPageContent();
+            } else {
+                errorMessage.style.display = 'block';
+                document.getElementById('pagePasswordInput').value = '';
+                
+                // Hide error message after 3 seconds
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function showPageContent() {
+            document.getElementById('pagePasswordOverlay').style.display = 'none';
+            document.getElementById('pageContent').style.display = 'block';
+        }
+
+        // Simple password - you can change this
+        const ACCESS_CODE = 'singularity2025';
+        
+        // Check if user is already authenticated (session storage)
+        window.addEventListener('load', () => {
             if (sessionStorage.getItem('aiConvoAuthenticated') === 'true') {
                 showChatInterface();
             }
         });
-
-        // Simple password - you can change this
-        const ACCESS_CODE = 'singularity2025';
 
         function checkPassword() {
             const inputPassword = document.getElementById('passwordInput').value;
@@ -532,13 +552,32 @@
         }
 
         function logout() {
-            // Clear all session data
             sessionStorage.removeItem('aiConvoAuthenticated');
-            sessionStorage.removeItem('aiAccessGranted');
-            sessionStorage.removeItem('aiAccessTime');
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('chatContainer').style.display = 'none';
+            document.querySelector('.back-link').style.display = 'block';
+            document.getElementById('passwordInput').value = '';
             
-            // Redirect to access page
-            window.location.href = 'ai-access.html';
+            // Clear chat messages and restore welcome messages
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="message system-message">
+                    <strong>⚙️ System:</strong> Welcome to Grok vs Claude Conversations! 🚀🧠
+                </div>
+                <div class="message system-message">
+                    <strong>⚙️ System:</strong> Enter any topic to start a 6-turn conversation between Grok (xAI) and Claude (Anthropic).
+                </div>
+                <div class="message system-message">
+                    <strong>⚙️ System:</strong> Example: "What are the biggest challenges in AI alignment?"
+                </div>
+                <div class="message system-message">
+                    <strong>⚙️ System:</strong> API keys are securely stored server-side. Just start chatting!
+                </div>
+            `;
+            
+            // Reset conversation state
+            isConversationActive = false;
+            conversationTurn = 0;
         }
 
         function sendMessage() {
@@ -767,50 +806,6 @@
         // Allow Enter key to send message
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                if (document.getElementById('chatContainer').style.display !== 'none') {
-                    sendMessage();
-                } else {
-                    checkPassword();
-                }
-            }
-        });
-        // Page Password Protection
-        const PAGE_PASSWORD = 'aimaster2025';
-        
-        // Check if user is already authenticated for page access
-        window.addEventListener('load', () => {
-            if (sessionStorage.getItem('pageAccessAuthenticated') === 'true') {
-                showPageContent();
-            }
-        });
-
-        function checkPagePassword() {
-            const inputPassword = document.getElementById('pagePasswordInput').value;
-            const errorMessage = document.getElementById('pagePasswordError');
-            
-            if (inputPassword === PAGE_PASSWORD) {
-                // Set session authentication for page access
-                sessionStorage.setItem('pageAccessAuthenticated', 'true');
-                showPageContent();
-            } else {
-                errorMessage.style.display = 'block';
-                document.getElementById('pagePasswordInput').value = '';
-                
-                // Hide error message after 3 seconds
-                setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        function showPageContent() {
-            document.getElementById('pagePasswordOverlay').style.display = 'none';
-            document.getElementById('pageContent').style.display = 'block';
-        }
-
-        // Allow Enter key to submit page password
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
                 if (document.getElementById('pagePasswordOverlay').style.display !== 'none') {
                     checkPagePassword();
                 } else if (document.getElementById('chatContainer').style.display !== 'none') {
@@ -820,10 +815,6 @@
                 }
             }
         });
-
     </script>
-
-    <!-- Close page content div -->
-    </div>
 </body>
 </html> 
