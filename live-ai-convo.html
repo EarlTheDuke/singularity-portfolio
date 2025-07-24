@@ -5,6 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live AI Convo - The Singularity</title>
     <style>
+        /* Page Password Protection Styles */
+        .page-password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(0, 204, 102, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, #000000 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .page-password-card {
+            background: rgba(20, 20, 20, 0.95);
+            border: 2px solid rgba(0, 255, 136, 0.4);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 60px rgba(0, 255, 136, 0.3);
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .page-password-title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #00ff88);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .page-password-subtitle {
+            color: #cccccc;
+            margin-bottom: 2.5rem;
+            font-size: 1.2rem;
+        }
+
+        .page-password-input {
+            width: 100%;
+            padding: 18px 24px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-password-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.4);
+            background: rgba(10, 10, 10, 0.95);
+        }
+
+        .page-password-button {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #000000;
+            border: none;
+            padding: 18px 36px;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+        }
+
+        .page-password-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 40px rgba(0, 255, 136, 0.5);
+        }
+
+        .page-password-error {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.15);
+            border: 1px solid rgba(255, 68, 68, 0.4);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .page-content {
+            display: none;
+        }
+    
+    </style>
         * {
             margin: 0;
             padding: 0;
@@ -314,7 +414,24 @@
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-link">← Back to Home</a>
+    <!-- Page Password Protection -->
+    <div class="page-password-overlay" id="pagePasswordOverlay">
+        <div class="page-password-card">
+            <h1 class="page-password-title">🔐 Secure Access</h1>
+            <p class="page-password-subtitle">Enter password to access Live AI Conversations</p>
+            
+            <input type="password" class="page-password-input" id="pagePasswordInput" placeholder="Enter password" />
+            <button class="page-password-button" onclick="checkPagePassword()">Access Page</button>
+            
+            <div class="page-password-error" id="pagePasswordError">
+                Incorrect password. Please try again.
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Page Content (Hidden by default) -->
+    <div class="page-content" id="pageContent">
+        <a href="index.html" class="back-link">← Back to Home</a>
 
     <!-- Authentication Container -->
     <div class="auth-container" id="authContainer">
@@ -657,6 +774,56 @@
                 }
             }
         });
+        // Page Password Protection
+        const PAGE_PASSWORD = 'aimaster2025';
+        
+        // Check if user is already authenticated for page access
+        window.addEventListener('load', () => {
+            if (sessionStorage.getItem('pageAccessAuthenticated') === 'true') {
+                showPageContent();
+            }
+        });
+
+        function checkPagePassword() {
+            const inputPassword = document.getElementById('pagePasswordInput').value;
+            const errorMessage = document.getElementById('pagePasswordError');
+            
+            if (inputPassword === PAGE_PASSWORD) {
+                // Set session authentication for page access
+                sessionStorage.setItem('pageAccessAuthenticated', 'true');
+                showPageContent();
+            } else {
+                errorMessage.style.display = 'block';
+                document.getElementById('pagePasswordInput').value = '';
+                
+                // Hide error message after 3 seconds
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function showPageContent() {
+            document.getElementById('pagePasswordOverlay').style.display = 'none';
+            document.getElementById('pageContent').style.display = 'block';
+        }
+
+        // Allow Enter key to submit page password
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (document.getElementById('pagePasswordOverlay').style.display !== 'none') {
+                    checkPagePassword();
+                } else if (document.getElementById('chatContainer').style.display !== 'none') {
+                    sendMessage();
+                } else {
+                    checkPassword();
+                }
+            }
+        });
+
     </script>
+
+    <!-- Close page content div -->
+    </div>
 </body>
 </html> 
