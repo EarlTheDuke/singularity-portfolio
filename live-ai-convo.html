@@ -365,15 +365,29 @@
     </div>
 
     <script>
-        // Simple password - you can change this
-        const ACCESS_CODE = 'singularity2025';
-        
-        // Check if user is already authenticated (session storage)
+        // Check access authorization first
         window.addEventListener('load', () => {
+            const hasAccess = sessionStorage.getItem('aiAccessGranted');
+            const accessTime = sessionStorage.getItem('aiAccessTime');
+            const currentTime = new Date().getTime();
+            
+            // Check if access is still valid (24 hours = 86400000 milliseconds)
+            if (!hasAccess || !accessTime || (currentTime - parseInt(accessTime)) >= 86400000) {
+                // Clear invalid session and redirect to access page
+                sessionStorage.removeItem('aiAccessGranted');
+                sessionStorage.removeItem('aiAccessTime');
+                window.location.href = 'ai-access.html';
+                return;
+            }
+            
+            // If authenticated, check the inner access code
             if (sessionStorage.getItem('aiConvoAuthenticated') === 'true') {
                 showChatInterface();
             }
         });
+
+        // Simple password - you can change this
+        const ACCESS_CODE = 'singularity2025';
 
         function checkPassword() {
             const inputPassword = document.getElementById('passwordInput').value;
@@ -401,32 +415,13 @@
         }
 
         function logout() {
+            // Clear all session data
             sessionStorage.removeItem('aiConvoAuthenticated');
-            document.getElementById('authContainer').style.display = 'flex';
-            document.getElementById('chatContainer').style.display = 'none';
-            document.querySelector('.back-link').style.display = 'block';
-            document.getElementById('passwordInput').value = '';
+            sessionStorage.removeItem('aiAccessGranted');
+            sessionStorage.removeItem('aiAccessTime');
             
-            // Clear chat messages and restore welcome messages
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = `
-                <div class="message system-message">
-                    <strong>⚙️ System:</strong> Welcome to Grok vs Claude Conversations! 🚀🧠
-                </div>
-                <div class="message system-message">
-                    <strong>⚙️ System:</strong> Enter any topic to start a 6-turn conversation between Grok (xAI) and Claude (Anthropic).
-                </div>
-                <div class="message system-message">
-                    <strong>⚙️ System:</strong> Example: "What are the biggest challenges in AI alignment?"
-                </div>
-                <div class="message system-message">
-                    <strong>⚙️ System:</strong> API keys are securely stored server-side. Just start chatting!
-                </div>
-            `;
-            
-            // Reset conversation state
-            isConversationActive = false;
-            conversationTurn = 0;
+            // Redirect to access page
+            window.location.href = 'ai-access.html';
         }
 
         function sendMessage() {
