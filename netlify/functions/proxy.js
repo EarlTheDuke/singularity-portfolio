@@ -57,7 +57,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-        model: "grok-beta",
+        model: "grok-2-1212",
         stream: false,
         temperature: 0.7,
         max_tokens: 500
@@ -110,12 +110,15 @@ exports.handler = async (event, context) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`${model.toUpperCase()} API Error:`, response.status, errorText);
+      console.error(`Request payload:`, JSON.stringify(payload, null, 2));
+      console.error(`API Headers:`, JSON.stringify(apiHeaders, null, 2));
       return {
         statusCode: response.status,
         headers,
         body: JSON.stringify({ 
           error: `${model.toUpperCase()} API Error: ${response.status}`,
-          details: errorText 
+          details: errorText,
+          status: response.status
         })
       };
     }
