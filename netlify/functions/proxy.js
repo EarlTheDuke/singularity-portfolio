@@ -107,7 +107,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-        model: "grok-4-0709",
+        model: "grok-4",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
