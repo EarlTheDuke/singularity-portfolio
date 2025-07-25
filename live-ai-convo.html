@@ -488,6 +488,63 @@
             margin-bottom: 1rem;
         }
 
+        /* Settings Form Controls */
+        .settings-control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-label {
+            display: block;
+            color: #ffffff;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .settings-select, .settings-input {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .settings-select:focus, .settings-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+            background: rgba(10, 10, 10, 0.95);
+        }
+
+        .settings-select option {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .settings-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .settings-col {
+            flex: 1;
+        }
+
+        .turn-progress-container {
+            margin-top: 0.5rem;
+            padding: 8px 12px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-align: center;
+            color: #00ff88;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -591,7 +648,48 @@
             <div class="settings-modal-content">
                 <div class="settings-section">
                     <div class="settings-section-title">🎯 Conversation Controls</div>
-                    <p style="color: #cccccc;">Customize your AI vs AI conversations</p>
+                    
+                    <div class="settings-row">
+                        <div class="settings-col">
+                            <div class="settings-control-group">
+                                <label class="settings-label" for="turnLimit">Turn Limit</label>
+                                <select class="settings-select" id="turnLimit" onchange="updateTurnLimit()">
+                                    <option value="4">4 turns</option>
+                                    <option value="6" selected>6 turns (current)</option>
+                                    <option value="8">8 turns</option>
+                                    <option value="12">12 turns</option>
+                                    <option value="unlimited">Unlimited</option>
+                                </select>
+                                <div class="turn-progress-container" id="turnProgress">
+                                    Progress: 0 / 6 turns
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-col">
+                            <div class="settings-control-group">
+                                <label class="settings-label" for="responseLength">Response Length</label>
+                                <select class="settings-select" id="responseLength" onchange="updateResponseLength()">
+                                    <option value="short">One sentence</option>
+                                    <option value="medium" selected>Medium (100 words)</option>
+                                    <option value="long">Long (200 words)</option>
+                                    <option value="detailed">Detailed (unlimited)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-control-group">
+                        <label class="settings-label" for="responseStyle">Response Style</label>
+                        <select class="settings-select" id="responseStyle" onchange="updateResponseStyle()">
+                            <option value="balanced" selected>Balanced</option>
+                            <option value="concise">Concise</option>
+                            <option value="detailed">Detailed</option>
+                            <option value="humorous">Humorous</option>
+                            <option value="formal">Formal</option>
+                            <option value="creative">Creative</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="settings-section">
@@ -649,6 +747,13 @@
         // Simple password - you can change this
         const ACCESS_CODE = 'singularity2025';
         
+        // Conversation Settings (defaults)
+        let conversationSettings = {
+            turnLimit: 6,
+            responseLength: 'medium',
+            responseStyle: 'balanced'
+        };
+        
         // Check if user is already authenticated (session storage)
         window.addEventListener('load', () => {
             if (sessionStorage.getItem('aiConvoAuthenticated') === 'true') {
@@ -702,11 +807,17 @@
             // Reset conversation state
             isConversationActive = false;
             conversationTurn = 0;
+            
+            // Reset progress indicator
+            updateTurnProgress();
         }
 
         function openSettings() {
             console.log('Opening settings modal...');
             document.getElementById('settingsModalOverlay').style.display = 'block';
+            
+            // Initialize/update progress indicator
+            updateTurnProgress();
         }
 
         function closeSettings() {
@@ -730,6 +841,35 @@
                 e.stopPropagation();
             });
         });
+
+        // Settings Update Functions
+        function updateTurnLimit() {
+            const turnLimitSelect = document.getElementById('turnLimit');
+            conversationSettings.turnLimit = turnLimitSelect.value === 'unlimited' ? 'unlimited' : parseInt(turnLimitSelect.value);
+            updateTurnProgress();
+            console.log('Turn limit updated to:', conversationSettings.turnLimit);
+        }
+
+        function updateResponseLength() {
+            const responseLengthSelect = document.getElementById('responseLength');
+            conversationSettings.responseLength = responseLengthSelect.value;
+            console.log('Response length updated to:', conversationSettings.responseLength);
+        }
+
+        function updateResponseStyle() {
+            const responseStyleSelect = document.getElementById('responseStyle');
+            conversationSettings.responseStyle = responseStyleSelect.value;
+            console.log('Response style updated to:', conversationSettings.responseStyle);
+        }
+
+        function updateTurnProgress() {
+            const progressDiv = document.getElementById('turnProgress');
+            if (conversationSettings.turnLimit === 'unlimited') {
+                progressDiv.textContent = `Progress: ${conversationTurn} turns completed`;
+            } else {
+                progressDiv.textContent = `Progress: ${conversationTurn} / ${conversationSettings.turnLimit} turns`;
+            }
+        }
 
         function sendMessage() {
             const chatInput = document.getElementById('chatInput');
@@ -892,14 +1032,20 @@
         
         async function startGrokClaudeConversation(initialTopic) {
             conversationTurn = 0;
-            maxTurns = 6;
+            // Apply conversation settings
+            const maxTurns = conversationSettings.turnLimit === 'unlimited' ? 50 : conversationSettings.turnLimit; // Cap unlimited at 50 for safety
             currentConversationTopic = initialTopic;
             isConversationActive = true;
             
             // Add the topic as user message
             addMessage(initialTopic, 'user');
             addMessage(`🚀 Starting Grok vs Claude conversation on: "${initialTopic}"`, 'system');
-            addMessage(`🔄 Running ${maxTurns} turns: Grok → Claude → Grok → Claude...`, 'system');
+            
+            // Dynamic system message based on settings
+            const turnText = conversationSettings.turnLimit === 'unlimited' ? 'unlimited turns' : `${maxTurns} turns`;
+            const lengthText = conversationSettings.responseLength;
+            const styleText = conversationSettings.responseStyle;
+            addMessage(`🔄 Running ${turnText} (${lengthText}, ${styleText}): Grok → Claude → Grok → Claude...`, 'system');
             
             let currentMessage = initialTopic;
             
@@ -921,6 +1067,9 @@
                     addMessage(claudeResponse, 'claude', conversationTurn);
                     currentMessage = claudeResponse;
                 }
+                
+                // Update turn progress indicator
+                updateTurnProgress();
                 
                 // Brief pause between calls
                 if (i < maxTurns - 1) {
