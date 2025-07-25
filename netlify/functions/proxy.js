@@ -107,7 +107,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-        model: "grok-2-1212",
+        model: "grok-4-0709",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
@@ -158,17 +158,31 @@ exports.handler = async (event, context) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`${model.toUpperCase()} API Error:`, response.status, errorText);
-      console.error(`Request payload:`, JSON.stringify(payload, null, 2));
-      console.error(`API Headers:`, JSON.stringify(apiHeaders, null, 2));
+      let errorText;
+      try {
+        errorText = await response.text();
+      } catch (e) {
+        errorText = 'Unable to read error response';
+      }
+      
+      console.error(`${model.toUpperCase()} API Error Details:`);
+      console.error(`- Status: ${response.status}`);
+      console.error(`- Status Text: ${response.statusText}`);
+      console.error(`- Response Headers:`, response.headers);
+      console.error(`- Error Body:`, errorText);
+      console.error(`- Request URL:`, apiUrl);
+      console.error(`- Request Payload:`, JSON.stringify(payload, null, 2));
+      console.error(`- Request Headers:`, JSON.stringify(apiHeaders, null, 2));
+      
       return {
         statusCode: response.status,
         headers,
         body: JSON.stringify({ 
           error: `${model.toUpperCase()} API Error: ${response.status}`,
           details: errorText,
-          status: response.status
+          status: response.status,
+          model_used: payload.model,
+          api_url: apiUrl
         })
       };
     }
