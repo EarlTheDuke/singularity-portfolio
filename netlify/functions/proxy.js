@@ -27,7 +27,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { model, message, turn } = JSON.parse(event.body);
+    const { model, message, turn, responseLength, responseStyle } = JSON.parse(event.body);
     
     if (!model || !message) {
       return {
@@ -35,6 +35,32 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({ error: 'Missing model or message' })
       };
+    }
+
+    // Create length constraint text and token limits
+    let lengthConstraint = '';
+    let maxTokens = 500;
+    
+    switch (responseLength) {
+      case 'short':
+        lengthConstraint = 'IMPORTANT: Respond with exactly ONE sentence only. No more than one sentence.';
+        maxTokens = 50;
+        break;
+      case 'medium':
+        lengthConstraint = 'IMPORTANT: Keep your response to around 100 words maximum (about 2-3 sentences).';
+        maxTokens = 150;
+        break;
+      case 'long':
+        lengthConstraint = 'IMPORTANT: Keep your response to around 200 words maximum (about 1-2 paragraphs).';
+        maxTokens = 300;
+        break;
+      case 'detailed':
+        lengthConstraint = 'You may provide a detailed response as needed.';
+        maxTokens = 800;
+        break;
+      default:
+        lengthConstraint = 'Keep your response concise but meaningful (2-3 paragraphs max).';
+        maxTokens = 500;
     }
 
     let apiUrl, apiHeaders, payload;
@@ -50,7 +76,7 @@ exports.handler = async (event, context) => {
         messages: [
           {
             role: "system",
-            content: "You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses. Keep responses concise but meaningful (2-3 paragraphs max)."
+            content: `You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses. ${lengthConstraint}`
           },
           {
             role: "user", 
@@ -60,7 +86,7 @@ exports.handler = async (event, context) => {
         model: "grok-2-1212",
         stream: false,
         temperature: 0.7,
-        max_tokens: 500
+        max_tokens: maxTokens
       };
     } else if (model === 'claude') {
       // Claude/Anthropic API configuration
@@ -72,12 +98,12 @@ exports.handler = async (event, context) => {
       };
       payload = {
         model: "claude-3-5-sonnet-20241022",
-        max_tokens: 500,
+        max_tokens: maxTokens,
         temperature: 0.7,
         messages: [
           {
             role: "user",
-            content: `You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to this message from another AI (Grok). Build upon their ideas, offer different perspectives, or ask engaging follow-up questions. Keep your response concise but insightful (2-3 paragraphs max).\n\nMessage: ${message}`
+            content: `You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to this message from another AI (Grok). Build upon their ideas, offer different perspectives, or ask engaging follow-up questions. ${lengthConstraint}\n\nMessage: ${message}`
           }
         ]
       };

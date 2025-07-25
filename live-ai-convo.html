@@ -976,7 +976,9 @@
                     body: JSON.stringify({
                         model: 'grok',
                         message: message,
-                        turn: turn
+                        turn: turn,
+                        responseLength: conversationSettings.responseLength,
+                        responseStyle: conversationSettings.responseStyle
                     })
                 });
                 
@@ -1008,7 +1010,9 @@
                     body: JSON.stringify({
                         model: 'claude',
                         message: message,
-                        turn: turn
+                        turn: turn,
+                        responseLength: conversationSettings.responseLength,
+                        responseStyle: conversationSettings.responseStyle
                     })
                 });
                 
