@@ -107,7 +107,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-        model: "grok-2-1212",
+        model: "x-ai/grok-4-07-09",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
@@ -121,7 +121,7 @@ exports.handler = async (event, context) => {
         'anthropic-version': '2023-06-01'
       };
       payload = {
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-20250514",
         max_tokens: maxTokens,
         temperature: 0.7,
         messages: [
