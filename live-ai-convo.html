@@ -388,6 +388,27 @@
             transform: translateY(-2px);
         }
 
+        .settings-button {
+            position: fixed;
+            top: 20px;
+            right: 110px;
+            background: rgba(0, 255, 136, 0.8);
+            color: #000000;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-size: 1.2rem;
+        }
+
+        .settings-button:hover {
+            background: rgba(0, 255, 136, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+
         @media (max-width: 768px) {
             .auth-card {
                 padding: 2rem;
@@ -450,6 +471,7 @@
 
         <!-- Chat Interface (Hidden by default) -->
         <div class="ai-convo-container" id="chatContainer">
+            <button class="settings-button" onclick="openSettings()" title="Conversation Settings">⚙️</button>
             <button class="logout-button" onclick="logout()">Logout</button>
             
             <div class="convo-header">
@@ -566,6 +588,12 @@
             // Reset conversation state
             isConversationActive = false;
             conversationTurn = 0;
+        }
+
+        function openSettings() {
+            // TODO: Open settings modal
+            console.log('Opening settings modal...');
+            alert('Settings feature coming soon! 🛠️');
         }
 
         function sendMessage() {
