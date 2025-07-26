@@ -99,7 +99,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-                          model: "grok-4-0709",
+                          model: "grok-beta",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
@@ -110,10 +110,10 @@ exports.handler = async (event, context) => {
       apiHeaders = {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'Content-Type': 'application/json',
-                          'anthropic-version': '2024-10-22'
+                          'anthropic-version': '2023-06-01'
       };
       payload = {
-                          model: "claude-4-sonnet",
+                          model: "claude-3-5-sonnet-20241022",
         max_tokens: maxTokens,
         temperature: 0.7,
         messages: [
