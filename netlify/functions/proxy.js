@@ -29,6 +29,14 @@ exports.handler = async (event, context) => {
   try {
     const { model, message, turn, responseLength, grokPrompt, claudePrompt } = JSON.parse(event.body);
     
+    // Debug logging
+    console.log('=== PROXY DEBUG ===');
+    console.log('Model:', model);
+    console.log('Message length:', message?.length);
+    console.log('Response length:', responseLength);
+    console.log('Grok prompt length:', grokPrompt?.length);
+    console.log('Claude prompt length:', claudePrompt?.length);
+    
     if (!model || !message) {
       return {
         statusCode: 400,
@@ -87,7 +95,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-        model: "grok-4-0709",
+                 model: "grok-2-1212",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
@@ -98,10 +106,10 @@ exports.handler = async (event, context) => {
       apiHeaders = {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'Content-Type': 'application/json',
-        'anthropic-version': '2024-10-22'
+                 'anthropic-version': '2023-06-01'
       };
       payload = {
-        model: "claude-4-sonnet",
+                 model: "claude-3-5-sonnet-20241022",
         max_tokens: maxTokens,
         temperature: 0.7,
         messages: [
@@ -129,6 +137,12 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Debug log the request being made
+    console.log('=== API REQUEST DEBUG ===');
+    console.log('URL:', apiUrl);
+    console.log('Model being used:', payload.model);
+    console.log('System/User prompt preview:', model === 'grok' ? payload.messages[0].content.substring(0, 100) + '...' : payload.messages[0].content.substring(0, 100) + '...');
+    
     // Make API request
     const response = await fetch(apiUrl, {
       method: 'POST',
