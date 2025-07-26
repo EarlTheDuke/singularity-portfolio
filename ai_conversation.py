@@ -52,7 +52,7 @@ class AIConversation:
                     "content": message
                 }
             ],
-                                                   "model": "grok-4",
+                                                                "model": "grok-4-0709",
             "stream": False,
             "temperature": 0.7,
             "max_tokens": 500
