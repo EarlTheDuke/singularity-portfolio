@@ -110,10 +110,10 @@ exports.handler = async (event, context) => {
       apiHeaders = {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'Content-Type': 'application/json',
-                          'anthropic-version': '2024-10-22'
+                          'anthropic-version': '2023-06-01'
       };
       payload = {
-                          model: "claude-4-sonnet",
+                          model: "claude-sonnet-4-20250514",
         max_tokens: maxTokens,
         temperature: 0.7,
         messages: [
@@ -160,13 +160,31 @@ exports.handler = async (event, context) => {
        console.log('Full Grok headers:', JSON.stringify(apiHeaders, null, 2));
      }
     
-    // Make API request
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: apiHeaders,
-      body: JSON.stringify(payload),
-      timeout: 30000
-    });
+         // Make API request with enhanced error handling
+     let response;
+     try {
+       console.log(`Making API request to ${model.toUpperCase()} at ${apiUrl}`);
+       response = await fetch(apiUrl, {
+         method: 'POST',
+         headers: apiHeaders,
+         body: JSON.stringify(payload),
+         timeout: 30000
+       });
+       console.log(`${model.toUpperCase()} API responded with status:`, response.status);
+     } catch (fetchError) {
+       console.error(`${model.toUpperCase()} API Fetch Error:`, fetchError);
+       return {
+         statusCode: 500,
+         headers,
+         body: JSON.stringify({ 
+           success: false,
+           error: `${model.toUpperCase()} API network error`,
+           details: fetchError.message,
+           model_used: payload.model,
+           api_url: apiUrl
+         })
+       };
+     }
 
     if (!response.ok) {
       let errorText;
@@ -185,36 +203,72 @@ exports.handler = async (event, context) => {
       console.error(`- Request Payload:`, JSON.stringify(payload, null, 2));
       console.error(`- Request Headers:`, JSON.stringify(apiHeaders, null, 2));
       
-      return {
-        statusCode: response.status,
-        headers,
-        body: JSON.stringify({ 
-          error: `${model.toUpperCase()} API Error: ${response.status}`,
-          details: errorText,
-          status: response.status,
-          model_used: payload.model,
-          api_url: apiUrl
-        })
-      };
+             return {
+         statusCode: response.status,
+         headers,
+         body: JSON.stringify({ 
+           success: false,
+           error: `${model.toUpperCase()} API Error: ${response.status}`,
+           details: errorText,
+           status: response.status,
+           model_used: payload.model,
+           api_url: apiUrl
+         })
+       };
     }
 
-    const data = await response.json();
-    
-    // Extract response text based on API format
-    let responseText;
-    if (model === 'grok') {
-      responseText = data.choices?.[0]?.message?.content?.trim();
-    } else if (model === 'claude') {
-      responseText = data.content?.[0]?.text?.trim();
-    }
+         // Parse response with error handling
+     let data;
+     try {
+       data = await response.json();
+       console.log(`${model.toUpperCase()} API response data:`, JSON.stringify(data, null, 2).substring(0, 500) + '...');
+     } catch (parseError) {
+       console.error(`${model.toUpperCase()} response parsing error:`, parseError);
+       return {
+         statusCode: 500,
+         headers,
+         body: JSON.stringify({ 
+           success: false,
+           error: `${model.toUpperCase()} response parsing failed`,
+           details: parseError.message 
+         })
+       };
+     }
+     
+     // Extract response text based on API format
+     let responseText;
+     try {
+       if (model === 'grok') {
+         responseText = data.choices?.[0]?.message?.content?.trim();
+       } else if (model === 'claude') {
+         responseText = data.content?.[0]?.text?.trim();
+       }
 
-    if (!responseText) {
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: 'No response text received from API' })
-      };
-    }
+       if (!responseText) {
+         console.error(`${model.toUpperCase()} no response text found in:`, JSON.stringify(data, null, 2));
+         return {
+           statusCode: 500,
+           headers,
+           body: JSON.stringify({ 
+             success: false,
+             error: `No response text received from ${model.toUpperCase()} API`,
+             details: 'Response structure did not contain expected text content',
+             raw_response: data
+           })
+         };
+       }
+     } catch (extractError) {
+       console.error(`${model.toUpperCase()} response extraction error:`, extractError);
+       return {
+         statusCode: 500,
+         headers,
+         body: JSON.stringify({ 
+           success: false,
+           error: `${model.toUpperCase()} response extraction failed`,
+           details: extractError.message 
+         })
+       };
+     }
 
     return {
       statusCode: 200,
@@ -227,15 +281,18 @@ exports.handler = async (event, context) => {
       })
     };
 
-  } catch (error) {
-    console.error('Proxy function error:', error);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ 
-        error: 'Internal server error',
-        details: error.message 
-      })
-    };
-  }
+     } catch (error) {
+     console.error('Proxy function error:', error);
+     console.error('Stack trace:', error.stack);
+     return {
+       statusCode: 500,
+       headers,
+       body: JSON.stringify({ 
+         success: false,
+         error: 'Internal server error',
+         details: error.message,
+         stack: error.stack
+       })
+     };
+   }
 }; 

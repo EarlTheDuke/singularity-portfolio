@@ -33,7 +33,7 @@ class AIConversation:
         self.anthropic_headers = {
             "x-api-key": self.anthropic_api_key,
             "Content-Type": "application/json",
-                         "anthropic-version": "2024-10-22"  # Claude 4 API version
+                                      "anthropic-version": "2023-06-01"  # Stable Claude API version
         }
         
         # Conversation history
@@ -75,7 +75,7 @@ class AIConversation:
     def call_claude(self, message: str) -> Optional[str]:
         """Call Anthropic's Claude API"""
         payload = {
-                         "model": "claude-4-sonnet",  # Restored working Claude 4 model
+                                      "model": "claude-sonnet-4-20250514",  # Correct Claude Sonnet 4 model format
             "max_tokens": 500,
             "temperature": 0.7,
             "messages": [
