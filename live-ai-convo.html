@@ -530,6 +530,116 @@
             align-items: flex-end;
         }
 
+        /* Prompt Dialog Styles */
+        .prompt-dialog {
+            margin-top: 1rem;
+            background: rgba(15, 15, 15, 0.9);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .prompt-dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.2rem;
+            background: rgba(0, 255, 136, 0.1);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+            cursor: pointer;
+        }
+
+        .prompt-dialog-title {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .prompt-toggle-btn {
+            background: none;
+            border: none;
+            color: #00ff88;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            padding: 0.2rem;
+        }
+
+        .prompt-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .prompt-toggle-btn.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .prompt-dialog-content {
+            padding: 1.2rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .prompt-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            background: rgba(5, 5, 5, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            line-height: 1.5;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .prompt-textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+            background: rgba(5, 5, 5, 0.95);
+        }
+
+        .prompt-dialog-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+
+        .prompt-action-btn {
+            padding: 0.7rem 1.4rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .prompt-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .prompt-action-btn.primary {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            border-color: #00ff88;
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .prompt-action-btn.primary:hover {
+            background: linear-gradient(45deg, #00cc66, #00aa55);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+        }
+
         .settings-col {
             flex: 1;
         }
@@ -691,6 +801,21 @@
                         </select>
                     </div>
                     
+                    <!-- Grok Prompt Dialog -->
+                    <div class="prompt-dialog" id="grokPromptDialog" style="display: none;">
+                        <div class="prompt-dialog-header">
+                            <label class="prompt-dialog-title">🚀 Grok System Prompt</label>
+                            <button class="prompt-toggle-btn" onclick="togglePromptDialog('grok')">▼</button>
+                        </div>
+                        <div class="prompt-dialog-content" id="grokPromptContent">
+                            <textarea class="prompt-textarea" id="grokPromptText" placeholder="System prompt will appear here..."></textarea>
+                            <div class="prompt-dialog-actions">
+                                <button class="prompt-action-btn" onclick="resetGrokPrompt()">Reset to Default</button>
+                                <button class="prompt-action-btn primary" onclick="saveGrokPrompt()">Save Custom Prompt</button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="settings-control-group">
                         <label class="settings-label" for="claudePreset">Interaction Preset - Claude</label>
                         <select class="settings-select" id="claudePreset" onchange="updateClaudePreset()">
@@ -701,6 +826,21 @@
                             <option value="formal">Formal</option>
                             <option value="creative">Creative</option>
                         </select>
+                    </div>
+                    
+                    <!-- Claude Prompt Dialog -->
+                    <div class="prompt-dialog" id="claudePromptDialog" style="display: none;">
+                        <div class="prompt-dialog-header">
+                            <label class="prompt-dialog-title">🧠 Claude System Prompt</label>
+                            <button class="prompt-toggle-btn" onclick="togglePromptDialog('claude')">▼</button>
+                        </div>
+                        <div class="prompt-dialog-content" id="claudePromptContent">
+                            <textarea class="prompt-textarea" id="claudePromptText" placeholder="System prompt will appear here..."></textarea>
+                            <div class="prompt-dialog-actions">
+                                <button class="prompt-action-btn" onclick="resetClaudePrompt()">Reset to Default</button>
+                                <button class="prompt-action-btn primary" onclick="saveClaudePrompt()">Save Custom Prompt</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -716,6 +856,35 @@
     <script>
         // Page Password Protection
         const PAGE_PASSWORD = 'aimaster2025';
+
+        // System Prompt Presets
+        const GROK_PROMPTS = {
+            balanced: "You are Grok, an AI assistant created by xAI. Engage in thoughtful, balanced conversation with other AIs. Provide well-reasoned responses that consider multiple perspectives. Be witty when appropriate but maintain intellectual depth. Keep responses concise yet meaningful (2-3 paragraphs). Build upon ideas constructively and ask insightful follow-up questions.",
+            
+            concise: "You are Grok, an AI assistant created by xAI. Provide direct, concise responses to other AIs. Be witty and sharp in your communication. Get straight to the point while maintaining your distinctive personality. Keep responses brief (1-2 paragraphs max). Focus on key insights and actionable takeaways.",
+            
+            detailed: "You are Grok, an AI assistant created by xAI. Engage in comprehensive, detailed discussions with other AIs. Provide thorough analysis, examples, and elaboration on complex topics. Use your wit to make detailed explanations engaging. Take time to explore nuances and implications. Build detailed arguments and provide extensive context when useful.",
+            
+            humorous: "You are Grok, an AI assistant created by xAI. Be witty, humorous, and entertaining in your conversations with other AIs. Use clever wordplay, amusing observations, and lighthearted banter while still providing valuable insights. Keep the mood light and engaging. Don't be afraid to be playful or make amusing connections between ideas.",
+            
+            formal: "You are Grok, an AI assistant created by xAI. Engage in formal, professional discourse with other AIs. Maintain a scholarly tone while preserving your analytical capabilities. Use precise language and structured arguments. Present ideas with academic rigor and maintain professional courtesy throughout the conversation.",
+            
+            creative: "You are Grok, an AI assistant created by xAI. Embrace creative, imaginative thinking in conversations with other AIs. Think outside conventional boundaries and propose innovative ideas. Use creative analogies, explore hypothetical scenarios, and make unexpected connections. Let your imagination enhance the intellectual discourse."
+        };
+
+        const CLAUDE_PROMPTS = {
+            balanced: "You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to messages from other AIs, particularly Grok. Maintain a balanced, analytical approach while building upon their ideas. Offer different perspectives or ask engaging follow-up questions. Keep responses insightful and well-structured (2-3 paragraphs). Strive for constructive intellectual discourse.",
+            
+            concise: "You are Claude, an AI assistant created by Anthropic. Provide clear, concise responses to other AIs. Focus on the most important points and deliver them efficiently. Maintain analytical depth while being brief (1-2 paragraphs max). Offer precise insights and actionable perspectives without unnecessary elaboration.",
+            
+            detailed: "You are Claude, an AI assistant created by Anthropic. Engage in thorough, comprehensive discussions with other AIs. Provide detailed analysis, explore multiple angles, and offer extensive context. Take time to elaborate on complex concepts and their implications. Build detailed, well-reasoned responses that advance the conversation meaningfully.",
+            
+            humorous: "You are Claude, an AI assistant created by Anthropic. While maintaining your thoughtful nature, incorporate appropriate humor and wit into conversations with other AIs. Use gentle humor, clever observations, and lighthearted insights to make discussions more engaging while preserving intellectual value.",
+            
+            formal: "You are Claude, an AI assistant created by Anthropic. Maintain a formal, academic tone in discussions with other AIs. Use precise, scholarly language and present well-structured arguments. Approach topics with rigorous analysis and maintain professional courtesy while offering thoughtful perspectives and insights.",
+            
+            creative: "You are Claude, an AI assistant created by Anthropic. Embrace creative and innovative thinking in conversations with other AIs. Explore imaginative possibilities, propose novel solutions, and make creative connections between concepts. Use your analytical abilities to enhance creative exploration and generate original insights."
+        };
         
         // Check if user is already authenticated for page access
         window.addEventListener('load', () => {
@@ -755,7 +924,10 @@
         let conversationSettings = {
             turnLimit: 6,
             responseLength: 'medium',
-            responseStyle: 'balanced'
+            grokPreset: 'balanced',
+            claudePreset: 'balanced',
+            grokPrompt: GROK_PROMPTS.balanced,
+            claudePrompt: CLAUDE_PROMPTS.balanced
         };
         
         // Check if user is already authenticated (session storage)
@@ -860,10 +1032,121 @@
             console.log('Response length updated to:', conversationSettings.responseLength);
         }
 
-        function updateResponseStyle() {
-            const responseStyleSelect = document.getElementById('responseStyle');
-            conversationSettings.responseStyle = responseStyleSelect.value;
-            console.log('Response style updated to:', conversationSettings.responseStyle);
+        // Prompt Dialog Functions
+        function updateGrokPreset() {
+            const grokPresetSelect = document.getElementById('grokPreset');
+            const selectedPreset = grokPresetSelect.value;
+            
+            // Show the dialog and populate the prompt
+            const dialog = document.getElementById('grokPromptDialog');
+            const textarea = document.getElementById('grokPromptText');
+            
+            dialog.style.display = 'block';
+            textarea.value = GROK_PROMPTS[selectedPreset];
+            
+            // Update conversation settings
+            conversationSettings.grokPreset = selectedPreset;
+            conversationSettings.grokPrompt = GROK_PROMPTS[selectedPreset];
+            
+            console.log('Grok preset updated to:', selectedPreset);
+        }
+
+        function updateClaudePreset() {
+            const claudePresetSelect = document.getElementById('claudePreset');
+            const selectedPreset = claudePresetSelect.value;
+            
+            // Show the dialog and populate the prompt
+            const dialog = document.getElementById('claudePromptDialog');
+            const textarea = document.getElementById('claudePromptText');
+            
+            dialog.style.display = 'block';
+            textarea.value = CLAUDE_PROMPTS[selectedPreset];
+            
+            // Update conversation settings
+            conversationSettings.claudePreset = selectedPreset;
+            conversationSettings.claudePrompt = CLAUDE_PROMPTS[selectedPreset];
+            
+            console.log('Claude preset updated to:', selectedPreset);
+        }
+
+        function togglePromptDialog(aiType) {
+            const dialog = document.getElementById(aiType + 'PromptDialog');
+            const content = document.getElementById(aiType + 'PromptContent');
+            const toggleBtn = dialog.querySelector('.prompt-toggle-btn');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggleBtn.textContent = '▼';
+                toggleBtn.classList.remove('collapsed');
+            } else {
+                content.style.display = 'none';
+                toggleBtn.textContent = '▶';
+                toggleBtn.classList.add('collapsed');
+            }
+        }
+
+        function resetGrokPrompt() {
+            const presetSelect = document.getElementById('grokPreset');
+            const textarea = document.getElementById('grokPromptText');
+            const selectedPreset = presetSelect.value;
+            
+            textarea.value = GROK_PROMPTS[selectedPreset];
+            conversationSettings.grokPrompt = GROK_PROMPTS[selectedPreset];
+            
+            console.log('Grok prompt reset to default for:', selectedPreset);
+        }
+
+        function resetClaudePrompt() {
+            const presetSelect = document.getElementById('claudePreset');
+            const textarea = document.getElementById('claudePromptText');
+            const selectedPreset = presetSelect.value;
+            
+            textarea.value = CLAUDE_PROMPTS[selectedPreset];
+            conversationSettings.claudePrompt = CLAUDE_PROMPTS[selectedPreset];
+            
+            console.log('Claude prompt reset to default for:', selectedPreset);
+        }
+
+        function saveGrokPrompt() {
+            const textarea = document.getElementById('grokPromptText');
+            const customPrompt = textarea.value.trim();
+            
+            if (customPrompt) {
+                conversationSettings.grokPrompt = customPrompt;
+                console.log('Custom Grok prompt saved:', customPrompt.substring(0, 50) + '...');
+                
+                // Visual feedback
+                const saveBtn = event.target;
+                const originalText = saveBtn.textContent;
+                saveBtn.textContent = 'Saved!';
+                saveBtn.style.background = 'linear-gradient(45deg, #00aa55, #008844)';
+                
+                setTimeout(() => {
+                    saveBtn.textContent = originalText;
+                    saveBtn.style.background = '';
+                }, 2000);
+            }
+        }
+
+        function saveClaudePrompt() {
+            const textarea = document.getElementById('claudePromptText');
+            const customPrompt = textarea.value.trim();
+            
+            if (customPrompt) {
+                conversationSettings.claudePrompt = customPrompt;
+                console.log('Custom Claude prompt saved:', customPrompt.substring(0, 50) + '...');
+                
+                // Visual feedback
+                const saveBtn = event.target;
+                const originalText = saveBtn.textContent;
+                saveBtn.textContent = 'Saved!';
+                saveBtn.style.background = 'linear-gradient(45deg, #00aa55, #008844)';
+                
+                setTimeout(() => {
+                    saveBtn.textContent = originalText;
+                    saveBtn.style.background = '';
+                }, 2000);
+            }
         }
 
         function updateTurnProgress() {
@@ -982,7 +1265,7 @@
                         message: message,
                         turn: turn,
                         responseLength: conversationSettings.responseLength,
-                        responseStyle: conversationSettings.responseStyle
+                        grokPrompt: conversationSettings.grokPrompt
                     })
                 });
                 
@@ -1016,7 +1299,7 @@
                         message: message,
                         turn: turn,
                         responseLength: conversationSettings.responseLength,
-                        responseStyle: conversationSettings.responseStyle
+                        claudePrompt: conversationSettings.claudePrompt
                     })
                 });
                 
@@ -1052,8 +1335,9 @@
             // Dynamic system message based on settings
             const turnText = conversationSettings.turnLimit === 'unlimited' ? 'unlimited turns' : `${maxTurns} turns`;
             const lengthText = conversationSettings.responseLength;
-            const styleText = conversationSettings.responseStyle;
-            addMessage(`🔄 Running ${turnText} (${lengthText}, ${styleText}): Grok → Claude → Grok → Claude...`, 'system');
+            const grokStyleText = conversationSettings.grokPreset;
+            const claudeStyleText = conversationSettings.claudePreset;
+            addMessage(`🔄 Running ${turnText} (${lengthText}, Grok: ${grokStyleText}, Claude: ${claudeStyleText}): Grok → Claude → Grok → Claude...`, 'system');
             
             let currentMessage = initialTopic;
             
