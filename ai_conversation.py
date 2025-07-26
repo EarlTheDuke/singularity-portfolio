@@ -33,7 +33,7 @@ class AIConversation:
         self.anthropic_headers = {
             "x-api-key": self.anthropic_api_key,
             "Content-Type": "application/json",
-            "anthropic-version": "2023-06-01"  # Stable API version
+                         "anthropic-version": "2024-10-22"  # Claude 4 API version
         }
         
         # Conversation history
@@ -52,7 +52,7 @@ class AIConversation:
                     "content": message
                 }
             ],
-            "model": "grok-beta",
+                         "model": "grok-4-0709",
             "stream": False,
             "temperature": 0.7,
             "max_tokens": 500
@@ -75,7 +75,7 @@ class AIConversation:
     def call_claude(self, message: str) -> Optional[str]:
         """Call Anthropic's Claude API"""
         payload = {
-            "model": "claude-3-5-sonnet-20241022",  # Proven working Claude model
+                         "model": "claude-4-sonnet",  # Restored working Claude 4 model
             "max_tokens": 500,
             "temperature": 0.7,
             "messages": [
