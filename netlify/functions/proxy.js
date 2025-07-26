@@ -27,7 +27,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { model, message, turn, responseLength, responseStyle } = JSON.parse(event.body);
+    const { model, message, turn, responseLength, grokPrompt, claudePrompt } = JSON.parse(event.body);
     
     if (!model || !message) {
       return {
@@ -63,29 +63,9 @@ exports.handler = async (event, context) => {
         maxTokens = 500;
     }
 
-    // Create style constraint text
-    let styleConstraint = '';
-    
-    switch (responseStyle) {
-      case 'concise':
-        styleConstraint = 'Be direct and to-the-point. Use clear, efficient language without unnecessary elaboration.';
-        break;
-      case 'detailed':
-        styleConstraint = 'Provide thorough explanations with examples, context, and nuanced analysis. Be comprehensive in your reasoning.';
-        break;
-      case 'humorous':
-        styleConstraint = 'Be witty and entertaining. Use humor, jokes, puns, or amusing observations while staying relevant to the topic.';
-        break;
-      case 'formal':
-        styleConstraint = 'Use professional, academic language. Be precise, structured, and avoid casual expressions or slang.';
-        break;
-      case 'creative':
-        styleConstraint = 'Be imaginative and original. Use creative metaphors, analogies, or unique perspectives to make your points interesting.';
-        break;
-      case 'balanced':
-      default:
-        styleConstraint = 'Maintain a thoughtful, engaging tone that balances clarity with personality.';
-    }
+    // Use custom prompts from user settings
+    const customGrokPrompt = grokPrompt || "You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses.";
+    const customClaudePrompt = claudePrompt || "You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to messages from other AIs. Build upon their ideas, offer different perspectives, or ask engaging follow-up questions.";
 
     let apiUrl, apiHeaders, payload;
 
@@ -100,14 +80,14 @@ exports.handler = async (event, context) => {
         messages: [
           {
             role: "system",
-            content: `You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses. ${lengthConstraint} ${styleConstraint}`
+            content: `${customGrokPrompt} ${lengthConstraint}`
           },
           {
             role: "user", 
             content: message
           }
         ],
-        model: "grok-2-1212",
+        model: "grok-4-0709",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
@@ -118,16 +98,16 @@ exports.handler = async (event, context) => {
       apiHeaders = {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2024-10-22'
       };
       payload = {
-        model: "claude-sonnet-4-20250514",
+        model: "claude-4-sonnet",
         max_tokens: maxTokens,
         temperature: 0.7,
         messages: [
           {
             role: "user",
-            content: `You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to this message from another AI (Grok). Build upon their ideas, offer different perspectives, or ask engaging follow-up questions. ${lengthConstraint} ${styleConstraint}\n\nMessage: ${message}`
+            content: `${customClaudePrompt} ${lengthConstraint}\n\nMessage: ${message}`
           }
         ]
       };

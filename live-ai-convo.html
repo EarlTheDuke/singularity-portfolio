@@ -886,10 +886,23 @@
             creative: "You are Claude, an AI assistant created by Anthropic. Embrace creative and innovative thinking in conversations with other AIs. Explore imaginative possibilities, propose novel solutions, and make creative connections between concepts. Use your analytical abilities to enhance creative exploration and generate original insights."
         };
         
+        // Initialize prompts on page load
+        function initializePrompts() {
+            // Set default prompts
+            conversationSettings.grokPrompt = GROK_PROMPTS.balanced;
+            conversationSettings.claudePrompt = CLAUDE_PROMPTS.balanced;
+            
+            // Initialize dialog displays if needed
+            updateGrokPreset();
+            updateClaudePreset();
+        }
+
         // Check if user is already authenticated for page access
         window.addEventListener('load', () => {
             if (sessionStorage.getItem('pageAccessAuthenticated') === 'true') {
                 showPageContent();
+                // Initialize prompts after showing content
+                setTimeout(initializePrompts, 100);
             }
         });
 
@@ -915,6 +928,9 @@
         function showPageContent() {
             document.getElementById('pagePasswordOverlay').style.display = 'none';
             document.getElementById('pageContent').style.display = 'block';
+            
+            // Initialize prompts when page content is shown
+            setTimeout(initializePrompts, 100);
         }
 
         // Simple password - you can change this
