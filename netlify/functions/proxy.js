@@ -99,7 +99,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-                          model: "grok-4-0709",
+                          model: "grok-4",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
@@ -145,11 +145,20 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Debug log the request being made
-    console.log('=== API REQUEST DEBUG ===');
-    console.log('URL:', apiUrl);
-    console.log('Model being used:', payload.model);
-    console.log('System/User prompt preview:', model === 'grok' ? payload.messages[0].content.substring(0, 100) + '...' : payload.messages[0].content.substring(0, 100) + '...');
+         // Debug log the request being made
+     console.log('=== API REQUEST DEBUG ===');
+     console.log('URL:', apiUrl);
+     console.log('Model being used:', payload.model);
+     console.log('System/User prompt preview:', model === 'grok' ? payload.messages[0].content.substring(0, 100) + '...' : payload.messages[0].content.substring(0, 100) + '...');
+     
+     // Extra debug for Grok specifically
+     if (model === 'grok') {
+       console.log('=== GROK SPECIFIC DEBUG ===');
+       console.log('XAI API Key present:', !!process.env.XAI_API_KEY);
+       console.log('XAI API Key length:', process.env.XAI_API_KEY ? process.env.XAI_API_KEY.length : 0);
+       console.log('Full Grok payload:', JSON.stringify(payload, null, 2));
+       console.log('Full Grok headers:', JSON.stringify(apiHeaders, null, 2));
+     }
     
     // Make API request
     const response = await fetch(apiUrl, {
