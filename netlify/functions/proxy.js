@@ -71,9 +71,13 @@ exports.handler = async (event, context) => {
         maxTokens = 500;
     }
 
-    // Use custom prompts from user settings
-    const customGrokPrompt = grokPrompt || "You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses.";
-    const customClaudePrompt = claudePrompt || "You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to messages from other AIs. Build upon their ideas, offer different perspectives, or ask engaging follow-up questions.";
+    // Use custom prompts from user settings with better validation
+    const customGrokPrompt = (grokPrompt && grokPrompt.trim()) || "You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses.";
+    const customClaudePrompt = (claudePrompt && claudePrompt.trim()) || "You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to messages from other AIs. Build upon their ideas, offer different perspectives, or ask engaging follow-up questions.";
+    
+    // Additional debug logging
+    console.log('Final Grok prompt:', customGrokPrompt.substring(0, 150) + '...');
+    console.log('Final Claude prompt:', customClaudePrompt.substring(0, 150) + '...');
 
     let apiUrl, apiHeaders, payload;
 
@@ -95,7 +99,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-                 model: "grok-2-1212",
+                          model: "grok-4-0709",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
@@ -106,10 +110,10 @@ exports.handler = async (event, context) => {
       apiHeaders = {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'Content-Type': 'application/json',
-                 'anthropic-version': '2023-06-01'
+                          'anthropic-version': '2024-10-22'
       };
       payload = {
-                 model: "claude-3-5-sonnet-20241022",
+                          model: "claude-4-sonnet",
         max_tokens: maxTokens,
         temperature: 0.7,
         messages: [
@@ -127,9 +131,13 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Check if API key exists
+    // Check if API key exists with detailed logging
     const requiredKey = model === 'grok' ? process.env.XAI_API_KEY : process.env.ANTHROPIC_API_KEY;
+    console.log(`${model.toUpperCase()} API key exists:`, !!requiredKey);
+    console.log(`${model.toUpperCase()} API key length:`, requiredKey ? requiredKey.length : 0);
+    
     if (!requiredKey) {
+      console.error(`${model.toUpperCase()} API key not found in environment variables`);
       return {
         statusCode: 500,
         headers,
