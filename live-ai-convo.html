@@ -680,8 +680,20 @@
                     </div>
                     
                     <div class="settings-control-group">
-                        <label class="settings-label" for="responseStyle">Response Style</label>
-                        <select class="settings-select" id="responseStyle" onchange="updateResponseStyle()">
+                        <label class="settings-label" for="grokPreset">Interaction Preset - Grok</label>
+                        <select class="settings-select" id="grokPreset" onchange="updateGrokPreset()">
+                            <option value="balanced" selected>Balanced</option>
+                            <option value="concise">Concise</option>
+                            <option value="detailed">Detailed</option>
+                            <option value="humorous">Humorous</option>
+                            <option value="formal">Formal</option>
+                            <option value="creative">Creative</option>
+                        </select>
+                    </div>
+                    
+                    <div class="settings-control-group">
+                        <label class="settings-label" for="claudePreset">Interaction Preset - Claude</label>
+                        <select class="settings-select" id="claudePreset" onchange="updateClaudePreset()">
                             <option value="balanced" selected>Balanced</option>
                             <option value="concise">Concise</option>
                             <option value="detailed">Detailed</option>
