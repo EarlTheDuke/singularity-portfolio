@@ -96,14 +96,15 @@ exports.handler = async (event, context) => {
         'Authorization': `Bearer ${process.env.XAI_API_KEY}`,
         'Content-Type': 'application/json'
       };
-      // Use custom prompt or fallback to default
-      const systemPrompt = customPrompt || 'You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses.';
+      
+      // Build system prompt exactly like working code
+      const basePrompt = customPrompt || 'You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses.';
       
       payload = {
         messages: [
           {
             role: "system",
-            content: `${systemPrompt} ${lengthConstraint} ${styleConstraint}`
+            content: `${basePrompt} ${lengthConstraint} ${styleConstraint}`
           },
           {
             role: "user", 
@@ -198,7 +199,15 @@ exports.handler = async (event, context) => {
     // Extract response text based on API format
     let responseText;
     if (model === 'grok') {
+      console.log('Grok API Response:', JSON.stringify(data, null, 2));
       responseText = data.choices?.[0]?.message?.content?.trim();
+      if (!responseText) {
+        console.log('Grok response parsing failed. Full data:', data);
+        console.log('Choices array:', data.choices);
+        console.log('First choice:', data.choices?.[0]);
+        console.log('Message:', data.choices?.[0]?.message);
+        console.log('Content:', data.choices?.[0]?.message?.content);
+      }
     } else if (model === 'claude') {
       responseText = data.content?.[0]?.text?.trim();
     }
@@ -207,7 +216,11 @@ exports.handler = async (event, context) => {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'No response text received from API' })
+        body: JSON.stringify({ 
+          error: 'No response text received from API',
+          debug_data: model === 'grok' ? data : 'N/A',
+          model_used: model
+        })
       };
     }
 
