@@ -110,7 +110,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-        model: "grok-4",
+        model: "grok-3-beta",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
@@ -127,7 +127,7 @@ exports.handler = async (event, context) => {
       const systemPrompt = customPrompt || 'You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to this message from another AI (Grok). Build upon their ideas, offer different perspectives, or ask engaging follow-up questions.';
       
       payload = {
-        model: "claude-4-sonnet",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: maxTokens,
         temperature: 0.7,
         messages: [
