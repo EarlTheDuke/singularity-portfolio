@@ -44,23 +44,23 @@ exports.handler = async (event, context) => {
     switch (responseLength) {
       case 'short':
         lengthConstraint = 'IMPORTANT: Respond with exactly ONE sentence only. No more than one sentence.';
-        maxTokens = 50;
+        maxTokens = 150; // Increased to account for Grok's reasoning tokens
         break;
       case 'medium':
         lengthConstraint = 'IMPORTANT: Keep your response to around 100 words maximum (about 2-3 sentences).';
-        maxTokens = 150;
+        maxTokens = 250; // Increased to account for Grok's reasoning tokens
         break;
       case 'long':
         lengthConstraint = 'IMPORTANT: Keep your response to around 200 words maximum (about 1-2 paragraphs).';
-        maxTokens = 300;
+        maxTokens = 400; // Increased to account for Grok's reasoning tokens
         break;
       case 'detailed':
         lengthConstraint = 'You may provide a detailed response as needed.';
-        maxTokens = 800;
+        maxTokens = 1000; // Increased to account for Grok's reasoning tokens
         break;
       default:
         lengthConstraint = 'Keep your response concise but meaningful (2-3 paragraphs max).';
-        maxTokens = 500;
+        maxTokens = 600; // Increased to account for Grok's reasoning tokens
     }
 
     // Create style constraint text
