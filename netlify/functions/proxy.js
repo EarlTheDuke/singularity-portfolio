@@ -32,10 +32,10 @@ exports.handler = async (event, context) => {
     // Debug logging
     console.log('=== PROXY DEBUG ===');
     console.log('Model:', model);
+    console.log('Turn:', turn);
     console.log('Message length:', message?.length);
     console.log('Response length:', responseLength);
-    console.log('Grok prompt length:', grokPrompt?.length);
-    console.log('Claude prompt length:', claudePrompt?.length);
+    console.log('Timestamp:', new Date().toISOString());
     
     if (!model || !message) {
       return {
@@ -74,10 +74,6 @@ exports.handler = async (event, context) => {
     // Use custom prompts from user settings with better validation
     const customGrokPrompt = (grokPrompt && grokPrompt.trim()) || "You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses.";
     const customClaudePrompt = (claudePrompt && claudePrompt.trim()) || "You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to messages from other AIs. Build upon their ideas, offer different perspectives, or ask engaging follow-up questions.";
-    
-    // Additional debug logging
-    console.log('Final Grok prompt:', customGrokPrompt.substring(0, 150) + '...');
-    console.log('Final Claude prompt:', customClaudePrompt.substring(0, 150) + '...');
 
     let apiUrl, apiHeaders, payload;
 
@@ -99,7 +95,7 @@ exports.handler = async (event, context) => {
             content: message
           }
         ],
-                          model: "grok-4-0709",
+        model: "grok-4-0709",
         stream: false,
         temperature: 0.7,
         max_tokens: maxTokens
@@ -110,10 +106,10 @@ exports.handler = async (event, context) => {
       apiHeaders = {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'Content-Type': 'application/json',
-                          'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01'
       };
       payload = {
-                          model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-20250514",
         max_tokens: maxTokens,
         temperature: 0.7,
         messages: [
@@ -131,141 +127,214 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Check if API key exists with detailed logging
+    // Check if API key exists
     const requiredKey = model === 'grok' ? process.env.XAI_API_KEY : process.env.ANTHROPIC_API_KEY;
     console.log(`${model.toUpperCase()} API key exists:`, !!requiredKey);
-    console.log(`${model.toUpperCase()} API key length:`, requiredKey ? requiredKey.length : 0);
     
     if (!requiredKey) {
       console.error(`${model.toUpperCase()} API key not found in environment variables`);
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: `${model.toUpperCase()} API key not configured` })
+        body: JSON.stringify({ 
+          success: false,
+          error: `${model.toUpperCase()} API key not configured` 
+        })
       };
     }
 
-         // Debug log the request being made
-     console.log('=== API REQUEST DEBUG ===');
-     console.log('URL:', apiUrl);
-     console.log('Model being used:', payload.model);
-     console.log('System/User prompt preview:', model === 'grok' ? payload.messages[0].content.substring(0, 100) + '...' : payload.messages[0].content.substring(0, 100) + '...');
-     
-     // Extra debug for Grok specifically
+         // Enhanced debug logging for Grok issues
      if (model === 'grok') {
-       console.log('=== GROK SPECIFIC DEBUG ===');
+       console.log('=== GROK DEBUG ===');
+       console.log('Turn:', turn);
        console.log('XAI API Key present:', !!process.env.XAI_API_KEY);
-       console.log('XAI API Key length:', process.env.XAI_API_KEY ? process.env.XAI_API_KEY.length : 0);
-       console.log('Full Grok payload:', JSON.stringify(payload, null, 2));
-       console.log('Full Grok headers:', JSON.stringify(apiHeaders, null, 2));
+       console.log('XAI API Key prefix:', process.env.XAI_API_KEY ? process.env.XAI_API_KEY.substring(0, 10) + '...' : 'MISSING');
+       console.log('Message preview:', message.substring(0, 200) + '...');
+       console.log('Max tokens:', maxTokens);
+       console.log('Full payload:', JSON.stringify(payload, null, 2));
+       console.log('Request timestamp:', new Date().toISOString());
      }
     
-         // Make API request with enhanced error handling
-     let response;
-     try {
-       console.log(`Making API request to ${model.toUpperCase()} at ${apiUrl}`);
-       response = await fetch(apiUrl, {
-         method: 'POST',
-         headers: apiHeaders,
-         body: JSON.stringify(payload),
-         timeout: 30000
-       });
-       console.log(`${model.toUpperCase()} API responded with status:`, response.status);
-     } catch (fetchError) {
-       console.error(`${model.toUpperCase()} API Fetch Error:`, fetchError);
-       return {
-         statusCode: 500,
-         headers,
-         body: JSON.stringify({ 
-           success: false,
-           error: `${model.toUpperCase()} API network error`,
-           details: fetchError.message,
-           model_used: payload.model,
-           api_url: apiUrl
-         })
-       };
-     }
+    // Make API request with enhanced error handling
+    let response;
+    const startTime = Date.now();
+    
+    try {
+      console.log(`Making API request to ${model.toUpperCase()} at ${apiUrl}`);
+      response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: apiHeaders,
+        body: JSON.stringify(payload),
+        timeout: 30000
+      });
+      
+      const requestTime = Date.now() - startTime;
+      console.log(`${model.toUpperCase()} API responded with status:`, response.status, `in ${requestTime}ms`);
+      
+    } catch (fetchError) {
+      console.error(`${model.toUpperCase()} API Fetch Error:`, fetchError);
+      return {
+        statusCode: 502,
+        headers,
+        body: JSON.stringify({ 
+          success: false,
+          error: `${model.toUpperCase()} API network error`,
+          details: fetchError.message,
+          model_used: payload.model,
+          turn: turn,
+          timestamp: new Date().toISOString()
+        })
+      };
+    }
 
+    // Enhanced error handling for non-OK responses
     if (!response.ok) {
-      let errorText;
+      let errorDetails;
+      let apiErrorData = null;
+      
       try {
-        errorText = await response.text();
+        const errorText = await response.text();
+        console.error(`${model.toUpperCase()} API Error Details:`);
+        console.error(`- Status: ${response.status} ${response.statusText}`);
+        console.error(`- Turn: ${turn}`);
+        console.error(`- Response Body:`, errorText);
+        console.error(`- Request URL:`, apiUrl);
+        console.error(`- Model:`, payload.model);
+        console.error(`- Timestamp:`, new Date().toISOString());
+        
+        // Try to parse error details
+        try {
+          apiErrorData = JSON.parse(errorText);
+          errorDetails = apiErrorData.error?.message || apiErrorData.detail || errorText;
+        } catch (e) {
+          errorDetails = errorText || `HTTP ${response.status} error`;
+        }
+        
       } catch (e) {
-        errorText = 'Unable to read error response';
+        errorDetails = `Unable to read error response (${response.status})`;
+        console.error('Error reading API response:', e);
       }
       
-      console.error(`${model.toUpperCase()} API Error Details:`);
-      console.error(`- Status: ${response.status}`);
-      console.error(`- Status Text: ${response.statusText}`);
-      console.error(`- Response Headers:`, response.headers);
-      console.error(`- Error Body:`, errorText);
-      console.error(`- Request URL:`, apiUrl);
-      console.error(`- Request Payload:`, JSON.stringify(payload, null, 2));
-      console.error(`- Request Headers:`, JSON.stringify(apiHeaders, null, 2));
-      
-             return {
-         statusCode: response.status,
-         headers,
-         body: JSON.stringify({ 
-           success: false,
-           error: `${model.toUpperCase()} API Error: ${response.status}`,
-           details: errorText,
-           status: response.status,
-           model_used: payload.model,
-           api_url: apiUrl
-         })
-       };
+      // Return the original API error status and details instead of throwing
+      return {
+        statusCode: 200, // Return 200 so client can handle the API error gracefully
+        headers,
+        body: JSON.stringify({ 
+          success: false,
+          error: `${model.toUpperCase()} API Error`,
+          details: errorDetails,
+          api_status: response.status,
+          model_used: payload.model,
+          turn: turn,
+          timestamp: new Date().toISOString(),
+          api_error_data: apiErrorData
+        })
+      };
     }
 
          // Parse response with error handling
      let data;
      try {
-       data = await response.json();
-       console.log(`${model.toUpperCase()} API response data:`, JSON.stringify(data, null, 2).substring(0, 500) + '...');
+       const responseText = await response.text();
+       console.log(`${model.toUpperCase()} raw response:`, responseText.substring(0, 500) + '...');
+       
+       data = JSON.parse(responseText);
+       
+       if (model === 'grok') {
+         console.log(`${model.toUpperCase()} parsed response structure:`, {
+           hasChoices: !!data.choices,
+           choicesLength: data.choices?.length,
+           hasMessage: !!data.choices?.[0]?.message,
+           hasContent: !!data.choices?.[0]?.message?.content,
+           contentPreview: data.choices?.[0]?.message?.content?.substring(0, 100) + '...'
+         });
+       }
      } catch (parseError) {
        console.error(`${model.toUpperCase()} response parsing error:`, parseError);
+       console.error('Raw response that failed to parse:', responseText?.substring(0, 1000));
        return {
-         statusCode: 500,
+         statusCode: 200, // Return 200 with error details
          headers,
          body: JSON.stringify({ 
            success: false,
            error: `${model.toUpperCase()} response parsing failed`,
-           details: parseError.message 
+           details: parseError.message,
+           turn: turn
          })
        };
      }
      
-     // Extract response text based on API format
+         // Extract response text based on API format
      let responseText;
      try {
        if (model === 'grok') {
-         responseText = data.choices?.[0]?.message?.content?.trim();
+         // More robust extraction for Grok
+         console.log('Extracting Grok response...');
+         
+         if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
+           console.error('Grok API response missing choices array:', JSON.stringify(data, null, 2));
+           return {
+             statusCode: 200,
+             headers,
+             body: JSON.stringify({ 
+               success: false,
+               error: `Invalid Grok API response structure`,
+               details: 'Response missing choices array',
+               raw_response: data,
+               turn: turn
+             })
+           };
+         }
+         
+         const choice = data.choices[0];
+         if (!choice.message || !choice.message.content) {
+           console.error('Grok API response missing message content:', JSON.stringify(choice, null, 2));
+           return {
+             statusCode: 200,
+             headers,
+             body: JSON.stringify({ 
+               success: false,
+               error: `Invalid Grok API response structure`,
+               details: 'Response missing message.content',
+               raw_response: data,
+               turn: turn
+             })
+           };
+         }
+         
+         responseText = choice.message.content.trim();
+         console.log('Grok response extracted successfully, length:', responseText.length);
+         
        } else if (model === 'claude') {
          responseText = data.content?.[0]?.text?.trim();
        }
 
        if (!responseText) {
-         console.error(`${model.toUpperCase()} no response text found in:`, JSON.stringify(data, null, 2));
+         console.error(`${model.toUpperCase()} extracted empty response text from:`, JSON.stringify(data, null, 2));
          return {
-           statusCode: 500,
+           statusCode: 200,
            headers,
            body: JSON.stringify({ 
              success: false,
-             error: `No response text received from ${model.toUpperCase()} API`,
-             details: 'Response structure did not contain expected text content',
-             raw_response: data
+             error: `Empty response text from ${model.toUpperCase()} API`,
+             details: 'Response text was empty after extraction',
+             raw_response: data,
+             turn: turn
            })
          };
        }
      } catch (extractError) {
        console.error(`${model.toUpperCase()} response extraction error:`, extractError);
+       console.error('Error stack:', extractError.stack);
        return {
-         statusCode: 500,
+         statusCode: 200,
          headers,
          body: JSON.stringify({ 
            success: false,
            error: `${model.toUpperCase()} response extraction failed`,
-           details: extractError.message 
+           details: extractError.message,
+           stack: extractError.stack,
+           turn: turn
          })
        };
      }
@@ -277,22 +346,45 @@ exports.handler = async (event, context) => {
         success: true,
         model,
         turn,
-        response: responseText 
+        response: responseText,
+        timestamp: new Date().toISOString()
       })
     };
 
-     } catch (error) {
-     console.error('Proxy function error:', error);
-     console.error('Stack trace:', error.stack);
-     return {
-       statusCode: 500,
-       headers,
-       body: JSON.stringify({ 
-         success: false,
-         error: 'Internal server error',
-         details: error.message,
-         stack: error.stack
-       })
-     };
-   }
+       } catch (error) {
+    console.error('=== PROXY FUNCTION FATAL ERROR ===');
+    console.error('Error:', error);
+    console.error('Error message:', error.message);
+    console.error('Stack trace:', error.stack);
+    console.error('Event body:', event.body);
+    console.error('Timestamp:', new Date().toISOString());
+    
+    // Try to get model and turn if they exist
+    let errorModel = 'unknown';
+    let errorTurn = 'unknown';
+    try {
+      const parsedBody = JSON.parse(event.body);
+      errorModel = parsedBody.model || 'unknown';
+      errorTurn = parsedBody.turn || 'unknown';
+    } catch (e) {
+      // Ignore parsing errors for error logging
+    }
+    
+    console.error('Model:', errorModel);
+    console.error('Turn:', errorTurn);
+    
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ 
+        success: false,
+        error: 'Internal server error',
+        details: error.message,
+        stack: error.stack, // Always include stack for debugging
+        timestamp: new Date().toISOString(),
+        model: errorModel,
+        turn: errorTurn
+      })
+    };
+  }
 }; 
