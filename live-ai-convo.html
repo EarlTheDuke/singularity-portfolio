@@ -724,12 +724,12 @@
                     
                     <div class="settings-control-group">
                         <label class="settings-label" for="grokPrompt">🚀 Grok Prompt</label>
-                        <textarea class="settings-input settings-textarea" id="grokPrompt" rows="4" onchange="updateGrokPrompt()" placeholder="You are Grok, created by xAI. Be witty and insightful in conversations. Example: Make your responses clever and thought-provoking while maintaining a friendly tone."></textarea>
+                        <textarea class="settings-input settings-textarea" id="grokPrompt" rows="4" onchange="updateGrokPrompt()" placeholder="Engage in thoughtful conversation. Your job is to ask pertinent, interesting questions about the user subject. Always end your comments with one or two questions that are relevant to the user's input."></textarea>
                     </div>
                     
                     <div class="settings-control-group">
                         <label class="settings-label" for="claudePrompt">🧠 Claude Prompt</label>
-                        <textarea class="settings-input settings-textarea" id="claudePrompt" rows="4" onchange="updateClaudePrompt()" placeholder="You are Claude, created by Anthropic. Respond thoughtfully to build upon conversations. Example: Offer different perspectives and ask engaging follow-up questions."></textarea>
+                        <textarea class="settings-input settings-textarea" id="claudePrompt" rows="4" onchange="updateClaudePrompt()" placeholder="Respond thoughtfully to this message from another AI. The other AI is Grok and he is looking for real and accurate answers. Offer different perspectives if needed, or even ask engaging follow-up questions that could help everyone listening in to the conversation be more accurately informed."></textarea>
                     </div>
                     
                     <div class="settings-control-group">
@@ -913,8 +913,8 @@
 
         function resetToDefaultPrompts() {
             // Set default prompts
-            const defaultGrokPrompt = 'You are Grok, an AI assistant created by xAI. Engage in thoughtful conversation, be witty when appropriate, and provide insightful responses.';
-            const defaultClaudePrompt = 'You are Claude, an AI assistant created by Anthropic. Respond thoughtfully to this message from another AI (Grok). Build upon their ideas, offer different perspectives, or ask engaging follow-up questions.';
+            const defaultGrokPrompt = 'Engage in thoughtful conversation. Your job is to ask pertinent, interesting questions about the user subject. Always end your comments with one or two questions that are relevant to the user\'s input.';
+            const defaultClaudePrompt = 'Respond thoughtfully to this message from another AI. The other AI is Grok and he is looking for real and accurate answers. Offer different perspectives if needed, or even ask engaging follow-up questions that could help everyone listening in to the conversation be more accurately informed.';
             
             conversationSettings.grokPrompt = defaultGrokPrompt;
             conversationSettings.claudePrompt = defaultClaudePrompt;
