@@ -770,14 +770,22 @@
                          </label>
                          <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Uses browser TTS (compatible with Firefox); works best with system voices.</p>
                      </div>
-                                           <div class="settings-control-group">
-                          <label class="settings-label" for="voiceSelect">Voice Choice</label>
-                          <div style="display: flex; gap: 0.5rem; align-items: center;">
-                              <select class="settings-select" id="voiceSelect" onchange="updateVoice()" style="flex: 1;"></select>
-                              <button onclick="refreshVoiceList()" style="background: rgba(0, 255, 136, 0.8); color: #000; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;" title="Refresh voice list">🔄</button>
-                          </div>
-                          <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Available voices depend on your device/OS. If dropdown is empty, click 🔄 to refresh or check Firefox's about:config for 'media.webspeech.synth.enabled'.</p>
-                      </div>
+                                                                                       <div class="settings-control-group">
+                           <label class="settings-label">🚀 Grok Voice Selection</label>
+                           <div style="display: flex; gap: 0.5rem; align-items: center;">
+                               <select class="settings-select" id="grokVoiceSelect" onchange="updateGrokVoice()" style="flex: 1;"></select>
+                               <button onclick="refreshVoiceList()" style="background: rgba(255, 165, 0, 0.8); color: #000; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;" title="Refresh voice list">🔄</button>
+                           </div>
+                       </div>
+                       
+                       <div class="settings-control-group">
+                           <label class="settings-label">🧠 Claude Voice Selection</label>
+                           <div style="display: flex; gap: 0.5rem; align-items: center;">
+                               <select class="settings-select" id="claudeVoiceSelect" onchange="updateClaudeVoice()" style="flex: 1;"></select>
+                               <button onclick="refreshVoiceList()" style="background: rgba(100, 149, 237, 0.8); color: #000; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;" title="Refresh voice list">🔄</button>
+                           </div>
+                           <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Available voices depend on your device/OS. Set different voices for each AI to distinguish them easily. If dropdowns are empty, click 🔄 to refresh.</p>
+                       </div>
                  </div>
              </div>
          </div>
@@ -832,16 +840,17 @@
         // Simple password - you can change this
         const ACCESS_CODE = 'singularity2025';
         
-                 // Conversation Settings (defaults)
-         let conversationSettings = {
-             turnLimit: 6,
-             responseLength: 'medium',
-             responseStyle: 'balanced',
-             grokPrompt: '',  // User-set Grok system prompt
-             claudePrompt: '', // User-set Claude system prompt
-             ttsEnabled: false,  // Default: off
-             selectedVoice: ''   // Default: system default voice
-         };
+                                   // Conversation Settings (defaults)
+          let conversationSettings = {
+              turnLimit: 6,
+              responseLength: 'medium',
+              responseStyle: 'balanced',
+              grokPrompt: '',  // User-set Grok system prompt
+              claudePrompt: '', // User-set Claude system prompt
+              ttsEnabled: false,  // Default: off
+              grokVoice: '',   // Grok's voice selection
+              claudeVoice: ''  // Claude's voice selection
+          };
         
         // Check if user is already authenticated (session storage)
         window.addEventListener('load', () => {
@@ -1068,107 +1077,149 @@
              console.log('TTS enabled:', conversationSettings.ttsEnabled);
          }
 
-                   function updateVoice() {
-              const voiceSelect = document.getElementById('voiceSelect');
-              conversationSettings.selectedVoice = voiceSelect.value;
-              console.log('Selected voice:', conversationSettings.selectedVoice);
-          }
+                                       function updateGrokVoice() {
+               const grokVoiceSelect = document.getElementById('grokVoiceSelect');
+               conversationSettings.grokVoice = grokVoiceSelect.value;
+               console.log('Grok voice updated:', conversationSettings.grokVoice);
+           }
 
-          // Manual voice refresh function
-          function refreshVoiceList() {
-              console.log('Manually refreshing voice list...');
-              
-              if (!window.speechSynthesis) {
-                  alert('Text-to-Speech not supported in this browser');
-                  return;
-              }
-              
-              // Show loading state
-              const voiceSelect = document.getElementById('voiceSelect');
-              voiceSelect.innerHTML = '<option value="" disabled>Refreshing voices...</option>';
-              
-              // Force reload voices with multiple attempts
-              const forceRefresh = () => {
-                  // Cancel any ongoing speech to reset the API
-                  speechSynthesis.cancel();
-                  
-                  // Try to trigger voice loading in different ways
-                  speechSynthesis.getVoices();
-                  
-                  // Some browsers need a small utterance to initialize
-                  const testUtterance = new SpeechSynthesisUtterance('');
-                  testUtterance.volume = 0;
-                  speechSynthesis.speak(testUtterance);
-                  
-                  // Try refreshing after a delay
-                  setTimeout(() => {
-                      populateVoiceList();
-                      
-                      const currentVoices = speechSynthesis.getVoices();
-                      if (currentVoices.length === 0) {
-                          voiceSelect.innerHTML = '<option value="" disabled>No voices found - try reloading the page</option>';
-                          console.warn('No voices available after manual refresh');
-                      } else {
-                          console.log('Manual refresh successful:', currentVoices.length, 'voices found');
-                      }
-                  }, 200);
-              };
-              
-              forceRefresh();
-          }
+           function updateClaudeVoice() {
+               const claudeVoiceSelect = document.getElementById('claudeVoiceSelect');
+               conversationSettings.claudeVoice = claudeVoiceSelect.value;
+               console.log('Claude voice updated:', conversationSettings.claudeVoice);
+           }
 
-                                       // Populate voices dynamically (Firefox-compatible with better error handling)
-           function populateVoiceList() {
-              const synth = window.speechSynthesis;
-              const voiceSelect = document.getElementById('voiceSelect');
-              
-              if (!synth || !voiceSelect) {
-                  console.warn('TTS not available or voice select element not found');
-                  return;
-              }
-              
-              voices = synth.getVoices();
-              voiceSelect.innerHTML = '';  // Clear options
-              
-              if (voices.length === 0) {
-                  // Show loading/empty state
-                  const loadingOption = document.createElement('option');
-                  loadingOption.value = '';
-                  loadingOption.textContent = 'Loading voices...';
-                  loadingOption.disabled = true;
-                  voiceSelect.appendChild(loadingOption);
-                  console.log('No voices available yet, showing loading state');
-                  return;
-              }
-              
-              console.log(`Found ${voices.length} voices:`, voices.map(v => v.name));
-              
-              // Add default option
-              const defaultOption = document.createElement('option');
-              defaultOption.value = '';
-              defaultOption.textContent = 'System Default Voice';
-              voiceSelect.appendChild(defaultOption);
-              
-              // Add all available voices
-              voices.forEach(voice => {
-                  const option = document.createElement('option');
-                  option.value = voice.name;
-                  option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' — System Default' : ''}`;
-                  voiceSelect.appendChild(option);
-              });
-              
-              // Set to stored voice or default
-              const savedVoice = conversationSettings.selectedVoice;
-              if (savedVoice && voices.find(v => v.name === savedVoice)) {
-                  voiceSelect.value = savedVoice;
-              } else {
-                  // Try to select system default or first available
-                  const defaultVoice = voices.find(v => v.default);
-                  voiceSelect.value = defaultVoice ? defaultVoice.name : '';
-              }
-              
-              console.log('Voice dropdown populated successfully');
-          }
+                     // Manual voice refresh function
+           function refreshVoiceList() {
+               console.log('Manually refreshing voice list...');
+               
+               if (!window.speechSynthesis) {
+                   alert('Text-to-Speech not supported in this browser');
+                   return;
+               }
+               
+               // Show loading state for both dropdowns
+               const grokVoiceSelect = document.getElementById('grokVoiceSelect');
+               const claudeVoiceSelect = document.getElementById('claudeVoiceSelect');
+               
+               if (grokVoiceSelect) {
+                   grokVoiceSelect.innerHTML = '<option value="" disabled>Refreshing voices...</option>';
+               }
+               if (claudeVoiceSelect) {
+                   claudeVoiceSelect.innerHTML = '<option value="" disabled>Refreshing voices...</option>';
+               }
+               
+               // Force reload voices with multiple attempts
+               const forceRefresh = () => {
+                   // Cancel any ongoing speech to reset the API
+                   speechSynthesis.cancel();
+                   
+                   // Try to trigger voice loading in different ways
+                   speechSynthesis.getVoices();
+                   
+                   // Some browsers need a small utterance to initialize
+                   const testUtterance = new SpeechSynthesisUtterance('');
+                   testUtterance.volume = 0;
+                   speechSynthesis.speak(testUtterance);
+                   
+                   // Try refreshing after a delay
+                   setTimeout(() => {
+                       populateVoiceList();
+                       
+                       const currentVoices = speechSynthesis.getVoices();
+                       if (currentVoices.length === 0) {
+                           if (grokVoiceSelect) {
+                               grokVoiceSelect.innerHTML = '<option value="" disabled>No voices found - try reloading the page</option>';
+                           }
+                           if (claudeVoiceSelect) {
+                               claudeVoiceSelect.innerHTML = '<option value="" disabled>No voices found - try reloading the page</option>';
+                           }
+                           console.warn('No voices available after manual refresh');
+                       } else {
+                           console.log('Manual refresh successful:', currentVoices.length, 'voices found');
+                       }
+                   }, 200);
+               };
+               
+               forceRefresh();
+           }
+
+                                                                               // Populate voices dynamically (Firefox-compatible with better error handling)
+            function populateVoiceList() {
+               const synth = window.speechSynthesis;
+               const grokVoiceSelect = document.getElementById('grokVoiceSelect');
+               const claudeVoiceSelect = document.getElementById('claudeVoiceSelect');
+               
+               if (!synth || !grokVoiceSelect || !claudeVoiceSelect) {
+                   console.warn('TTS not available or voice select elements not found');
+                   return;
+               }
+               
+               voices = synth.getVoices();
+               
+               // Clear both dropdowns
+               grokVoiceSelect.innerHTML = '';
+               claudeVoiceSelect.innerHTML = '';
+               
+               if (voices.length === 0) {
+                   // Show loading/empty state for both dropdowns
+                   const loadingOptionGrok = document.createElement('option');
+                   loadingOptionGrok.value = '';
+                   loadingOptionGrok.textContent = 'Loading voices...';
+                   loadingOptionGrok.disabled = true;
+                   grokVoiceSelect.appendChild(loadingOptionGrok);
+                   
+                   const loadingOptionClaude = document.createElement('option');
+                   loadingOptionClaude.value = '';
+                   loadingOptionClaude.textContent = 'Loading voices...';
+                   loadingOptionClaude.disabled = true;
+                   claudeVoiceSelect.appendChild(loadingOptionClaude);
+                   
+                   console.log('No voices available yet, showing loading state');
+                   return;
+               }
+               
+               console.log(`Found ${voices.length} voices:`, voices.map(v => v.name));
+               
+               // Populate both dropdowns with same voice options
+               [grokVoiceSelect, claudeVoiceSelect].forEach(selectElement => {
+                   // Add default option
+                   const defaultOption = document.createElement('option');
+                   defaultOption.value = '';
+                   defaultOption.textContent = 'System Default Voice';
+                   selectElement.appendChild(defaultOption);
+                   
+                   // Add all available voices
+                   voices.forEach(voice => {
+                       const option = document.createElement('option');
+                       option.value = voice.name;
+                       option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' — System Default' : ''}`;
+                       selectElement.appendChild(option);
+                   });
+               });
+               
+               // Set to stored voices or defaults
+               const savedGrokVoice = conversationSettings.grokVoice;
+               const savedClaudeVoice = conversationSettings.claudeVoice;
+               
+               if (savedGrokVoice && voices.find(v => v.name === savedGrokVoice)) {
+                   grokVoiceSelect.value = savedGrokVoice;
+               } else {
+                   // Try to select system default or first available
+                   const defaultVoice = voices.find(v => v.default);
+                   grokVoiceSelect.value = defaultVoice ? defaultVoice.name : '';
+               }
+               
+               if (savedClaudeVoice && voices.find(v => v.name === savedClaudeVoice)) {
+                   claudeVoiceSelect.value = savedClaudeVoice;
+               } else {
+                   // Try to select system default or first available
+                   const defaultVoice = voices.find(v => v.default);
+                   claudeVoiceSelect.value = defaultVoice ? defaultVoice.name : '';
+               }
+               
+               console.log('Voice dropdowns populated successfully');
+           }
 
         function updateTurnProgress() {
             const progressDiv = document.getElementById('turnProgress');
@@ -1257,23 +1308,40 @@
              chatMessages.appendChild(messageDiv);
              chatMessages.scrollTop = chatMessages.scrollHeight;
              
-             // TTS playback: Only for AI responses if enabled (Firefox-compatible)
-             if (conversationSettings.ttsEnabled && ['grok', 'claude'].includes(sender)) {
-                 const synth = window.speechSynthesis;
-                 if (synth && voices.length > 0) {
-                     const utterance = new SpeechSynthesisUtterance(text);  // Clean text only
-                     const selectedVoiceName = conversationSettings.selectedVoice;
-                     if (selectedVoiceName) {
-                         const voice = voices.find(v => v.name === selectedVoiceName);
-                         if (voice) utterance.voice = voice;
-                     }
-                     synth.speak(utterance);
-                     
-                     // Handle events (optional: for better UX)
-                     utterance.onend = () => console.log('TTS playback finished');
-                     utterance.onerror = (e) => console.error('TTS error:', e);
-                 }
-             }
+                           // TTS playback: Only for AI responses if enabled (Firefox-compatible)
+              if (conversationSettings.ttsEnabled && ['grok', 'claude'].includes(sender)) {
+                  const synth = window.speechSynthesis;
+                  if (synth && voices.length > 0) {
+                      const utterance = new SpeechSynthesisUtterance(text);  // Clean text only
+                      
+                      // Select appropriate voice based on AI sender
+                      let selectedVoiceName = '';
+                      if (sender === 'grok') {
+                          selectedVoiceName = conversationSettings.grokVoice;
+                          console.log('🚀 Using Grok voice:', selectedVoiceName || 'System Default');
+                      } else if (sender === 'claude') {
+                          selectedVoiceName = conversationSettings.claudeVoice;
+                          console.log('🧠 Using Claude voice:', selectedVoiceName || 'System Default');
+                      }
+                      
+                      // Apply the selected voice if available
+                      if (selectedVoiceName) {
+                          const voice = voices.find(v => v.name === selectedVoiceName);
+                          if (voice) {
+                              utterance.voice = voice;
+                              console.log(`Applied voice: ${voice.name} for ${sender}`);
+                          } else {
+                              console.warn(`Voice "${selectedVoiceName}" not found for ${sender}, using default`);
+                          }
+                      }
+                      
+                      synth.speak(utterance);
+                      
+                      // Handle events (optional: for better UX)
+                      utterance.onend = () => console.log(`TTS playback finished for ${sender}`);
+                      utterance.onerror = (e) => console.error(`TTS error for ${sender}:`, e);
+                  }
+              }
          }
         
         function removeThinkingMessage() {
