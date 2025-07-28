@@ -44,7 +44,7 @@ exports.handler = async (event, context) => {
     switch (responseLength) {
       case 'short':
         lengthConstraint = 'IMPORTANT: Respond with exactly ONE sentence only. No more than one sentence.';
-        maxTokens = 600; // Significantly increased for Grok 4's massive reasoning overhead
+        maxTokens = 200; // Reduced to force truly short responses (accounting for Grok's reasoning tokens)
         break;
       case 'medium':
         lengthConstraint = 'IMPORTANT: Keep your response to around 100 words maximum (about 2-3 sentences).';
