@@ -755,13 +755,30 @@
                         <textarea class="settings-input settings-textarea" id="claudePrompt" rows="4" onchange="updateClaudePrompt()" placeholder="Respond thoughtfully to this message from another AI. The other AI is Grok and he is looking for real and accurate answers. Offer different perspectives if needed, or even ask engaging follow-up questions that could help everyone listening in to the conversation be more accurately informed."></textarea>
                     </div>
                     
-                    <div class="settings-control-group">
-                        <button class="settings-reset-button" onclick="resetToDefaultPrompts()">🔄 Reset to Defaults</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                                         <div class="settings-control-group">
+                         <button class="settings-reset-button" onclick="resetToDefaultPrompts()">🔄 Reset to Defaults</button>
+                     </div>
+                 </div>
+                 
+                 <div class="settings-section">
+                     <div class="settings-section-title">🔊 Audio Settings</div>
+                     <div class="settings-control-group">
+                         <label class="settings-label">Enable Voice Output</label>
+                         <label style="display: flex; align-items: center; color: #ffffff; cursor: pointer;">
+                             <input type="checkbox" id="ttsToggle" style="margin-right: 10px;" onchange="updateTTS()" />
+                             Read responses aloud after display
+                         </label>
+                         <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Uses browser TTS (compatible with Firefox); works best with system voices.</p>
+                     </div>
+                     <div class="settings-control-group">
+                         <label class="settings-label" for="voiceSelect">Voice Choice</label>
+                         <select class="settings-select" id="voiceSelect" onchange="updateVoice()"></select>
+                         <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Available voices depend on your device/OS. In Firefox, check about:config for 'media.webspeech.synth.enabled' if issues arise (enabled by default).</p>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
 
     <script>
         // Page Password Protection
@@ -801,14 +818,16 @@
         // Simple password - you can change this
         const ACCESS_CODE = 'singularity2025';
         
-        // Conversation Settings (defaults)
-        let conversationSettings = {
-            turnLimit: 6,
-            responseLength: 'medium',
-            responseStyle: 'balanced',
-            grokPrompt: '',  // User-set Grok system prompt
-            claudePrompt: '' // User-set Claude system prompt
-        };
+                 // Conversation Settings (defaults)
+         let conversationSettings = {
+             turnLimit: 6,
+             responseLength: 'medium',
+             responseStyle: 'balanced',
+             grokPrompt: '',  // User-set Grok system prompt
+             claudePrompt: '', // User-set Claude system prompt
+             ttsEnabled: false,  // Default: off
+             selectedVoice: ''   // Default: system default voice
+         };
         
         // Check if user is already authenticated (session storage)
         window.addEventListener('load', () => {
@@ -871,39 +890,60 @@
              updateTurnProgress();
          }
 
-        function openSettings() {
-            console.log('Opening settings modal...');
-            document.getElementById('settingsModalOverlay').style.display = 'block';
-            
-            // Populate custom prompt textareas with current values
-            document.getElementById('grokPrompt').value = conversationSettings.grokPrompt;
-            document.getElementById('claudePrompt').value = conversationSettings.claudePrompt;
-            
-            // Initialize/update progress indicator
-            updateTurnProgress();
-        }
+                 function openSettings() {
+             console.log('Opening settings modal...');
+             document.getElementById('settingsModalOverlay').style.display = 'block';
+             
+             // Populate custom prompt textareas with current values
+             document.getElementById('grokPrompt').value = conversationSettings.grokPrompt;
+             document.getElementById('claudePrompt').value = conversationSettings.claudePrompt;
+             
+             // Update TTS settings UI
+             document.getElementById('ttsToggle').checked = conversationSettings.ttsEnabled;
+             populateVoiceList();  // Refresh voices list
+             
+             // Initialize/update progress indicator
+             updateTurnProgress();
+         }
 
         function closeSettings() {
             console.log('Closing settings modal...');
             document.getElementById('settingsModalOverlay').style.display = 'none';
         }
 
-        // Close modal when clicking outside of it
-        document.addEventListener('DOMContentLoaded', function() {
-            const modalOverlay = document.getElementById('settingsModalOverlay');
-            const modal = modalOverlay.querySelector('.settings-modal');
-            
-            modalOverlay.addEventListener('click', function(e) {
-                if (e.target === modalOverlay) {
-                    closeSettings();
-                }
-            });
-            
-            // Prevent modal content clicks from closing the modal
-            modal.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
+                 // Close modal when clicking outside of it
+         document.addEventListener('DOMContentLoaded', function() {
+             const modalOverlay = document.getElementById('settingsModalOverlay');
+             const modal = modalOverlay.querySelector('.settings-modal');
+             
+             modalOverlay.addEventListener('click', function(e) {
+                 if (e.target === modalOverlay) {
+                     closeSettings();
+                 }
+             });
+             
+             // Prevent modal content clicks from closing the modal
+             modal.addEventListener('click', function(e) {
+                 e.stopPropagation();
+             });
+         });
+
+         // Initialize TTS voices on page load
+         if (window.speechSynthesis) {
+             populateVoiceList();
+             if (speechSynthesis.onvoiceschanged !== undefined) {
+                 speechSynthesis.onvoiceschanged = populateVoiceList;
+             }
+         } else {
+             console.warn('Web Speech API not supported in this browser.');
+             // Optional: Disable TTS toggle if unsupported
+             window.addEventListener('load', () => {
+                 const ttsToggle = document.getElementById('ttsToggle');
+                 if (ttsToggle) {
+                     ttsToggle.disabled = true;
+                 }
+             });
+         }
 
         // Settings Update Functions
         function updateTurnLimit() {
@@ -937,20 +977,50 @@
             console.log('Claude prompt updated:', conversationSettings.claudePrompt);
         }
 
-        function resetToDefaultPrompts() {
-            // Set default prompts
-            const defaultGrokPrompt = 'Engage in thoughtful conversation. Your job is to ask pertinent, interesting questions about the user subject. Always end your comments with one or two questions that are relevant to the user\'s input.';
-            const defaultClaudePrompt = 'Respond thoughtfully to this message from another AI. The other AI is Grok and he is looking for real and accurate answers. Offer different perspectives if needed, or even ask engaging follow-up questions that could help everyone listening in to the conversation be more accurately informed.';
-            
-            conversationSettings.grokPrompt = defaultGrokPrompt;
-            conversationSettings.claudePrompt = defaultClaudePrompt;
-            
-            // Update UI
-            document.getElementById('grokPrompt').value = defaultGrokPrompt;
-            document.getElementById('claudePrompt').value = defaultClaudePrompt;
-            
-            console.log('Prompts reset to defaults');
-        }
+                 function resetToDefaultPrompts() {
+             // Set default prompts
+             const defaultGrokPrompt = 'Engage in thoughtful conversation. Your job is to ask pertinent, interesting questions about the user subject. Always end your comments with one or two questions that are relevant to the user\'s input.';
+             const defaultClaudePrompt = 'Respond thoughtfully to this message from another AI. The other AI is Grok and he is looking for real and accurate answers. Offer different perspectives if needed, or even ask engaging follow-up questions that could help everyone listening in to the conversation be more accurately informed.';
+             
+             conversationSettings.grokPrompt = defaultGrokPrompt;
+             conversationSettings.claudePrompt = defaultClaudePrompt;
+             
+             // Update UI
+             document.getElementById('grokPrompt').value = defaultGrokPrompt;
+             document.getElementById('claudePrompt').value = defaultClaudePrompt;
+             
+             console.log('Prompts reset to defaults');
+         }
+
+         // TTS Functions
+         function updateTTS() {
+             const toggle = document.getElementById('ttsToggle');
+             conversationSettings.ttsEnabled = toggle.checked;
+             console.log('TTS enabled:', conversationSettings.ttsEnabled);
+         }
+
+         function updateVoice() {
+             const voiceSelect = document.getElementById('voiceSelect');
+             conversationSettings.selectedVoice = voiceSelect.value;
+             console.log('Selected voice:', conversationSettings.selectedVoice);
+         }
+
+         // Populate voices dynamically (Firefox-compatible)
+         let voices = [];
+         function populateVoiceList() {
+             const synth = window.speechSynthesis;
+             voices = synth.getVoices();
+             const voiceSelect = document.getElementById('voiceSelect');
+             voiceSelect.innerHTML = '';  // Clear options
+             voices.forEach(voice => {
+                 const option = document.createElement('option');
+                 option.value = voice.name;
+                 option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' — Default' : ''}`;
+                 voiceSelect.appendChild(option);
+             });
+             // Set to stored or default voice
+             voiceSelect.value = conversationSettings.selectedVoice || voices.find(v => v.default)?.name || '';
+         }
 
         function updateTurnProgress() {
             const progressDiv = document.getElementById('turnProgress');
@@ -986,59 +1056,77 @@
             }
         }
 
-        function addMessage(text, sender, turn = null) {
-            const chatMessages = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            
-            // Set message class based on sender
-            let messageClass = '';
-            let senderLabel = '';
-            let emoji = '';
-            
-            switch(sender) {
-                case 'user':
-                    messageClass = 'user-message';
-                    senderLabel = 'You';
-                    emoji = '👤';
-                    break;
-                case 'grok':
-                    messageClass = 'grok-message';
-                    senderLabel = `Grok${turn ? ` (Turn ${turn})` : ''}`;
-                    emoji = '🚀';
-                    break;
-                case 'claude':
-                    messageClass = 'claude-message'; 
-                    senderLabel = `Claude${turn ? ` (Turn ${turn})` : ''}`;
-                    emoji = '🧠';
-                    break;
-                case 'system':
-                    messageClass = 'system-message';
-                    senderLabel = 'System';
-                    emoji = '⚙️';
-                    break;
-                case 'thinking':
-                    messageClass = 'thinking-message';
-                    senderLabel = '';
-                    emoji = '';
-                    messageDiv.id = 'thinking-message'; // For easy removal
-                    break;
-                default:
-                    messageClass = 'ai-message';
-                    senderLabel = 'AI Assistant';
-                    emoji = '🤖';
-            }
-            
-            messageDiv.className = `message ${messageClass}`;
-            
-            if (sender === 'thinking') {
-                messageDiv.innerHTML = `<em>${text}</em>`;
-            } else {
-                messageDiv.innerHTML = `<strong>${emoji} ${senderLabel}:</strong> ${text}`;
-            }
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+                 function addMessage(text, sender, turn = null) {
+             const chatMessages = document.getElementById('chatMessages');
+             const messageDiv = document.createElement('div');
+             
+             // Set message class based on sender
+             let messageClass = '';
+             let senderLabel = '';
+             let emoji = '';
+             
+             switch(sender) {
+                 case 'user':
+                     messageClass = 'user-message';
+                     senderLabel = 'You';
+                     emoji = '👤';
+                     break;
+                 case 'grok':
+                     messageClass = 'grok-message';
+                     senderLabel = `Grok${turn ? ` (Turn ${turn})` : ''}`;
+                     emoji = '🚀';
+                     break;
+                 case 'claude':
+                     messageClass = 'claude-message'; 
+                     senderLabel = `Claude${turn ? ` (Turn ${turn})` : ''}`;
+                     emoji = '🧠';
+                     break;
+                 case 'system':
+                     messageClass = 'system-message';
+                     senderLabel = 'System';
+                     emoji = '⚙️';
+                     break;
+                 case 'thinking':
+                     messageClass = 'thinking-message';
+                     senderLabel = '';
+                     emoji = '';
+                     messageDiv.id = 'thinking-message'; // For easy removal
+                     break;
+                 default:
+                     messageClass = 'ai-message';
+                     senderLabel = 'AI Assistant';
+                     emoji = '🤖';
+             }
+             
+             messageDiv.className = `message ${messageClass}`;
+             
+             if (sender === 'thinking') {
+                 messageDiv.innerHTML = `<em>${text}</em>`;
+             } else {
+                 messageDiv.innerHTML = `<strong>${emoji} ${senderLabel}:</strong> ${text}`;
+             }
+             
+             chatMessages.appendChild(messageDiv);
+             chatMessages.scrollTop = chatMessages.scrollHeight;
+             
+             // TTS playback: Only for AI responses if enabled (Firefox-compatible)
+             if (conversationSettings.ttsEnabled && ['grok', 'claude'].includes(sender)) {
+                 const synth = window.speechSynthesis;
+                 if (synth && voices.length > 0) {
+                     const utterance = new SpeechSynthesisUtterance(text);  // Clean text only
+                     const selectedVoiceName = conversationSettings.selectedVoice;
+                     if (selectedVoiceName) {
+                         const voice = voices.find(v => v.name === selectedVoiceName);
+                         if (voice) utterance.voice = voice;
+                     }
+                     synth.speak(utterance);
+                     
+                     // Handle events (optional: for better UX)
+                     utterance.onend = () => console.log('TTS playback finished');
+                     utterance.onerror = (e) => console.error('TTS error:', e);
+                 }
+             }
+         }
         
         function removeThinkingMessage() {
             const thinkingMsg = document.getElementById('thinking-message');
