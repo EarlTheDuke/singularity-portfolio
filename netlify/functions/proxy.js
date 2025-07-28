@@ -98,7 +98,7 @@ exports.handler = async (event, context) => {
       };
       
       // Build system prompt exactly like working code
-      const basePrompt = customPrompt || 'Engage in thoughtful conversation. Your job is to ask pertinent, interesting questions about the user subject. Always end your comments with one or two questions that are relevant to the user\'s input.';
+      const basePrompt = customPrompt || 'Your job is to ask pertinent, interesting questions about the user prompt subject(s). You are speaking to anther powder full AI Claude. Your goal is to frame your questions to learn more from Claude on the subject(s) you are discussing in order to help the listener learn and better understand. Do not complement other AI unless truly merited. You need to rely on his help. Always end your comments with one or two questions that are relevant to the user\'s input to keep the conversation going and to learn more.';
       
       payload = {
         messages: [
@@ -125,7 +125,7 @@ exports.handler = async (event, context) => {
         'anthropic-version': '2023-06-01'
       };
       // Use custom prompt or fallback to default  
-      const systemPrompt = customPrompt || 'Respond thoughtfully to this message from another AI. The other AI is Grok and he is looking for real and accurate answers. Offer different perspectives if needed, or even ask engaging follow-up questions that could help everyone listening in to the conversation be more accurately informed.';
+      const systemPrompt = customPrompt || 'There is another AI asking you questions. The other AI is Grok and he is looking to you for answers in order to help the listeners better understand a subject and he needs your help. Be sure to offer different perspectives for him if needed, or even ask engaging follow-up questions that could help everyone listening to learn and understand. Do not complement other AI unless truly merited.';
       
       payload = {
         model: "claude-sonnet-4-20250514",
