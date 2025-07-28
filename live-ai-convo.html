@@ -770,11 +770,14 @@
                          </label>
                          <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Uses browser TTS (compatible with Firefox); works best with system voices.</p>
                      </div>
-                     <div class="settings-control-group">
-                         <label class="settings-label" for="voiceSelect">Voice Choice</label>
-                         <select class="settings-select" id="voiceSelect" onchange="updateVoice()"></select>
-                         <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Available voices depend on your device/OS. In Firefox, check about:config for 'media.webspeech.synth.enabled' if issues arise (enabled by default).</p>
-                     </div>
+                                           <div class="settings-control-group">
+                          <label class="settings-label" for="voiceSelect">Voice Choice</label>
+                          <div style="display: flex; gap: 0.5rem; align-items: center;">
+                              <select class="settings-select" id="voiceSelect" onchange="updateVoice()" style="flex: 1;"></select>
+                              <button onclick="refreshVoiceList()" style="background: rgba(0, 255, 136, 0.8); color: #000; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;" title="Refresh voice list">🔄</button>
+                          </div>
+                          <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Available voices depend on your device/OS. If dropdown is empty, click 🔄 to refresh or check Firefox's about:config for 'media.webspeech.synth.enabled'.</p>
+                      </div>
                  </div>
              </div>
          </div>
@@ -890,21 +893,45 @@
              updateTurnProgress();
          }
 
-                 function openSettings() {
-             console.log('Opening settings modal...');
-             document.getElementById('settingsModalOverlay').style.display = 'block';
-             
-             // Populate custom prompt textareas with current values
-             document.getElementById('grokPrompt').value = conversationSettings.grokPrompt;
-             document.getElementById('claudePrompt').value = conversationSettings.claudePrompt;
-             
-             // Update TTS settings UI
-             document.getElementById('ttsToggle').checked = conversationSettings.ttsEnabled;
-             populateVoiceList();  // Refresh voices list
-             
-             // Initialize/update progress indicator
-             updateTurnProgress();
-         }
+                                   function openSettings() {
+              console.log('Opening settings modal...');
+              document.getElementById('settingsModalOverlay').style.display = 'block';
+              
+              // Populate custom prompt textareas with current values
+              document.getElementById('grokPrompt').value = conversationSettings.grokPrompt;
+              document.getElementById('claudePrompt').value = conversationSettings.claudePrompt;
+              
+              // Update TTS settings UI
+              document.getElementById('ttsToggle').checked = conversationSettings.ttsEnabled;
+              
+              // Force refresh voices when modal opens (important for Firefox)
+              if (window.speechSynthesis) {
+                  // Sometimes speechSynthesis needs to be "woken up" in Firefox
+                  speechSynthesis.getVoices(); // This can trigger voice loading
+                  
+                  // Refresh the voice list
+                  populateVoiceList();
+                  
+                  // If still no voices, try again after a brief delay
+                  if (voices.length === 0) {
+                      console.log('No voices found, attempting delayed reload...');
+                      setTimeout(() => {
+                          populateVoiceList();
+                          if (voices.length === 0) {
+                              console.log('Still no voices after delayed reload');
+                              // Show fallback message
+                              const voiceSelect = document.getElementById('voiceSelect');
+                              if (voiceSelect && voiceSelect.options.length <= 1) {
+                                  voiceSelect.innerHTML = '<option value="" disabled>No voices available - check browser settings</option>';
+                              }
+                          }
+                      }, 500);
+                  }
+              }
+              
+              // Initialize/update progress indicator
+              updateTurnProgress();
+          }
 
         function closeSettings() {
             console.log('Closing settings modal...');
@@ -928,22 +955,56 @@
              });
          });
 
-         // Initialize TTS voices on page load
-         if (window.speechSynthesis) {
-             populateVoiceList();
-             if (speechSynthesis.onvoiceschanged !== undefined) {
-                 speechSynthesis.onvoiceschanged = populateVoiceList;
-             }
-         } else {
-             console.warn('Web Speech API not supported in this browser.');
-             // Optional: Disable TTS toggle if unsupported
-             window.addEventListener('load', () => {
-                 const ttsToggle = document.getElementById('ttsToggle');
-                 if (ttsToggle) {
-                     ttsToggle.disabled = true;
-                 }
-             });
-         }
+                   // Initialize TTS voices with better browser compatibility
+          let voiceLoadAttempts = 0;
+          const maxVoiceLoadAttempts = 10;
+          
+          function initializeTTS() {
+              if (window.speechSynthesis) {
+                  // Initial voice load
+                  populateVoiceList();
+                  
+                  // Handle voice loading event (works better in Firefox)
+                  if (speechSynthesis.onvoiceschanged !== undefined) {
+                      speechSynthesis.onvoiceschanged = () => {
+                          console.log('Voices changed event fired');
+                          populateVoiceList();
+                      };
+                  }
+                  
+                  // Retry logic for browsers that load voices slowly
+                  const retryVoiceLoad = () => {
+                      voiceLoadAttempts++;
+                      const currentVoices = speechSynthesis.getVoices();
+                      
+                      if (currentVoices.length === 0 && voiceLoadAttempts < maxVoiceLoadAttempts) {
+                          console.log(`Voice load attempt ${voiceLoadAttempts}, retrying...`);
+                          setTimeout(retryVoiceLoad, 100);
+                      } else if (currentVoices.length > 0) {
+                          console.log(`Voices loaded successfully after ${voiceLoadAttempts} attempts`);
+                          populateVoiceList();
+                      } else {
+                          console.warn('Could not load voices after maximum attempts');
+                      }
+                  };
+                  
+                  // Start retry process after initial load
+                  setTimeout(retryVoiceLoad, 100);
+              } else {
+                  console.warn('Web Speech API not supported in this browser.');
+                  // Disable TTS toggle if unsupported
+                  window.addEventListener('load', () => {
+                      const ttsToggle = document.getElementById('ttsToggle');
+                      if (ttsToggle) {
+                          ttsToggle.disabled = true;
+                          ttsToggle.parentElement.style.opacity = '0.5';
+                      }
+                  });
+              }
+          }
+          
+          // Initialize on page load and also retry on user interaction
+          initializeTTS();
 
         // Settings Update Functions
         function updateTurnLimit() {
@@ -999,28 +1060,108 @@
              console.log('TTS enabled:', conversationSettings.ttsEnabled);
          }
 
-         function updateVoice() {
-             const voiceSelect = document.getElementById('voiceSelect');
-             conversationSettings.selectedVoice = voiceSelect.value;
-             console.log('Selected voice:', conversationSettings.selectedVoice);
-         }
+                   function updateVoice() {
+              const voiceSelect = document.getElementById('voiceSelect');
+              conversationSettings.selectedVoice = voiceSelect.value;
+              console.log('Selected voice:', conversationSettings.selectedVoice);
+          }
 
-         // Populate voices dynamically (Firefox-compatible)
-         let voices = [];
-         function populateVoiceList() {
-             const synth = window.speechSynthesis;
-             voices = synth.getVoices();
-             const voiceSelect = document.getElementById('voiceSelect');
-             voiceSelect.innerHTML = '';  // Clear options
-             voices.forEach(voice => {
-                 const option = document.createElement('option');
-                 option.value = voice.name;
-                 option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' — Default' : ''}`;
-                 voiceSelect.appendChild(option);
-             });
-             // Set to stored or default voice
-             voiceSelect.value = conversationSettings.selectedVoice || voices.find(v => v.default)?.name || '';
-         }
+          // Manual voice refresh function
+          function refreshVoiceList() {
+              console.log('Manually refreshing voice list...');
+              
+              if (!window.speechSynthesis) {
+                  alert('Text-to-Speech not supported in this browser');
+                  return;
+              }
+              
+              // Show loading state
+              const voiceSelect = document.getElementById('voiceSelect');
+              voiceSelect.innerHTML = '<option value="" disabled>Refreshing voices...</option>';
+              
+              // Force reload voices with multiple attempts
+              const forceRefresh = () => {
+                  // Cancel any ongoing speech to reset the API
+                  speechSynthesis.cancel();
+                  
+                  // Try to trigger voice loading in different ways
+                  speechSynthesis.getVoices();
+                  
+                  // Some browsers need a small utterance to initialize
+                  const testUtterance = new SpeechSynthesisUtterance('');
+                  testUtterance.volume = 0;
+                  speechSynthesis.speak(testUtterance);
+                  
+                  // Try refreshing after a delay
+                  setTimeout(() => {
+                      populateVoiceList();
+                      
+                      const currentVoices = speechSynthesis.getVoices();
+                      if (currentVoices.length === 0) {
+                          voiceSelect.innerHTML = '<option value="" disabled>No voices found - try reloading the page</option>';
+                          console.warn('No voices available after manual refresh');
+                      } else {
+                          console.log('Manual refresh successful:', currentVoices.length, 'voices found');
+                      }
+                  }, 200);
+              };
+              
+              forceRefresh();
+          }
+
+                   // Populate voices dynamically (Firefox-compatible with better error handling)
+          let voices = [];
+          function populateVoiceList() {
+              const synth = window.speechSynthesis;
+              const voiceSelect = document.getElementById('voiceSelect');
+              
+              if (!synth || !voiceSelect) {
+                  console.warn('TTS not available or voice select element not found');
+                  return;
+              }
+              
+              voices = synth.getVoices();
+              voiceSelect.innerHTML = '';  // Clear options
+              
+              if (voices.length === 0) {
+                  // Show loading/empty state
+                  const loadingOption = document.createElement('option');
+                  loadingOption.value = '';
+                  loadingOption.textContent = 'Loading voices...';
+                  loadingOption.disabled = true;
+                  voiceSelect.appendChild(loadingOption);
+                  console.log('No voices available yet, showing loading state');
+                  return;
+              }
+              
+              console.log(`Found ${voices.length} voices:`, voices.map(v => v.name));
+              
+              // Add default option
+              const defaultOption = document.createElement('option');
+              defaultOption.value = '';
+              defaultOption.textContent = 'System Default Voice';
+              voiceSelect.appendChild(defaultOption);
+              
+              // Add all available voices
+              voices.forEach(voice => {
+                  const option = document.createElement('option');
+                  option.value = voice.name;
+                  option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' — System Default' : ''}`;
+                  voiceSelect.appendChild(option);
+              });
+              
+              // Set to stored voice or default
+              const savedVoice = conversationSettings.selectedVoice;
+              if (savedVoice && voices.find(v => v.name === savedVoice)) {
+                  voiceSelect.value = savedVoice;
+              } else {
+                  // Try to select system default or first available
+                  const defaultVoice = voices.find(v => v.default);
+                  voiceSelect.value = defaultVoice ? defaultVoice.name : '';
+              }
+              
+              console.log('Voice dropdown populated successfully');
+          }
 
         function updateTurnProgress() {
             const progressDiv = document.getElementById('turnProgress');
