@@ -403,11 +403,33 @@
             font-size: 1.2rem;
         }
 
-        .settings-button:hover {
-            background: rgba(0, 255, 136, 1);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
-        }
+                 .settings-button:hover {
+             background: rgba(0, 255, 136, 1);
+             transform: translateY(-2px);
+             box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+         }
+
+         .stop-button {
+             position: fixed;
+             top: 20px;
+             right: 200px;
+             background: rgba(255, 68, 68, 0.9);
+             color: #ffffff;
+             border: none;
+             padding: 10px 12px;
+             border-radius: 20px;
+             cursor: pointer;
+             transition: all 0.3s ease;
+             z-index: 1000;
+             font-size: 1.1rem;
+             display: none; /* Hidden by default */
+         }
+
+         .stop-button:hover {
+             background: rgba(255, 68, 68, 1);
+             transform: translateY(-2px);
+             box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4);
+         }
 
         /* Settings Modal Styles */
         .settings-modal-overlay {
@@ -636,10 +658,11 @@
             </div>
         </div>
 
-        <!-- Chat Interface (Hidden by default) -->
-        <div class="ai-convo-container" id="chatContainer">
-            <button class="settings-button" onclick="openSettings()" title="Conversation Settings">⚙️</button>
-            <button class="logout-button" onclick="logout()">Logout</button>
+                 <!-- Chat Interface (Hidden by default) -->
+         <div class="ai-convo-container" id="chatContainer">
+             <button class="settings-button" onclick="openSettings()" title="Conversation Settings">⚙️</button>
+             <button class="stop-button" id="stopButton" onclick="stopConversation()" title="Stop Conversation">⏹️</button>
+             <button class="logout-button" onclick="logout()">Logout</button>
             
             <div class="convo-header">
                 <h1 class="convo-title">Grok vs Claude Conversations</h1>
@@ -837,13 +860,16 @@
                 </div>
             `;
             
-            // Reset conversation state
-            isConversationActive = false;
-            conversationTurn = 0;
-            
-            // Reset progress indicator
-            updateTurnProgress();
-        }
+                         // Reset conversation state
+             isConversationActive = false;
+             conversationTurn = 0;
+             
+             // Hide stop button on logout
+             document.getElementById('stopButton').style.display = 'none';
+             
+             // Reset progress indicator
+             updateTurnProgress();
+         }
 
         function openSettings() {
             console.log('Opening settings modal...');
@@ -1110,12 +1136,15 @@
             }
         }
         
-        async function startGrokClaudeConversation(initialTopic) {
-            conversationTurn = 0;
-            // Apply conversation settings
-            const maxTurns = conversationSettings.turnLimit === 'unlimited' ? 50 : conversationSettings.turnLimit; // Cap unlimited at 50 for safety
-            currentConversationTopic = initialTopic;
-            isConversationActive = true;
+                 async function startGrokClaudeConversation(initialTopic) {
+             conversationTurn = 0;
+             // Apply conversation settings
+             const maxTurns = conversationSettings.turnLimit === 'unlimited' ? 50 : conversationSettings.turnLimit; // Cap unlimited at 50 for safety
+             currentConversationTopic = initialTopic;
+             isConversationActive = true;
+             
+             // Show stop button when conversation starts
+             document.getElementById('stopButton').style.display = 'block';
             
             // Add the topic as user message
             addMessage(initialTopic, 'user');
@@ -1157,15 +1186,28 @@
                 }
             }
             
-            if (isConversationActive) {
-                addMessage(`✨ Grok vs Claude conversation complete! (${conversationTurn} turns)`, 'system');
-                addMessage('💬 Start a new topic to begin another conversation.', 'system');
-            }
-            
-            isConversationActive = false;
-        }
-        
-        function generateAIResponse(userMessage) {
+                         if (isConversationActive) {
+                 addMessage(`✨ Grok vs Claude conversation complete! (${conversationTurn} turns)`, 'system');
+                 addMessage('💬 Start a new topic to begin another conversation.', 'system');
+             }
+             
+             isConversationActive = false;
+                          // Hide stop button when conversation ends
+             document.getElementById('stopButton').style.display = 'none';
+         }
+         
+         function stopConversation() {
+             if (isConversationActive) {
+                 isConversationActive = false;
+                 removeThinkingMessage(); // Clear any thinking messages
+                 addMessage(`🛑 Conversation stopped by user after ${conversationTurn} turns.`, 'system');
+                 addMessage('💬 Start a new topic to begin another conversation.', 'system');
+                 document.getElementById('stopButton').style.display = 'none';
+                 console.log('Conversation manually stopped by user');
+             }
+         }
+         
+         function generateAIResponse(userMessage) {
             // Check if this looks like a conversation topic
             if (userMessage.length > 10 && !isConversationActive) {
                 startGrokClaudeConversation(userMessage);
