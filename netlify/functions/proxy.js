@@ -44,23 +44,23 @@ exports.handler = async (event, context) => {
     switch (responseLength) {
       case 'short':
         lengthConstraint = 'IMPORTANT: Respond with exactly ONE sentence only. No more than one sentence.';
-        maxTokens = 300; // Much higher to account for Grok's heavy reasoning overhead
+        maxTokens = 600; // Significantly increased for Grok 4's massive reasoning overhead
         break;
       case 'medium':
         lengthConstraint = 'IMPORTANT: Keep your response to around 100 words maximum (about 2-3 sentences).';
-        maxTokens = 400; // Much higher to account for Grok's heavy reasoning overhead
+        maxTokens = 800; // Significantly increased for Grok 4's massive reasoning overhead
         break;
       case 'long':
         lengthConstraint = 'IMPORTANT: Keep your response to around 200 words maximum (about 1-2 paragraphs).';
-        maxTokens = 600; // Much higher to account for Grok's heavy reasoning overhead
+        maxTokens = 1000; // Significantly increased for Grok 4's massive reasoning overhead
         break;
       case 'detailed':
         lengthConstraint = 'You may provide a detailed response as needed.';
-        maxTokens = 1200; // Much higher to account for Grok's heavy reasoning overhead
+        maxTokens = 1500; // Significantly increased for Grok 4's massive reasoning overhead
         break;
       default:
         lengthConstraint = 'Keep your response concise but meaningful (2-3 paragraphs max).';
-        maxTokens = 800; // Much higher to account for Grok's heavy reasoning overhead
+        maxTokens = 1200; // Significantly increased for Grok 4's massive reasoning overhead
     }
 
     // Create style constraint text
@@ -200,6 +200,18 @@ exports.handler = async (event, context) => {
     let responseText;
     if (model === 'grok') {
       console.log('Grok API Response:', JSON.stringify(data, null, 2));
+      
+      // Enhanced token usage debugging
+      if (data.usage) {
+        console.log(`🚀 Grok Token Usage - Total: ${data.usage.total_tokens}, Prompt: ${data.usage.prompt_tokens}, Completion: ${data.usage.completion_tokens}`);
+        if (data.usage.completion_tokens_details) {
+          console.log(`🧠 Reasoning tokens: ${data.usage.completion_tokens_details.reasoning_tokens || 0}`);
+        }
+        if (data.usage.completion_tokens === 0) {
+          console.warn('⚠️ ZERO COMPLETION TOKENS - Response likely cut off due to reasoning overhead!');
+        }
+      }
+      
       responseText = data.choices?.[0]?.message?.content?.trim();
       if (!responseText) {
         console.log('Grok response parsing failed. Full data:', data);
@@ -207,6 +219,8 @@ exports.handler = async (event, context) => {
         console.log('First choice:', data.choices?.[0]);
         console.log('Message:', data.choices?.[0]?.message);
         console.log('Content:', data.choices?.[0]?.message?.content);
+      } else {
+        console.log(`✅ Grok response length: ${responseText.length} characters`);
       }
     } else if (model === 'claude') {
       responseText = data.content?.[0]?.text?.trim();
