@@ -260,4 +260,4 @@ exports.handler = async (event, context) => {
       })
     };
   }
-}; "// Deployment trigger" 
+}; // Updated default prompts for better AI conversation flow 
