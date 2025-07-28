@@ -783,16 +783,27 @@
          </div>
      </div>
 
-    <script>
-        // Page Password Protection
-        const PAGE_PASSWORD = 'aimaster2025';
-        
-        // Check if user is already authenticated for page access
-        window.addEventListener('load', () => {
-            if (sessionStorage.getItem('pageAccessAuthenticated') === 'true') {
-                showPageContent();
-            }
-        });
+         <script>
+         // Page Password Protection
+         const PAGE_PASSWORD = 'aimaster2025';
+         
+         // Global variables - declared at top to avoid initialization order issues
+         let voices = [];
+         let voiceLoadAttempts = 0;
+         const maxVoiceLoadAttempts = 10;
+         
+         // Conversation state variables
+         let conversationTurn = 0;
+         let maxTurns = 6;
+         let currentConversationTopic = '';
+         let isConversationActive = false;
+         
+         // Check if user is already authenticated for page access
+         window.addEventListener('load', () => {
+             if (sessionStorage.getItem('pageAccessAuthenticated') === 'true') {
+                 showPageContent();
+             }
+         });
 
         function checkPagePassword() {
             const inputPassword = document.getElementById('pagePasswordInput').value;
@@ -955,11 +966,8 @@
              });
          });
 
-                   // Initialize TTS voices with better browser compatibility
-          let voiceLoadAttempts = 0;
-          const maxVoiceLoadAttempts = 10;
-          
-          function initializeTTS() {
+                                       // Initialize TTS voices with better browser compatibility
+           function initializeTTS() {
               if (window.speechSynthesis) {
                   // Initial voice load
                   populateVoiceList();
@@ -1109,9 +1117,8 @@
               forceRefresh();
           }
 
-                   // Populate voices dynamically (Firefox-compatible with better error handling)
-          let voices = [];
-          function populateVoiceList() {
+                                       // Populate voices dynamically (Firefox-compatible with better error handling)
+           function populateVoiceList() {
               const synth = window.speechSynthesis;
               const voiceSelect = document.getElementById('voiceSelect');
               
@@ -1276,14 +1283,8 @@
             }
         }
 
-        // Proxy Configuration - uses Netlify Functions
-        const PROXY_URL = '/.netlify/functions/proxy';
-        
-        // Conversation state
-        let conversationTurn = 0;
-        let maxTurns = 6;
-        let currentConversationTopic = '';
-        let isConversationActive = false;
+                 // Proxy Configuration - uses Netlify Functions
+         const PROXY_URL = '/.netlify/functions/proxy';
         
         async function callGrokAPI(message, turn) {
             try {
