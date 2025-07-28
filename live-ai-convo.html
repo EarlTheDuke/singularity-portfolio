@@ -703,14 +703,14 @@
                             <div class="settings-control-group">
                                 <label class="settings-label" for="turnLimit">Turn Limit</label>
                                 <select class="settings-select" id="turnLimit" onchange="updateTurnLimit()">
-                                    <option value="4">4 turns</option>
-                                    <option value="6" selected>6 turns (current)</option>
+                                    <option value="4" selected>4 turns</option>
+                                    <option value="6">6 turns</option>
                                     <option value="8">8 turns</option>
                                     <option value="12">12 turns</option>
                                     <option value="unlimited">Unlimited</option>
                                 </select>
                                 <div class="turn-progress-container" id="turnProgress">
-                                    Progress: 0 / 6 turns
+                                    Progress: 0 / 4 turns
                                 </div>
                             </div>
                         </div>
@@ -719,8 +719,8 @@
                             <div class="settings-control-group">
                                 <label class="settings-label" for="responseLength">Response Length</label>
                                 <select class="settings-select" id="responseLength" onchange="updateResponseLength()">
-                                    <option value="short">One sentence</option>
-                                    <option value="medium" selected>Medium (100 words)</option>
+                                    <option value="short" selected>One sentence</option>
+                                    <option value="medium">Medium (100 words)</option>
                                     <option value="long">Long (200 words)</option>
                                     <option value="detailed">Detailed (unlimited)</option>
                                 </select>
@@ -731,9 +731,9 @@
                     <div class="settings-control-group">
                         <label class="settings-label" for="responseStyle">Response Style</label>
                         <select class="settings-select" id="responseStyle" onchange="updateResponseStyle()">
-                            <option value="balanced" selected>Balanced</option>
+                            <option value="balanced">Balanced</option>
                             <option value="concise">Concise</option>
-                            <option value="detailed">Detailed</option>
+                            <option value="detailed" selected>Detailed</option>
                             <option value="humorous">Humorous</option>
                             <option value="formal">Formal</option>
                             <option value="creative">Creative</option>
