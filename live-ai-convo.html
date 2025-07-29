@@ -1542,11 +1542,15 @@
                const grokVoice = findVoiceByName(savedGrokVoice);
                if (grokVoice) {
                    grokVoiceSelect.value = grokVoice.name;
+                   // Update conversationSettings with the actual found voice name
+                   conversationSettings.grokVoice = grokVoice.name;
                    console.log('Set Grok voice to:', grokVoice.name);
                } else {
                    // Try to select system default or first available
                    const defaultVoice = voices.find(v => v.default);
                    grokVoiceSelect.value = defaultVoice ? defaultVoice.name : '';
+                   // Update conversationSettings with the actual voice name
+                   conversationSettings.grokVoice = defaultVoice ? defaultVoice.name : '';
                    console.log('Grok voice not found, using default:', defaultVoice?.name || 'none');
                }
                
@@ -1554,11 +1558,15 @@
                const claudeVoice = findVoiceByName(savedClaudeVoice);
                if (claudeVoice) {
                    claudeVoiceSelect.value = claudeVoice.name;
+                   // Update conversationSettings with the actual found voice name
+                   conversationSettings.claudeVoice = claudeVoice.name;
                    console.log('Set Claude voice to:', claudeVoice.name);
                } else {
                    // Try to select system default or first available
                    const defaultVoice = voices.find(v => v.default);
                    claudeVoiceSelect.value = defaultVoice ? defaultVoice.name : '';
+                   // Update conversationSettings with the actual voice name
+                   conversationSettings.claudeVoice = defaultVoice ? defaultVoice.name : '';
                    console.log('Claude voice not found, using default:', defaultVoice?.name || 'none');
                }
                
@@ -1677,9 +1685,32 @@
                           console.log('🧠 Using Claude voice:', selectedVoiceName || 'System Default');
                       }
                       
-                      // Apply the selected voice if available
+                      // Apply the selected voice if available (with robust matching)
                       if (selectedVoiceName) {
-                          const voice = voices.find(v => v.name === selectedVoiceName);
+                          // Helper function to find voice with partial matching (same as in populateVoiceList)
+                          function findVoiceForTTS(targetName) {
+                              if (!targetName) return null;
+                              
+                              // First try exact match
+                              let voice = voices.find(v => v.name === targetName);
+                              if (voice) return voice;
+                              
+                              // Try partial match (case insensitive)
+                              voice = voices.find(v => v.name.toLowerCase().includes(targetName.toLowerCase()) || 
+                                                      targetName.toLowerCase().includes(v.name.toLowerCase()));
+                              if (voice) return voice;
+                              
+                              // Try matching key parts (Google, Microsoft, UK, Female, Male, etc.)
+                              const targetParts = targetName.toLowerCase().split(/[\s\-\(\)]/);
+                              voice = voices.find(v => {
+                                  const voiceParts = v.name.toLowerCase().split(/[\s\-\(\)]/);
+                                  return targetParts.some(part => part.length > 2 && voiceParts.some(vPart => vPart.includes(part)));
+                              });
+                              
+                              return voice;
+                          }
+                          
+                          const voice = findVoiceForTTS(selectedVoiceName);
                           if (voice) {
                               utterance.voice = voice;
                               console.log(`Applied voice: ${voice.name} for ${sender}`);
