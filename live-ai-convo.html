@@ -620,6 +620,172 @@
                 max-width: 90%;
             }
         }
+
+        /* History Sidebar Styles */
+        .history-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: rgba(20, 20, 20, 0.95);
+            border-right: 2px solid rgba(0, 255, 136, 0.3);
+            padding: 1rem;
+            overflow-y: auto;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 20px rgba(0, 255, 136, 0.1);
+        }
+
+        .history-sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .history-sidebar-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .clear-all-history-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-all-history-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .history-entry {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 0.8rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .history-entry:hover {
+            border-color: rgba(0, 255, 136, 0.5);
+            background: rgba(10, 10, 10, 0.9);
+            transform: translateX(2px);
+        }
+
+        .history-entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-entry-timestamp {
+            font-size: 0.75rem;
+            color: #888888;
+            font-style: italic;
+        }
+
+        .history-entry-delete {
+            background: rgba(255, 68, 68, 0.8);
+            color: #ffffff;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .history-entry-delete:hover {
+            background: rgba(255, 68, 68, 1);
+            transform: scale(1.1);
+        }
+
+        .history-entry-topic {
+            font-size: 0.9rem;
+            color: #ffffff;
+            line-height: 1.3;
+            word-wrap: break-word;
+        }
+
+        .history-entry-turns {
+            font-size: 0.75rem;
+            color: #00ff88;
+            margin-top: 0.3rem;
+        }
+
+        /* Adjust main content to accommodate sidebar */
+        .ai-convo-container {
+            margin-left: 280px;
+            max-width: calc(100% - 280px);
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 1024px) {
+            .history-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .history-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .ai-convo-container {
+                margin-left: 0;
+                max-width: 100%;
+            }
+
+            .history-toggle-btn {
+                display: block !important;
+            }
+        }
+
+        .history-toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 255, 136, 0.8);
+            color: #000000;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        .history-toggle-btn:hover {
+            background: rgba(0, 255, 136, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .history-empty-state {
+            text-align: center;
+            color: #888888;
+            font-style: italic;
+            padding: 2rem 1rem;
+        }
     </style>
 </head>
 <body>
@@ -641,6 +807,23 @@
     <!-- Main Page Content (Hidden by default) -->
     <div class="page-content" id="pageContent">
         <a href="index.html" class="back-link">← Back to Home</a>
+
+        <!-- History Sidebar -->
+        <div class="history-sidebar" id="historySidebar">
+            <div class="history-sidebar-header">
+                <h3 class="history-sidebar-title">📚 Conversation History</h3>
+                <button class="clear-all-history-btn" onclick="clearAllHistory()">Clear All</button>
+            </div>
+            <div class="history-list" id="historyList">
+                <div class="history-empty-state">
+                    No conversations yet.<br>
+                    Start a conversation to see history here.
+                </div>
+            </div>
+        </div>
+
+        <!-- History Toggle Button (Mobile) -->
+        <button class="history-toggle-btn" id="historyToggleBtn" onclick="toggleHistorySidebar()" title="Toggle History">📚</button>
 
         <!-- Authentication Container -->
         <div class="auth-container" id="authContainer">
@@ -807,6 +990,122 @@
          let currentConversationTopic = '';
          let isConversationActive = false;
          
+         // History Management Variables
+         let conversationHistory = JSON.parse(localStorage.getItem('conversationHistory')) || [];
+         let currentConversationTurns = [];
+         
+         // Generate UUID for unique history IDs
+         function generateUUID() {
+             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                 const r = Math.random() * 16 | 0;
+                 return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+             });
+         }
+         
+         // Save conversation to localStorage
+         function saveConversation(topic, turnData) {
+             const entry = {
+                 id: generateUUID(),
+                 timestamp: new Date().toISOString(),
+                 topic: topic,
+                 turns: turnData
+             };
+             conversationHistory.unshift(entry); // Add to beginning of array
+             
+             // Keep only last 50 conversations to prevent localStorage overflow
+             if (conversationHistory.length > 50) {
+                 conversationHistory = conversationHistory.slice(0, 50);
+             }
+             
+             localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+             renderHistory();
+         }
+         
+         // Render history in sidebar
+         function renderHistory() {
+             const historyList = document.getElementById('historyList');
+             
+             if (conversationHistory.length === 0) {
+                 historyList.innerHTML = `
+                     <div class="history-empty-state">
+                         No conversations yet.<br>
+                         Start a conversation to see history here.
+                     </div>
+                 `;
+                 return;
+             }
+             
+             historyList.innerHTML = '';
+             conversationHistory.forEach(entry => {
+                 const div = document.createElement('div');
+                 div.className = 'history-entry';
+                 div.onclick = () => viewHistoryEntry(entry);
+                 
+                 const timestamp = new Date(entry.timestamp).toLocaleString();
+                 const turnCount = entry.turns ? entry.turns.length : 0;
+                 
+                 div.innerHTML = `
+                     <div class="history-entry-header">
+                         <span class="history-entry-timestamp">${timestamp}</span>
+                         <button class="history-entry-delete" onclick="event.stopPropagation(); deleteHistoryEntry('${entry.id}')" title="Delete conversation">🗑️</button>
+                     </div>
+                     <div class="history-entry-topic">${entry.topic}</div>
+                     <div class="history-entry-turns">${turnCount} turn${turnCount !== 1 ? 's' : ''}</div>
+                 `;
+                 
+                 historyList.appendChild(div);
+             });
+         }
+         
+         // View a specific history entry
+         function viewHistoryEntry(entry) {
+             // Clear current chat
+             const chatMessages = document.getElementById('chatMessages');
+             chatMessages.innerHTML = '';
+             
+             // Add the conversation back to chat
+             addMessage('system', `📚 Loading conversation: "${entry.topic}"`);
+             
+             if (entry.turns && entry.turns.length > 0) {
+                 entry.turns.forEach(turn => {
+                     if (turn.ai && turn.message) {
+                         addMessage(turn.ai.toLowerCase(), turn.message, false); // false = don't speak
+                     }
+                 });
+             }
+             
+             addMessage('system', `✅ Conversation loaded from ${new Date(entry.timestamp).toLocaleString()}`);
+         }
+         
+         // Delete single history entry
+         function deleteHistoryEntry(id) {
+             if (confirm('Are you sure you want to delete this conversation?')) {
+                 conversationHistory = conversationHistory.filter(entry => entry.id !== id);
+                 localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+                 renderHistory();
+             }
+         }
+         
+         // Clear all history
+         function clearAllHistory() {
+             if (confirm('Are you sure you want to clear all conversation history? This action cannot be undone.')) {
+                 conversationHistory = [];
+                 localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+                 renderHistory();
+             }
+         }
+         
+         // Toggle history sidebar on mobile
+         function toggleHistorySidebar() {
+             const sidebar = document.getElementById('historySidebar');
+             sidebar.classList.toggle('show');
+         }
+         
+         // Initialize history on page load
+         function initializeHistory() {
+             renderHistory();
+         }
+         
          // Check if user is already authenticated for page access
          window.addEventListener('load', () => {
              if (sessionStorage.getItem('pageAccessAuthenticated') === 'true') {
@@ -814,31 +1113,31 @@
              }
          });
 
-        function checkPagePassword() {
-            const inputPassword = document.getElementById('pagePasswordInput').value;
-            const errorMessage = document.getElementById('pagePasswordError');
-            
-            if (inputPassword === PAGE_PASSWORD) {
-                // Set session authentication for page access
-                sessionStorage.setItem('pageAccessAuthenticated', 'true');
-                showPageContent();
-            } else {
-                errorMessage.style.display = 'block';
-                document.getElementById('pagePasswordInput').value = '';
-                
-                // Hide error message after 3 seconds
-                setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                }, 3000);
-            }
-        }
+         function checkPagePassword() {
+             const inputPassword = document.getElementById('pagePasswordInput').value;
+             const errorMessage = document.getElementById('pagePasswordError');
+             
+             if (inputPassword === PAGE_PASSWORD) {
+                 // Set session authentication for page access
+                 sessionStorage.setItem('pageAccessAuthenticated', 'true');
+                 showPageContent();
+             } else {
+                 errorMessage.style.display = 'block';
+                 document.getElementById('pagePasswordInput').value = '';
+                 
+                 // Hide error message after 3 seconds
+                 setTimeout(() => {
+                     errorMessage.style.display = 'none';
+                 }, 3000);
+             }
+         }
 
-        function showPageContent() {
-            document.getElementById('pagePasswordOverlay').style.display = 'none';
-            document.getElementById('pageContent').style.display = 'block';
-        }
+         function showPageContent() {
+             document.getElementById('pagePasswordOverlay').style.display = 'none';
+             document.getElementById('pageContent').style.display = 'block';
+         }
 
-        // Simple password - you can change this
+         // Simple password - you can change this
         const ACCESS_CODE = 'singularity2025';
         
                                    // Conversation Settings (defaults)
@@ -858,6 +1157,9 @@
             if (sessionStorage.getItem('aiConvoAuthenticated') === 'true') {
                 showChatInterface();
             }
+            
+            // Initialize TTS and history systems
+            initializeTTS();
         });
 
         function checkPassword() {
@@ -883,6 +1185,9 @@
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('chatContainer').style.display = 'block';
             document.querySelector('.back-link').style.display = 'none';
+            
+            // Initialize history system
+            initializeHistory();
         }
 
         function logout() {
@@ -1256,7 +1561,7 @@
             }
         }
 
-                 function addMessage(text, sender, turn = null) {
+                 function addMessage(text, sender, turn = null, speak = true) {
              const chatMessages = document.getElementById('chatMessages');
              const messageDiv = document.createElement('div');
              
@@ -1309,8 +1614,17 @@
              chatMessages.appendChild(messageDiv);
              chatMessages.scrollTop = chatMessages.scrollHeight;
              
+             // Track conversation turns for history (only for AI responses with turns)
+             if (['grok', 'claude'].includes(sender) && turn && isConversationActive) {
+                 currentConversationTurns.push({
+                     turn: turn,
+                     ai: sender,
+                     message: text
+                 });
+             }
+             
                            // TTS playback: Only for AI responses if enabled (Firefox-compatible)
-              if (conversationSettings.ttsEnabled && ['grok', 'claude'].includes(sender)) {
+              if (conversationSettings.ttsEnabled && ['grok', 'claude'].includes(sender) && speak) {
                   const synth = window.speechSynthesis;
                   if (synth && voices.length > 0) {
                       const utterance = new SpeechSynthesisUtterance(text);  // Clean text only
@@ -1437,6 +1751,9 @@
         
                  async function startGrokClaudeConversation(initialTopic) {
              conversationTurn = 0;
+             // Initialize conversation turns array for history tracking
+             currentConversationTurns = [];
+             
              // Apply conversation settings
              const maxTurns = conversationSettings.turnLimit === 'unlimited' ? 50 : conversationSettings.turnLimit; // Cap unlimited at 50 for safety
              currentConversationTopic = initialTopic;
@@ -1488,6 +1805,11 @@
                          if (isConversationActive) {
                  addMessage(`✨ Grok vs Claude conversation complete! (${conversationTurn} turns)`, 'system');
                  addMessage('💬 Start a new topic to begin another conversation.', 'system');
+                 
+                 // Save conversation to history
+                 if (currentConversationTurns.length > 0) {
+                     saveConversation(initialTopic, currentConversationTurns);
+                 }
              }
              
              isConversationActive = false;
