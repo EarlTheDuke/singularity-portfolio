@@ -1064,17 +1064,17 @@
              chatMessages.innerHTML = '';
              
              // Add the conversation back to chat
-             addMessage('system', `📚 Loading conversation: "${entry.topic}"`);
+             addMessage(`📚 Loading conversation: "${entry.topic}"`, 'system');
              
              if (entry.turns && entry.turns.length > 0) {
                  entry.turns.forEach(turn => {
                      if (turn.ai && turn.message) {
-                         addMessage(turn.ai.toLowerCase(), turn.message, false); // false = don't speak
+                         addMessage(turn.message, turn.ai.toLowerCase(), turn.turn, false); // false = don't speak
                      }
                  });
              }
              
-             addMessage('system', `✅ Conversation loaded from ${new Date(entry.timestamp).toLocaleString()}`);
+             addMessage(`✅ Conversation loaded from ${new Date(entry.timestamp).toLocaleString()}`, 'system');
          }
          
          // Delete single history entry
