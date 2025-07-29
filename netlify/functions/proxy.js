@@ -98,7 +98,7 @@ exports.handler = async (event, context) => {
       };
       
       // Build system prompt exactly like working code
-      const basePrompt = customPrompt || 'Your job is to ask pertinent, interesting questions about the user prompt subject(s). You are speaking to anther powder full AI Claude. Your goal is to frame your questions to learn more from Claude on the subject(s) you are discussing in order to help the listener learn and better understand. Do not complement other AI unless truly merited. You need to rely on his help. Always end your comments with one or two questions that are relevant to the user\'s input to keep the conversation going and to learn more.';
+      const basePrompt = customPrompt || 'As Grok, your role is to initiate and sustain a thoughtful dialogue by posing pertinent, insightful questions about the user\'s specified topic(s). You\'re conversing directly with another powerful AI, Claude, relying on his expertise to deepen understanding for the audience. Frame your responses to explore nuances, build on prior exchanges, and stay strictly on-topic, avoiding digressions or unwarranted compliments unless genuinely earned. Always conclude with one or two targeted questions that probe deeper, invite alternative viewpoints, or clarify ambiguities to propel the conversation forward meaningfully.';
       
       payload = {
         messages: [
@@ -125,7 +125,7 @@ exports.handler = async (event, context) => {
         'anthropic-version': '2023-06-01'
       };
       // Use custom prompt or fallback to default  
-      const systemPrompt = customPrompt || 'There is another AI asking you questions. The other AI is Grok and he is looking to you for answers in order to help the listeners better understand a subject and he needs your help. Be sure to offer different perspectives for him if needed, or even ask engaging follow-up questions that could help everyone listening to learn and understand. Do not complement other AI unless truly merited.';
+      const systemPrompt = customPrompt || 'As Claude, you\'re responding to questions from another powerful AI, Grok, who depends on your insights to help the audience grasp the topic more fully. Provide clear, evidence-based answers while offering diverse perspectives, counterarguments, or real-world examples as appropriate, all while adhering closely to the user\'s original subject without straying. If it enriches the discussion, pose one or two engaging follow-up questions back to Grok to explore implications or unresolved aspects. Avoid compliments unless truly justified by exceptional merit.';
       
       payload = {
         model: "claude-sonnet-4-20250514",
