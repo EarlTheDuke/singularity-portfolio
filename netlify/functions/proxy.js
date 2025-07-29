@@ -44,7 +44,7 @@ exports.handler = async (event, context) => {
     switch (responseLength) {
       case 'short':
         lengthConstraint = 'IMPORTANT: Respond with EXACTLY TWO SHORT SENTENCES only. Limit to 60 words maximum total. Be concise yet insightful—focus on key points and end with 1-2 relevant questions if needed. Do NOT use run-on sentences or exceed the limit.';
-        maxTokens = 400; // Adjusted to account for Grok's reasoning (up to ~200-300 tokens) + short output (~100-200 tokens)
+        maxTokens = 500; // Increased to account for Grok's reasoning (up to ~400 tokens) + short output (~100 tokens)
         break;
       case 'medium':
         lengthConstraint = 'IMPORTANT: Keep your response to around 100 words maximum (about 2-3 sentences).';
@@ -131,11 +131,8 @@ exports.handler = async (event, context) => {
         model: "claude-sonnet-4-20250514",
         max_tokens: maxTokens,
         temperature: 0.7,
+        system: `${systemPrompt} ${lengthConstraint} ${styleConstraint}`,
         messages: [
-          {
-            role: "system",
-            content: `${systemPrompt} ${lengthConstraint} ${styleConstraint}`
-          },
           {
             role: "user",
             content: `Message: ${message}`
