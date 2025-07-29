@@ -261,4 +261,4 @@ exports.handler = async (event, context) => {
       })
     };
   }
-}; // Updated default prompts for better AI conversation flow 
+}; // CRITICAL FIXES: Claude system parameter + Grok 500 tokens for two-sentence responses 
