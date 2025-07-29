@@ -789,6 +789,240 @@
             font-style: italic;
             padding: 2rem 1rem;
         }
+
+        /* Audio Player Controls Styles */
+        .audio-controls-container {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .audio-controls-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .audio-controls-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00ff88;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .audio-controls-toggle {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            color: #00ff88;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .audio-controls-toggle:hover {
+            background: rgba(0, 255, 136, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .audio-controls-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .voice-controls {
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .voice-controls-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .grok-voice-header {
+            color: #ff8c00;
+        }
+
+        .claude-voice-header {
+            color: #6495ed;
+        }
+
+        .speed-control {
+            margin-bottom: 1rem;
+        }
+
+        .speed-label {
+            display: block;
+            color: #cccccc;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .speed-slider {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .grok-speed-slider::-webkit-slider-thumb {
+            background: #ff8c00;
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+        }
+
+        .claude-speed-slider::-webkit-slider-thumb {
+            background: #6495ed;
+            box-shadow: 0 0 10px rgba(100, 149, 237, 0.5);
+        }
+
+        .speed-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .grok-speed-slider::-moz-range-thumb {
+            background: #ff8c00;
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+        }
+
+        .claude-speed-slider::-moz-range-thumb {
+            background: #6495ed;
+            box-shadow: 0 0 10px rgba(100, 149, 237, 0.5);
+        }
+
+        .speed-value {
+            display: inline-block;
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .playback-controls {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .playback-btn {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .playback-btn:hover {
+            background: rgba(0, 255, 136, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .playback-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .playback-btn.active {
+            background: rgba(0, 255, 136, 0.4);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .stop-btn {
+            background: rgba(255, 68, 68, 0.2);
+            border-color: rgba(255, 68, 68, 0.4);
+        }
+
+        .stop-btn:hover {
+            background: rgba(255, 68, 68, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.3);
+        }
+
+        .restart-btn {
+            background: rgba(255, 165, 0, 0.2);
+            border-color: rgba(255, 165, 0, 0.4);
+        }
+
+        .restart-btn:hover {
+            background: rgba(255, 165, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .audio-status {
+            text-align: center;
+            color: #cccccc;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        /* Mobile responsive for audio controls */
+        @media (max-width: 768px) {
+            .audio-controls-content {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .playback-controls {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .playback-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -868,6 +1102,70 @@
                 <div class="chat-input-container">
                     <input type="text" class="chat-input" id="chatInput" placeholder="Enter a topic for Grok vs Claude to discuss..." />
                     <button class="send-button" onclick="sendMessage()">Start Conversation</button>
+                </div>
+                
+                <!-- Audio Player Controls -->
+                <div class="audio-controls-container" id="audioControlsContainer">
+                    <div class="audio-controls-header">
+                        <div class="audio-controls-title">
+                            🔊 Audio Player Controls
+                        </div>
+                        <button class="audio-controls-toggle" id="audioControlsToggle" onclick="toggleAudioControls()">
+                            Show Controls
+                        </button>
+                    </div>
+                    
+                    <div class="audio-controls-content" id="audioControlsContent" style="display: none;">
+                        <!-- Grok Voice Controls -->
+                        <div class="voice-controls">
+                            <div class="voice-controls-header grok-voice-header">
+                                🚀 Grok Voice Settings
+                            </div>
+                            <div class="speed-control">
+                                <label class="speed-label">
+                                    Speed: <span class="speed-value" id="grokSpeedValue">1.0x</span>
+                                </label>
+                                <input type="range" class="speed-slider grok-speed-slider" id="grokSpeedSlider" 
+                                       min="0.5" max="2.0" step="0.1" value="1.0" 
+                                       oninput="updateGrokSpeed(this.value)" />
+                            </div>
+                        </div>
+                        
+                        <!-- Claude Voice Controls -->
+                        <div class="voice-controls">
+                            <div class="voice-controls-header claude-voice-header">
+                                🧠 Claude Voice Settings
+                            </div>
+                            <div class="speed-control">
+                                <label class="speed-label">
+                                    Speed: <span class="speed-value" id="claudeSpeedValue">1.0x</span>
+                                </label>
+                                <input type="range" class="speed-slider claude-speed-slider" id="claudeSpeedSlider" 
+                                       min="0.5" max="2.0" step="0.1" value="1.0" 
+                                       oninput="updateClaudeSpeed(this.value)" />
+                            </div>
+                        </div>
+                        
+                        <!-- Playback Controls -->
+                        <div class="playback-controls">
+                            <button class="playback-btn" id="playBtn" onclick="playAudio()" title="Play Audio">
+                                ▶️
+                            </button>
+                            <button class="playback-btn" id="pauseBtn" onclick="pauseAudio()" title="Pause Audio" disabled>
+                                ⏸️
+                            </button>
+                            <button class="playback-btn stop-btn" id="stopBtn" onclick="stopAudio()" title="Stop Audio" disabled>
+                                ⏹️
+                            </button>
+                            <button class="playback-btn restart-btn" id="restartBtn" onclick="restartAudio()" title="Restart Audio" disabled>
+                                🔄
+                            </button>
+                        </div>
+                        
+                        <div class="audio-status" id="audioStatus">
+                            Ready to play audio
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -957,22 +1255,42 @@
                          </label>
                          <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Uses browser TTS (compatible with Firefox); works best with system voices.</p>
                      </div>
-                                                                                       <div class="settings-control-group">
-                           <label class="settings-label">🚀 Grok Voice Selection</label>
-                           <div style="display: flex; gap: 0.5rem; align-items: center;">
-                               <select class="settings-select" id="grokVoiceSelect" onchange="updateGrokVoice()" style="flex: 1;"></select>
-                               <button onclick="refreshVoiceList()" style="background: rgba(255, 165, 0, 0.8); color: #000; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;" title="Refresh voice list">🔄</button>
-                           </div>
-                       </div>
-                       
-                       <div class="settings-control-group">
-                           <label class="settings-label">🧠 Claude Voice Selection</label>
-                           <div style="display: flex; gap: 0.5rem; align-items: center;">
-                               <select class="settings-select" id="claudeVoiceSelect" onchange="updateClaudeVoice()" style="flex: 1;"></select>
-                               <button onclick="refreshVoiceList()" style="background: rgba(100, 149, 237, 0.8); color: #000; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;" title="Refresh voice list">🔄</button>
-                           </div>
-                           <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Available voices depend on your device/OS. Set different voices for each AI to distinguish them easily. If dropdowns are empty, click 🔄 to refresh.</p>
-                       </div>
+                     
+                     <div class="settings-control-group">
+                         <label class="settings-label">🚀 Grok Voice Selection</label>
+                         <div style="display: flex; gap: 0.5rem; align-items: center;">
+                             <select class="settings-select" id="grokVoiceSelect" onchange="updateGrokVoice()" style="flex: 1;"></select>
+                             <button onclick="refreshVoiceList()" style="background: rgba(255, 165, 0, 0.8); color: #000; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;" title="Refresh voice list">🔄</button>
+                         </div>
+                     </div>
+                     
+                     <div class="settings-control-group">
+                         <label class="settings-label">🧠 Claude Voice Selection</label>
+                         <div style="display: flex; gap: 0.5rem; align-items: center;">
+                             <select class="settings-select" id="claudeVoiceSelect" onchange="updateClaudeVoice()" style="flex: 1;"></select>
+                             <button onclick="refreshVoiceList()" style="background: rgba(100, 149, 237, 0.8); color: #000; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;" title="Refresh voice list">🔄</button>
+                         </div>
+                         <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Available voices depend on your device/OS. Set different voices for each AI to distinguish them easily. If dropdowns are empty, click 🔄 to refresh.</p>
+                     </div>
+                     
+                     <div class="settings-control-group">
+                         <label class="settings-label">🎚️ Speech Speed Settings</label>
+                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                             <div>
+                                 <label style="color: #cccccc; font-size: 0.9rem;">🚀 Grok Speed: <span id="settingsGrokSpeed">1.0x</span></label>
+                                 <input type="range" min="0.5" max="2.0" step="0.1" value="1.0" 
+                                        style="width: 100%; margin-top: 0.3rem;" 
+                                        oninput="updateSettingsGrokSpeed(this.value)" />
+                             </div>
+                             <div>
+                                 <label style="color: #cccccc; font-size: 0.9rem;">🧠 Claude Speed: <span id="settingsClaudeSpeed">1.0x</span></label>
+                                 <input type="range" min="0.5" max="2.0" step="0.1" value="1.0" 
+                                        style="width: 100%; margin-top: 0.3rem;" 
+                                        oninput="updateSettingsClaudeSpeed(this.value)" />
+                             </div>
+                         </div>
+                         <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Adjust speech speed for each AI independently. Changes apply to new audio playback.</p>
+                     </div>
                  </div>
              </div>
          </div>
@@ -1108,6 +1426,19 @@
          function initializeHistory() {
              renderHistory();
          }
+
+         // Initialize audio controls
+         function initializeAudioControls() {
+             // Set initial speed values
+             document.getElementById('grokSpeedSlider').value = conversationSettings.grokSpeed;
+             document.getElementById('claudeSpeedSlider').value = conversationSettings.claudeSpeed;
+             document.getElementById('grokSpeedValue').textContent = conversationSettings.grokSpeed + 'x';
+             document.getElementById('claudeSpeedValue').textContent = conversationSettings.claudeSpeed + 'x';
+             
+             // Initialize playback buttons
+             updatePlaybackButtons();
+             updateAudioStatus('Ready to play audio');
+         }
          
          // Check if user is already authenticated for page access
          window.addEventListener('load', () => {
@@ -1143,7 +1474,7 @@
          // Simple password - you can change this
         const ACCESS_CODE = 'singularity2025';
         
-        // Conversation Settings (defaults) - Version 2024-12-19
+                 // Conversation Settings (defaults) - Version 2024-12-19
           let conversationSettings = {
               turnLimit: 4,
               responseLength: 'short',
@@ -1152,8 +1483,17 @@
               claudePrompt: '', // User-set Claude system prompt
               ttsEnabled: true,  // Default: on
               grokVoice: 'Google UK English Female (en-GB)',   // Grok's voice selection
-              claudeVoice: 'Microsoft Mark - English (United States) (en-US)'  // Claude's voice selection
+              claudeVoice: 'Microsoft Mark - English (United States) (en-US)',  // Claude's voice selection
+              grokSpeed: 1.0,  // Grok's speech rate
+              claudeSpeed: 1.0  // Claude's speech rate
           };
+
+         // Audio Player State Variables
+         let audioQueue = [];
+         let currentAudioIndex = -1;
+         let isAudioPlaying = false;
+         let isAudioPaused = false;
+         let currentUtterance = null;
         
         // Check if user is already authenticated (session storage)
         window.addEventListener('load', () => {
@@ -1191,6 +1531,9 @@
             
             // Initialize history system
             initializeHistory();
+            
+            // Initialize audio controls
+            initializeAudioControls();
         }
 
         function logout() {
@@ -1215,6 +1558,9 @@
              isConversationActive = false;
              conversationTurn = 0;
              
+             // Clear audio queue on logout
+             clearAudioQueue();
+             
              // Hide stop button on logout
              document.getElementById('stopButton').style.display = 'none';
              
@@ -1232,6 +1578,18 @@
               
               // Update TTS settings UI
               document.getElementById('ttsToggle').checked = conversationSettings.ttsEnabled;
+              
+              // Update speed settings UI
+              const settingsGrokSpeedInput = document.querySelector('input[oninput="updateSettingsGrokSpeed(this.value)"]');
+              const settingsClaudeSpeedInput = document.querySelector('input[oninput="updateSettingsClaudeSpeed(this.value)"]');
+              if (settingsGrokSpeedInput) {
+                  settingsGrokSpeedInput.value = conversationSettings.grokSpeed;
+                  document.getElementById('settingsGrokSpeed').textContent = conversationSettings.grokSpeed + 'x';
+              }
+              if (settingsClaudeSpeedInput) {
+                  settingsClaudeSpeedInput.value = conversationSettings.claudeSpeed;
+                  document.getElementById('settingsClaudeSpeed').textContent = conversationSettings.claudeSpeed + 'x';
+              }
               
               // Force refresh voices when modal opens (important for Firefox)
               if (window.speechSynthesis) {
@@ -1392,11 +1750,29 @@
                console.log('Grok voice updated:', conversationSettings.grokVoice);
            }
 
-           function updateClaudeVoice() {
-               const claudeVoiceSelect = document.getElementById('claudeVoiceSelect');
-               conversationSettings.claudeVoice = claudeVoiceSelect.value;
-               console.log('Claude voice updated:', conversationSettings.claudeVoice);
-           }
+                    function updateClaudeVoice() {
+             const claudeVoiceSelect = document.getElementById('claudeVoiceSelect');
+             conversationSettings.claudeVoice = claudeVoiceSelect.value;
+             console.log('Claude voice updated:', conversationSettings.claudeVoice);
+         }
+
+         function updateSettingsGrokSpeed(value) {
+             conversationSettings.grokSpeed = parseFloat(value);
+             document.getElementById('settingsGrokSpeed').textContent = value + 'x';
+             // Also update the main audio controls
+             document.getElementById('grokSpeedSlider').value = value;
+             document.getElementById('grokSpeedValue').textContent = value + 'x';
+             console.log('Grok speed updated in settings:', value + 'x');
+         }
+
+         function updateSettingsClaudeSpeed(value) {
+             conversationSettings.claudeSpeed = parseFloat(value);
+             document.getElementById('settingsClaudeSpeed').textContent = value + 'x';
+             // Also update the main audio controls
+             document.getElementById('claudeSpeedSlider').value = value;
+             document.getElementById('claudeSpeedValue').textContent = value + 'x';
+             console.log('Claude speed updated in settings:', value + 'x');
+         }
 
                      // Manual voice refresh function
            function refreshVoiceList() {
@@ -1669,62 +2045,9 @@
                  });
              }
              
-                           // TTS playback: Only for AI responses if enabled (Firefox-compatible)
+                           // TTS playback: Add to audio queue instead of immediate playback
               if (conversationSettings.ttsEnabled && ['grok', 'claude'].includes(sender) && speak) {
-                  const synth = window.speechSynthesis;
-                  if (synth && voices.length > 0) {
-                      const utterance = new SpeechSynthesisUtterance(text);  // Clean text only
-                      
-                      // Select appropriate voice based on AI sender
-                      let selectedVoiceName = '';
-                      if (sender === 'grok') {
-                          selectedVoiceName = conversationSettings.grokVoice;
-                          console.log('🚀 Using Grok voice:', selectedVoiceName || 'System Default');
-                      } else if (sender === 'claude') {
-                          selectedVoiceName = conversationSettings.claudeVoice;
-                          console.log('🧠 Using Claude voice:', selectedVoiceName || 'System Default');
-                      }
-                      
-                      // Apply the selected voice if available (with robust matching)
-                      if (selectedVoiceName) {
-                          // Helper function to find voice with partial matching (same as in populateVoiceList)
-                          function findVoiceForTTS(targetName) {
-                              if (!targetName) return null;
-                              
-                              // First try exact match
-                              let voice = voices.find(v => v.name === targetName);
-                              if (voice) return voice;
-                              
-                              // Try partial match (case insensitive)
-                              voice = voices.find(v => v.name.toLowerCase().includes(targetName.toLowerCase()) || 
-                                                      targetName.toLowerCase().includes(v.name.toLowerCase()));
-                              if (voice) return voice;
-                              
-                              // Try matching key parts (Google, Microsoft, UK, Female, Male, etc.)
-                              const targetParts = targetName.toLowerCase().split(/[\s\-\(\)]/);
-                              voice = voices.find(v => {
-                                  const voiceParts = v.name.toLowerCase().split(/[\s\-\(\)]/);
-                                  return targetParts.some(part => part.length > 2 && voiceParts.some(vPart => vPart.includes(part)));
-                              });
-                              
-                              return voice;
-                          }
-                          
-                          const voice = findVoiceForTTS(selectedVoiceName);
-                          if (voice) {
-                              utterance.voice = voice;
-                              console.log(`Applied voice: ${voice.name} for ${sender}`);
-                          } else {
-                              console.warn(`Voice "${selectedVoiceName}" not found for ${sender}, using default`);
-                          }
-                      }
-                      
-                      synth.speak(utterance);
-                      
-                      // Handle events (optional: for better UX)
-                      utterance.onend = () => console.log(`TTS playback finished for ${sender}`);
-                      utterance.onerror = (e) => console.error(`TTS error for ${sender}:`, e);
-                  }
+                  addToAudioQueue(text, sender);
               }
          }
         
@@ -1822,6 +2145,9 @@
              conversationTurn = 0;
              // Initialize conversation turns array for history tracking
              currentConversationTurns = [];
+             
+             // Clear audio queue for new conversation
+             clearAudioQueue();
              
              // Apply conversation settings
              const maxTurns = conversationSettings.turnLimit === 'unlimited' ? 50 : conversationSettings.turnLimit; // Cap unlimited at 50 for safety
@@ -1927,6 +2253,217 @@
                 }
             }
         });
+
+        // Audio Player Control Functions
+        function toggleAudioControls() {
+            const content = document.getElementById('audioControlsContent');
+            const toggle = document.getElementById('audioControlsToggle');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = 'Hide Controls';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = 'Show Controls';
+            }
+        }
+
+        function updateGrokSpeed(value) {
+            conversationSettings.grokSpeed = parseFloat(value);
+            document.getElementById('grokSpeedValue').textContent = value + 'x';
+            console.log('Grok speed updated to:', value + 'x');
+        }
+
+        function updateClaudeSpeed(value) {
+            conversationSettings.claudeSpeed = parseFloat(value);
+            document.getElementById('claudeSpeedValue').textContent = value + 'x';
+            console.log('Claude speed updated to:', value + 'x');
+        }
+
+        function playAudio() {
+            if (audioQueue.length === 0) {
+                updateAudioStatus('No audio to play');
+                return;
+            }
+
+            if (isAudioPaused && currentUtterance) {
+                // Resume paused audio
+                speechSynthesis.resume();
+                isAudioPlaying = true;
+                isAudioPaused = false;
+                updatePlaybackButtons();
+                updateAudioStatus('Resumed audio playback');
+            } else {
+                // Start playing from current position or beginning
+                playNextInQueue();
+            }
+        }
+
+        function pauseAudio() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.pause();
+                isAudioPlaying = false;
+                isAudioPaused = true;
+                updatePlaybackButtons();
+                updateAudioStatus('Audio paused');
+            }
+        }
+
+        function stopAudio() {
+            speechSynthesis.cancel();
+            isAudioPlaying = false;
+            isAudioPaused = false;
+            currentAudioIndex = -1;
+            updatePlaybackButtons();
+            updateAudioStatus('Audio stopped');
+        }
+
+        function restartAudio() {
+            stopAudio();
+            currentAudioIndex = -1;
+            playNextInQueue();
+        }
+
+        function playNextInQueue() {
+            if (audioQueue.length === 0) {
+                updateAudioStatus('No audio in queue');
+                return;
+            }
+
+            currentAudioIndex++;
+            if (currentAudioIndex >= audioQueue.length) {
+                // Queue finished
+                isAudioPlaying = false;
+                currentAudioIndex = -1;
+                updatePlaybackButtons();
+                updateAudioStatus('Audio queue finished');
+                return;
+            }
+
+            const audioItem = audioQueue[currentAudioIndex];
+            const utterance = new SpeechSynthesisUtterance(audioItem.text);
+            
+            // Apply voice and speed settings
+            if (audioItem.sender === 'grok') {
+                utterance.rate = conversationSettings.grokSpeed;
+                if (conversationSettings.grokVoice) {
+                    const voice = findVoiceByName(conversationSettings.grokVoice);
+                    if (voice) utterance.voice = voice;
+                }
+            } else if (audioItem.sender === 'claude') {
+                utterance.rate = conversationSettings.claudeSpeed;
+                if (conversationSettings.claudeVoice) {
+                    const voice = findVoiceByName(conversationSettings.claudeVoice);
+                    if (voice) utterance.voice = voice;
+                }
+            }
+
+            // Set up event handlers
+            utterance.onstart = () => {
+                isAudioPlaying = true;
+                updatePlaybackButtons();
+                updateAudioStatus(`Playing ${audioItem.sender} (${currentAudioIndex + 1}/${audioQueue.length})`);
+            };
+
+            utterance.onend = () => {
+                // Play next item in queue
+                setTimeout(() => {
+                    if (isAudioPlaying && !isAudioPaused) {
+                        playNextInQueue();
+                    }
+                }, 500);
+            };
+
+            utterance.onerror = (event) => {
+                console.error('TTS Error:', event);
+                updateAudioStatus('Audio playback error');
+                playNextInQueue(); // Try next item
+            };
+
+            currentUtterance = utterance;
+            speechSynthesis.speak(utterance);
+        }
+
+        function updatePlaybackButtons() {
+            const playBtn = document.getElementById('playBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const restartBtn = document.getElementById('restartBtn');
+
+            if (audioQueue.length === 0) {
+                playBtn.disabled = true;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+                restartBtn.disabled = true;
+                return;
+            }
+
+            if (isAudioPlaying) {
+                playBtn.disabled = true;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+                restartBtn.disabled = false;
+            } else {
+                playBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = false;
+                restartBtn.disabled = false;
+            }
+        }
+
+        function updateAudioStatus(message) {
+            const statusElement = document.getElementById('audioStatus');
+            if (statusElement) {
+                statusElement.textContent = message;
+            }
+        }
+
+        function addToAudioQueue(text, sender) {
+            if (!conversationSettings.ttsEnabled) return;
+            
+            audioQueue.push({
+                text: text,
+                sender: sender,
+                timestamp: Date.now()
+            });
+            
+            updatePlaybackButtons();
+            updateAudioStatus(`Added ${sender} audio to queue (${audioQueue.length} items)`);
+        }
+
+        function clearAudioQueue() {
+            audioQueue = [];
+            currentAudioIndex = -1;
+            isAudioPlaying = false;
+            isAudioPaused = false;
+            currentUtterance = null;
+            speechSynthesis.cancel();
+            updatePlaybackButtons();
+            updateAudioStatus('Audio queue cleared');
+        }
+
+        // Helper function to find voice by name (reused from existing code)
+        function findVoiceByName(targetName) {
+            if (!targetName || !voices.length) return null;
+            
+            // First try exact match
+            let voice = voices.find(v => v.name === targetName);
+            if (voice) return voice;
+            
+            // Try partial match (case insensitive)
+            voice = voices.find(v => v.name.toLowerCase().includes(targetName.toLowerCase()) || 
+                                    targetName.toLowerCase().includes(v.name.toLowerCase()));
+            if (voice) return voice;
+            
+            // Try matching key parts (Google, Microsoft, UK, Female, Male, etc.)
+            const targetParts = targetName.toLowerCase().split(/[\s\-\(\)]/);
+            voice = voices.find(v => {
+                const voiceParts = v.name.toLowerCase().split(/[\s\-\(\)]/);
+                return targetParts.some(part => part.length > 2 && voiceParts.some(vPart => vPart.includes(part)));
+            });
+            
+            return voice;
+        }
     </script>
 </body>
 </html> 
