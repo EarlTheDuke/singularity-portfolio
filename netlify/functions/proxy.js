@@ -39,28 +39,28 @@ exports.handler = async (event, context) => {
 
     // Create length constraint text and token limits
     let lengthConstraint = '';
-    let maxTokens = 500;
+    let maxTokens = 800; // Increased base token limit
     
     switch (responseLength) {
       case 'short':
         lengthConstraint = 'IMPORTANT: Respond with EXACTLY TWO SHORT SENTENCES only. Limit to 60 words maximum total. Be concise yet insightful—focus on key points and end with 1-2 relevant questions if needed. Do NOT use run-on sentences or exceed the limit.';
-        maxTokens = 500; // Increased to account for Grok's reasoning (up to ~400 tokens) + short output (~100 tokens)
+        maxTokens = 800; // Increased from 500 to account for longer default prompt
         break;
       case 'medium':
         lengthConstraint = 'IMPORTANT: Keep your response to around 100 words maximum (about 2-3 sentences).';
-        maxTokens = 800; // Significantly increased for Grok 4's massive reasoning overhead
+        maxTokens = 1200; // Increased from 800
         break;
       case 'long':
         lengthConstraint = 'IMPORTANT: Keep your response to around 200 words maximum (about 1-2 paragraphs).';
-        maxTokens = 1000; // Significantly increased for Grok 4's massive reasoning overhead
+        maxTokens = 1500; // Increased from 1000
         break;
       case 'detailed':
         lengthConstraint = 'You may provide a detailed response as needed.';
-        maxTokens = 1500; // Significantly increased for Grok 4's massive reasoning overhead
+        maxTokens = 2000; // Increased from 1500
         break;
       default:
         lengthConstraint = 'Keep your response concise but meaningful (2-3 paragraphs max).';
-        maxTokens = 1200; // Significantly increased for Grok 4's massive reasoning overhead
+        maxTokens = 1700; // Increased from 1200
     }
 
     // Create style constraint text
