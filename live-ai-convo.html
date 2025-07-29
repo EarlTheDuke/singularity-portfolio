@@ -1507,24 +1507,59 @@
                    });
                });
                
-               // Set to stored voices or defaults
+               // Set to stored voices or defaults with better matching
                const savedGrokVoice = conversationSettings.grokVoice;
                const savedClaudeVoice = conversationSettings.claudeVoice;
                
-               if (savedGrokVoice && voices.find(v => v.name === savedGrokVoice)) {
-                   grokVoiceSelect.value = savedGrokVoice;
+               console.log('Trying to set Grok voice to:', savedGrokVoice);
+               console.log('Trying to set Claude voice to:', savedClaudeVoice);
+               console.log('Available voices:', voices.map(v => v.name));
+               
+               // Helper function to find voice with partial matching
+               function findVoiceByName(targetName) {
+                   if (!targetName) return null;
+                   
+                   // First try exact match
+                   let voice = voices.find(v => v.name === targetName);
+                   if (voice) return voice;
+                   
+                   // Try partial match (case insensitive)
+                   voice = voices.find(v => v.name.toLowerCase().includes(targetName.toLowerCase()) || 
+                                           targetName.toLowerCase().includes(v.name.toLowerCase()));
+                   if (voice) return voice;
+                   
+                   // Try matching key parts (Google, Microsoft, UK, Female, Male, etc.)
+                   const targetParts = targetName.toLowerCase().split(/[\s\-\(\)]/);
+                   voice = voices.find(v => {
+                       const voiceParts = v.name.toLowerCase().split(/[\s\-\(\)]/);
+                       return targetParts.some(part => part.length > 2 && voiceParts.some(vPart => vPart.includes(part)));
+                   });
+                   
+                   return voice;
+               }
+               
+               // Set Grok voice
+               const grokVoice = findVoiceByName(savedGrokVoice);
+               if (grokVoice) {
+                   grokVoiceSelect.value = grokVoice.name;
+                   console.log('Set Grok voice to:', grokVoice.name);
                } else {
                    // Try to select system default or first available
                    const defaultVoice = voices.find(v => v.default);
                    grokVoiceSelect.value = defaultVoice ? defaultVoice.name : '';
+                   console.log('Grok voice not found, using default:', defaultVoice?.name || 'none');
                }
                
-               if (savedClaudeVoice && voices.find(v => v.name === savedClaudeVoice)) {
-                   claudeVoiceSelect.value = savedClaudeVoice;
+               // Set Claude voice
+               const claudeVoice = findVoiceByName(savedClaudeVoice);
+               if (claudeVoice) {
+                   claudeVoiceSelect.value = claudeVoice.name;
+                   console.log('Set Claude voice to:', claudeVoice.name);
                } else {
                    // Try to select system default or first available
                    const defaultVoice = voices.find(v => v.default);
                    claudeVoiceSelect.value = defaultVoice ? defaultVoice.name : '';
+                   console.log('Claude voice not found, using default:', defaultVoice?.name || 'none');
                }
                
                console.log('Voice dropdowns populated successfully');
