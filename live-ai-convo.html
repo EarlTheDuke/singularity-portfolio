@@ -2429,6 +2429,11 @@
             
             updatePlaybackButtons();
             updateAudioStatus(`Added ${sender} audio to queue (${audioQueue.length} items)`);
+            
+            // Auto-start playback if not currently playing
+            if (!isAudioPlaying && !isAudioPaused) {
+                playNextInQueue();
+            }
         }
 
         function clearAudioQueue() {
