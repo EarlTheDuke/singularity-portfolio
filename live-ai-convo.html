@@ -1214,15 +1214,32 @@
                     </div>
                     
                     <div class="settings-control-group">
-                        <label class="settings-label" for="responseStyle">Response Style</label>
-                        <select class="settings-select" id="responseStyle" onchange="updateResponseStyle()">
-                            <option value="balanced">Balanced</option>
-                            <option value="concise">Concise</option>
-                            <option value="detailed" selected>Detailed</option>
-                            <option value="humorous">Humorous</option>
-                            <option value="formal">Formal</option>
-                            <option value="creative">Creative</option>
-                        </select>
+                        <label class="settings-label">🎭 Response Style Settings</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                            <div>
+                                <label style="color: #cccccc; font-size: 0.9rem;">🚀 Grok Style:</label>
+                                <select class="settings-select" id="grokResponseStyle" onchange="updateGrokResponseStyle()" style="width: 100%; margin-top: 0.3rem;">
+                                    <option value="balanced">Balanced</option>
+                                    <option value="concise">Concise</option>
+                                    <option value="detailed" selected>Detailed</option>
+                                    <option value="humorous">Humorous</option>
+                                    <option value="formal">Formal</option>
+                                    <option value="creative">Creative</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="color: #cccccc; font-size: 0.9rem;">🧠 Claude Style:</label>
+                                <select class="settings-select" id="claudeResponseStyle" onchange="updateClaudeResponseStyle()" style="width: 100%; margin-top: 0.3rem;">
+                                    <option value="balanced">Balanced</option>
+                                    <option value="concise">Concise</option>
+                                    <option value="detailed" selected>Detailed</option>
+                                    <option value="humorous">Humorous</option>
+                                    <option value="formal">Formal</option>
+                                    <option value="creative">Creative</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p style="color: #cccccc; font-size: 0.9rem; margin-top: 0.5rem;">Set different response styles for each AI to create more varied conversations.</p>
                     </div>
                 </div>
                 
@@ -1474,19 +1491,21 @@
          // Simple password - you can change this
         const ACCESS_CODE = 'singularity2025';
         
-                 // Conversation Settings (defaults) - Version 2024-12-19
-          let conversationSettings = {
-              turnLimit: 4,
-              responseLength: 'short',
-              responseStyle: 'detailed',
-              grokPrompt: '',  // User-set Grok system prompt
-              claudePrompt: '', // User-set Claude system prompt
-              ttsEnabled: true,  // Default: on
-              grokVoice: 'Google UK English Female (en-GB)',   // Grok's voice selection
-              claudeVoice: 'Microsoft Mark - English (United States) (en-US)',  // Claude's voice selection
-              grokSpeed: 1.0,  // Grok's speech rate
-              claudeSpeed: 1.0  // Claude's speech rate
-          };
+                         // Conversation Settings (defaults) - Version 2024-12-19
+         let conversationSettings = {
+             turnLimit: 4,
+             responseLength: 'short',
+             responseStyle: 'detailed',  // Keep for backward compatibility
+             grokResponseStyle: 'detailed',  // Grok's individual response style
+             claudeResponseStyle: 'detailed',  // Claude's individual response style
+             grokPrompt: '',  // User-set Grok system prompt
+             claudePrompt: '', // User-set Claude system prompt
+             ttsEnabled: true,  // Default: on
+             grokVoice: 'Google UK English Female (en-GB)',   // Grok's voice selection
+             claudeVoice: 'Microsoft Mark - English (United States) (en-US)',  // Claude's voice selection
+             grokSpeed: 1.0,  // Grok's speech rate
+             claudeSpeed: 1.0  // Claude's speech rate
+         };
 
          // Audio Player State Variables
          let audioQueue = [];
@@ -1575,6 +1594,10 @@
               // Populate custom prompt textareas with current values
               document.getElementById('grokPrompt').value = conversationSettings.grokPrompt;
               document.getElementById('claudePrompt').value = conversationSettings.claudePrompt;
+              
+              // Update response style dropdowns
+              document.getElementById('grokResponseStyle').value = conversationSettings.grokResponseStyle;
+              document.getElementById('claudeResponseStyle').value = conversationSettings.claudeResponseStyle;
               
               // Update TTS settings UI
               document.getElementById('ttsToggle').checked = conversationSettings.ttsEnabled;
@@ -1708,6 +1731,18 @@
             const responseStyleSelect = document.getElementById('responseStyle');
             conversationSettings.responseStyle = responseStyleSelect.value;
             console.log('Response style updated to:', conversationSettings.responseStyle);
+        }
+
+        function updateGrokResponseStyle() {
+            const grokResponseStyleSelect = document.getElementById('grokResponseStyle');
+            conversationSettings.grokResponseStyle = grokResponseStyleSelect.value;
+            console.log('Grok response style updated to:', conversationSettings.grokResponseStyle);
+        }
+
+        function updateClaudeResponseStyle() {
+            const claudeResponseStyleSelect = document.getElementById('claudeResponseStyle');
+            conversationSettings.claudeResponseStyle = claudeResponseStyleSelect.value;
+            console.log('Claude response style updated to:', conversationSettings.claudeResponseStyle);
         }
 
         function updateGrokPrompt() {
@@ -2073,7 +2108,7 @@
                         message: message,
                         turn: turn,
                         responseLength: conversationSettings.responseLength,
-                        responseStyle: conversationSettings.responseStyle,
+                        responseStyle: conversationSettings.grokResponseStyle,  // Use Grok's individual style
                         customPrompt: conversationSettings.grokPrompt  // Pass custom Grok prompt
                     })
                 });
@@ -2113,7 +2148,7 @@
                         message: message,
                         turn: turn,
                         responseLength: conversationSettings.responseLength,
-                        responseStyle: conversationSettings.responseStyle,
+                        responseStyle: conversationSettings.claudeResponseStyle,  // Use Claude's individual style
                         customPrompt: conversationSettings.claudePrompt  // Pass custom Claude prompt
                     })
                 });
@@ -2164,8 +2199,9 @@
             // Dynamic system message based on settings
             const turnText = conversationSettings.turnLimit === 'unlimited' ? 'unlimited turns' : `${maxTurns} turns`;
             const lengthText = conversationSettings.responseLength;
-            const styleText = conversationSettings.responseStyle;
-            addMessage(`🔄 Running ${turnText} (${lengthText}, ${styleText}): Grok → Claude → Grok → Claude...`, 'system');
+            const grokStyleText = conversationSettings.grokResponseStyle;
+            const claudeStyleText = conversationSettings.claudeResponseStyle;
+            addMessage(`🔄 Running ${turnText} (${lengthText}): Grok[${grokStyleText}] → Claude[${claudeStyleText}] → Grok[${grokStyleText}] → Claude[${claudeStyleText}]...`, 'system');
             
             let currentMessage = initialTopic;
             
