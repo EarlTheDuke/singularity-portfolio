@@ -1149,6 +1149,7 @@
                     
                                          <div class="settings-control-group">
                          <button class="settings-reset-button" onclick="resetToDefaultPrompts()">🔄 Reset to Defaults</button>
+                         <button class="settings-reset-button" onclick="restoreSettingsFromHistory()" style="background: linear-gradient(45deg, #4CAF50, #45a049); margin-left: 10px;">📚 Restore from History</button>
                      </div>
                  </div>
                  
@@ -1233,7 +1234,15 @@
                  id: generateUUID(),
                  timestamp: new Date().toISOString(),
                  topic: topic,
-                 turns: turnData
+                 turns: turnData,
+                 settings: {
+                     grokPrompt: conversationSettings.grokPrompt,
+                     claudePrompt: conversationSettings.claudePrompt,
+                     turnLimit: conversationSettings.turnLimit,
+                     responseLength: conversationSettings.responseLength,
+                     grokResponseStyle: conversationSettings.grokResponseStyle,
+                     claudeResponseStyle: conversationSettings.claudeResponseStyle
+                 }
              };
              conversationHistory.unshift(entry); // Add to beginning of array
              
@@ -1269,13 +1278,17 @@
                  const timestamp = new Date(entry.timestamp).toLocaleString();
                  const turnCount = entry.turns ? entry.turns.length : 0;
                  
+                 // Check if custom prompts were used
+                 const hasCustomPrompts = entry.settings && (entry.settings.grokPrompt || entry.settings.claudePrompt);
+                 const promptIndicator = hasCustomPrompts ? ' <span style="color: #00ff88; font-size: 0.8rem;">⚙️ Custom Prompts</span>' : '';
+                 
                  div.innerHTML = `
                      <div class="history-entry-header">
                          <span class="history-entry-timestamp">${timestamp}</span>
                          <button class="history-entry-delete" onclick="event.stopPropagation(); deleteHistoryEntry('${entry.id}')" title="Delete conversation">🗑️</button>
                      </div>
                      <div class="history-entry-topic">${entry.topic}</div>
-                     <div class="history-entry-turns">${turnCount} turn${turnCount !== 1 ? 's' : ''}</div>
+                     <div class="history-entry-turns">${turnCount} turn${turnCount !== 1 ? 's' : ''}${promptIndicator}</div>
                  `;
                  
                  historyList.appendChild(div);
@@ -1291,6 +1304,23 @@
              // Add the conversation back to chat
              addMessage(`📚 Loading conversation: "${entry.topic}"`, 'system');
              
+             // Show the custom prompts that were used in this conversation
+             if (entry.settings) {
+                 if (entry.settings.grokPrompt) {
+                     addMessage(`🚀 Grok System Prompt: ${entry.settings.grokPrompt}`, 'system');
+                 }
+                 if (entry.settings.claudePrompt) {
+                     addMessage(`🧠 Claude System Prompt: ${entry.settings.claudePrompt}`, 'system');
+                 }
+                 
+                 // Show other settings used
+                 const settingsInfo = `Settings: ${entry.settings.turnLimit} turns, ${entry.settings.responseLength} responses, Grok[${entry.settings.grokResponseStyle}], Claude[${entry.settings.claudeResponseStyle}]`;
+                 addMessage(settingsInfo, 'system');
+                 
+                 // Add option to restore these settings
+                 addMessage(`💡 Click "Restore Settings" to apply these exact settings for new conversations`, 'system');
+             }
+             
              if (entry.turns && entry.turns.length > 0) {
                  entry.turns.forEach(turn => {
                      if (turn.ai && turn.message) {
@@ -1300,6 +1330,9 @@
              }
              
              addMessage(`✅ Conversation loaded from ${new Date(entry.timestamp).toLocaleString()}`, 'system');
+             
+             // Store the entry for potential settings restoration
+             window.currentHistoryEntry = entry;
          }
          
          // Delete single history entry
@@ -1628,6 +1661,37 @@
              document.getElementById('claudePrompt').value = defaultClaudePrompt;
              
              console.log('Prompts reset to defaults');
+         }
+         
+         function restoreSettingsFromHistory() {
+             if (!window.currentHistoryEntry || !window.currentHistoryEntry.settings) {
+                 alert('No conversation history selected. Please load a conversation from history first.');
+                 return;
+             }
+             
+             const settings = window.currentHistoryEntry.settings;
+             
+             // Restore all settings
+             conversationSettings.grokPrompt = settings.grokPrompt || '';
+             conversationSettings.claudePrompt = settings.claudePrompt || '';
+             conversationSettings.turnLimit = settings.turnLimit || 4;
+             conversationSettings.responseLength = settings.responseLength || 'short';
+             conversationSettings.grokResponseStyle = settings.grokResponseStyle || 'detailed';
+             conversationSettings.claudeResponseStyle = settings.claudeResponseStyle || 'detailed';
+             
+             // Update UI elements
+             document.getElementById('grokPrompt').value = conversationSettings.grokPrompt;
+             document.getElementById('claudePrompt').value = conversationSettings.claudePrompt;
+             document.getElementById('turnLimit').value = conversationSettings.turnLimit;
+             document.getElementById('responseLength').value = conversationSettings.responseLength;
+             document.getElementById('grokResponseStyle').value = conversationSettings.grokResponseStyle;
+             document.getElementById('claudeResponseStyle').value = conversationSettings.claudeResponseStyle;
+             
+             // Update progress indicator
+             updateTurnProgress();
+             
+             console.log('Settings restored from history:', settings);
+             alert('Settings restored from conversation history!');
          }
 
          // TTS Functions
