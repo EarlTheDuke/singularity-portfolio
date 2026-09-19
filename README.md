@@ -6,7 +6,7 @@ Source for [thesingularity.netlify.app](https://thesingularity.netlify.app/). A 
 
 ```
 index.html                 home: featured projects, about, contact (Formspree), blog teaser
-enterprise.html            landing page for the U.S.S. Enterprise reconstruction
+uss-enterprise.html        landing page for the U.S.S. Enterprise reconstruction
 enterprise/                the built Enterprise app (see "Updating the Enterprise")
 assets/enterprise/         stills used by the landing page and the home card
 blog.html, posts/          Path to ASI blog
@@ -47,7 +47,7 @@ npm run build:portfolio        # builds with base /enterprise/ and copies into .
 git add enterprise && git commit -m "Update Enterprise build" && git push
 ```
 
-`/enterprise/assets/*` are content-hashed and cached for a year; `/enterprise/audio/*` for a week. Music and effects credits are in the app (`CREDITS.md` in its repo) and on `enterprise.html`.
+`/enterprise/assets/*` are content-hashed and cached for a year; `/enterprise/audio/*` for a week. Music and effects credits are in the app (`CREDITS.md` in its repo) and on `uss-enterprise.html`.
 
 ## Local development
 
