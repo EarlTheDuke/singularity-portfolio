@@ -1,0 +1,57 @@
+{
+  "note": "Sampled sound layer. Every cue falls back to the procedural synth in src/viewer/audio.js when a file is missing. Files were transcoded to MP3 for browser compatibility.",
+  "credits": [
+    {
+      "author": "Kenney",
+      "work": "Sci-Fi Sounds",
+      "url": "https://www.kenney.nl/assets/sci-fi-sounds",
+      "license": "CC0 1.0",
+      "files": ["sfx-*.mp3"]
+    },
+    {
+      "author": "Scott Buckley",
+      "work": "Starfire",
+      "url": "https://www.scottbuckley.com.au/library/starfire/",
+      "license": "CC BY 4.0",
+      "attribution": "'Starfire' by Scott Buckley - released under CC-BY 4.0. www.scottbuckley.com.au",
+      "files": ["music-starfire.mp3"]
+    },
+    {
+      "author": "Scott Buckley",
+      "work": "Aphelion",
+      "url": "https://www.scottbuckley.com.au/library/aphelion/",
+      "license": "CC BY 4.0",
+      "attribution": "'Aphelion' by Scott Buckley - released under CC-BY 4.0. www.scottbuckley.com.au",
+      "files": ["music-aphelion.mp3"]
+    },
+    {
+      "author": "Scott Buckley",
+      "work": "Legionnaire (Original)",
+      "url": "https://www.scottbuckley.com.au/library/legionnaire/",
+      "license": "CC BY 4.0",
+      "attribution": "'Legionnaire (Original)' by Scott Buckley - released under CC-BY 4.0. www.scottbuckley.com.au",
+      "files": ["music-legionnaire.mp3"]
+    }
+  ],
+  "sounds": {
+    "laserLarge": { "file": "sfx-laser-large.mp3" },
+    "laserLarge2": { "file": "sfx-laser-large2.mp3" },
+    "laserSmall": { "file": "sfx-laser-small.mp3" },
+    "laserRetro": { "file": "sfx-laser-retro.mp3" },
+    "forceField": { "file": "sfx-forcefield.mp3" },
+    "forceField2": { "file": "sfx-forcefield2.mp3" },
+    "impactMetal": { "file": "sfx-impact-metal.mp3" },
+    "explosionLow": { "file": "sfx-explosion-low.mp3" },
+    "explosionCrunch": { "file": "sfx-explosion-crunch.mp3" },
+    "doorOpen": { "file": "sfx-door-open.mp3" },
+    "doorClose": { "file": "sfx-door-close.mp3" },
+    "thruster": { "file": "sfx-thruster.mp3" },
+    "engineLow": { "file": "sfx-engine-low.mp3" },
+    "engineLarge": { "file": "sfx-engine-large.mp3" },
+    "engineCircular": { "file": "sfx-engine-circular.mp3" },
+    "computer": { "file": "sfx-computer.mp3" },
+    "musicStarfire": { "file": "music-starfire.mp3", "music": true },
+    "musicAphelion": { "file": "music-aphelion.mp3", "music": true },
+    "musicLegionnaire": { "file": "music-legionnaire.mp3", "music": true }
+  }
+}

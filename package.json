@@ -1,18 +1,19 @@
 {
   "name": "singularity-portfolio",
-  "version": "1.0.0",
-  "description": "AI-powered portfolio website with secure Grok vs Claude conversations",
+  "version": "1.1.0",
+  "description": "The Singularity - ASI Ground Zero: portfolio site with Grok vs Claude conversations and the U.S.S. Enterprise reconstruction",
+  "private": true,
   "main": "index.html",
   "scripts": {
-    "dev": "netlify dev"
+    "dev": "npx netlify-cli dev"
   },
   "dependencies": {
     "node-fetch": "^2.7.0"
   },
-  "devDependencies": {
-    "netlify-cli": "^17.0.0"
+  "engines": {
+    "node": ">=18"
   },
-  "keywords": ["ai", "portfolio", "grok", "claude", "singularity"],
-  "author": "Your Name",
+  "keywords": ["ai", "portfolio", "grok", "claude", "singularity", "enterprise", "three.js"],
+  "author": "EarlTheDuke",
   "license": "MIT"
-} 
+}

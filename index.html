@@ -688,6 +688,58 @@
             color: #00ff88;
         }
 
+        /* Featured card with a photo: spans the grid on wide screens */
+        .project-card-wide {
+            grid-column: 1 / -1;
+        }
+
+        .project-image-photo {
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            padding: 0;
+            overflow: hidden;
+            height: auto;
+            aspect-ratio: 21 / 9;
+            background: #000;
+        }
+
+        .project-image-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+
+        .project-card:hover .project-image-photo {
+            background: #000;
+        }
+
+        .project-card:hover .project-image-photo img {
+            transform: scale(1.03);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .download-btn.download-btn-ghost {
+            background: transparent;
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.5);
+        }
+
+        .download-btn.download-btn-ghost:hover {
+            background: rgba(0, 255, 136, 0.12);
+            box-shadow: none;
+        }
+
+        .nav-featured {
+            color: #00ff88 !important;
+        }
+
         .project-title {
             font-size: 1.8rem;
             font-weight: bold;
@@ -2547,6 +2599,7 @@
     <nav>
         <ul>
             <li><a href="#projects">Projects</a></li>
+            <li><a href="enterprise.html" class="nav-featured">Enterprise 3D</a></li>
             <li><a href="blog.html">AGI Blog</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
@@ -2562,6 +2615,18 @@
         <section id="projects" class="section">
             <h2>Featured Projects</h2>
             <div class="projects-grid">
+                <div class="project-card project-card-wide">
+                    <div class="project-image project-image-photo">
+                        <img src="assets/enterprise/hero.jpg" alt="The U.S.S. Enterprise firing phasers and a photon torpedo at a Klingon D7" loading="lazy">
+                    </div>
+                    <h3 class="project-title">U.S.S. Enterprise NCC-1701</h3>
+                    <p class="project-description">An interactive, fully parametric 3D reconstruction of the original Constitution-class Enterprise, built in Three.js from the Smithsonian 11-foot filming model — no imported models. Sweep a cutaway through 23 decks, step through deck plans, stand on the bridge and in main engineering, ride the turbolift, launch the shuttlecraft Galileo from the flight deck, go to red alert as the crew run to stations, and fight a Klingon D7 and a cloaking Romulan Bird-of-Prey with phasers and photon torpedoes. Includes a keyframe clip editor that records video with sound, and a six-minute scripted showcase film.</p>
+                    <div class="card-actions">
+                        <a href="enterprise/" class="download-btn">Launch the Enterprise</a>
+                        <a href="enterprise.html" class="download-btn download-btn-ghost">About the project</a>
+                    </div>
+                </div>
+
                 <div class="project-card">
                     <div class="project-image">🎵</div>
                     <h3 class="project-title">Music Hub</h3>
@@ -2686,7 +2751,7 @@
         </div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
     <script>
         // Three.js Holographic Sphere Background Effect
         let scene, camera, renderer, sphere, particles, trail;

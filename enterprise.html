@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S.S. Enterprise NCC-1701 - The Singularity</title>
+    <meta name="description" content="An interactive, fully parametric reconstruction of the original Constitution-class U.S.S. Enterprise, built in Three.js from the Smithsonian 11-foot filming model. Cutaways, deck plans, walk-in bridge and engineering, flight deck, red alert, battles, a clip editor and a six-minute showcase film.">
+    <meta property="og:title" content="U.S.S. Enterprise NCC-1701 — interactive reconstruction">
+    <meta property="og:description" content="Explore the original Enterprise inside and out: cutaways, deck plans, the bridge, engineering, the flight deck, a Klingon D7 and a Romulan Bird-of-Prey, and a scripted showcase film.">
+    <meta property="og:image" content="https://thesingularity.netlify.app/assets/enterprise/hero.jpg">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%2305070b'/%3E%3Cellipse cx='30' cy='26' rx='22' ry='6' fill='%23c4c7c2'/%3E%3Ccircle cx='30' cy='22' r='4' fill='%23c4c7c2'/%3E%3Crect x='24' y='38' width='24' height='8' rx='4' fill='%23c4c7c2'/%3E%3Crect x='14' y='14' width='26' height='4' rx='2' transform='rotate(-8 27 16)' fill='%23c4c7c2'/%3E%3Ccircle cx='14' cy='15' r='3' fill='%23ff5a1e'/%3E%3C/svg%3E">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .back-button {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            background: rgba(0, 255, 136, 0.1); color: rgba(0, 255, 136, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3); padding: 8px 16px; border-radius: 20px;
+            font-size: 0.85rem; text-decoration: none; backdrop-filter: blur(10px); transition: all 0.3s ease;
+        }
+        .back-button:hover { background: rgba(0, 255, 136, 0.2); color: #00ff88; border-color: rgba(0, 255, 136, 0.6); }
+
+        .hero {
+            position: relative;
+            min-height: 78vh;
+            display: flex; align-items: flex-end;
+            background: #000 url('assets/enterprise/hero.jpg') center / cover no-repeat;
+        }
+        .hero::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(10,10,10,0.15) 0%, rgba(10,10,10,0.35) 50%, #0a0a0a 100%);
+        }
+        .hero-inner { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 2rem 3.5rem; width: 100%; }
+        .eyebrow { letter-spacing: 0.3em; text-transform: uppercase; font-size: 0.8rem; color: #00ff88; margin-bottom: 0.8rem; }
+        h1 {
+            font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.05; margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #00ff88); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .lede { font-size: 1.2rem; color: #d8d8d8; max-width: 760px; margin-bottom: 1.8rem; }
+        .actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+        .launch-btn {
+            background: linear-gradient(45deg, #00ff88, #00cc66); color: #000; font-weight: bold;
+            padding: 14px 34px; border-radius: 28px; font-size: 1.15rem; text-decoration: none; display: inline-block;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .launch-btn:hover { transform: scale(1.05); box-shadow: 0 10px 24px rgba(0, 255, 136, 0.4); }
+        .ghost-btn {
+            color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.5); padding: 12px 26px; border-radius: 28px; text-decoration: none;
+            transition: all 0.3s ease; font-size: 1rem;
+        }
+        .ghost-btn:hover { background: rgba(0, 255, 136, 0.12); }
+        .note { color: #9a9a9a; font-size: 0.9rem; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; }
+        h2 { font-size: 2rem; margin: 2.5rem 0 1.2rem; color: #fff; }
+        h2 span { color: #00ff88; }
+        p.body { color: #cfcfcf; font-size: 1.08rem; max-width: 900px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+        .card {
+            background: rgba(20, 20, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 1.6rem;
+            transition: all 0.35s ease;
+        }
+        .card:hover { transform: translateY(-6px); border-color: #00ff88; box-shadow: 0 16px 34px rgba(0, 255, 136, 0.15); }
+        .card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: #fff; }
+        .card p { color: #bdbdbd; font-size: 1rem; }
+
+        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .gallery figure { margin: 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #111; }
+        .gallery img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: transform 0.4s ease; }
+        .gallery figure:hover img { transform: scale(1.04); }
+        .gallery figcaption { padding: 0.7rem 0.9rem; color: #aaa; font-size: 0.9rem; }
+
+        .keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.5rem 2rem; margin-top: 1rem; color: #cfcfcf; }
+        .keys div { padding: 0.35rem 0; border-bottom: 1px dashed rgba(255,255,255,0.08); }
+        kbd {
+            display: inline-block; min-width: 1.9em; text-align: center; padding: 0.1em 0.45em; margin-right: 0.5em;
+            border: 1px solid rgba(0,255,136,0.45); border-radius: 6px; color: #00ff88; font-family: ui-monospace, monospace; font-size: 0.85em;
+            background: rgba(0,255,136,0.06);
+        }
+
+        .cta { text-align: center; padding: 3rem 0 1rem; }
+        footer { text-align: center; color: #777; padding: 2.5rem 1rem 3rem; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.06); }
+        footer a { color: #00ff88; text-decoration: none; }
+        @media (max-width: 640px) { .hero { min-height: 62vh; } .container { padding: 2rem 1.2rem; } }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to The Singularity</a>
+
+    <section class="hero">
+        <div class="hero-inner">
+            <p class="eyebrow">Featured project · Interactive 3D</p>
+            <h1>U.S.S. Enterprise<br>NCC-1701</h1>
+            <p class="lede">A fully parametric reconstruction of the original Constitution-class starship, built in Three.js from the Smithsonian 11-foot filming model and Alan Sinclair's orthographics. No imported models — every hull, deck, console and crew figure is generated in code. Walk the bridge, ride the turbolift, launch the Galileo, go to red alert, and take on a Klingon D7 and a cloaked Romulan Bird-of-Prey.</p>
+            <div class="actions">
+                <a class="launch-btn" href="enterprise/">Launch the Enterprise</a>
+                <a class="ghost-btn" href="enterprise/#film=1">Watch the showcase film</a>
+                <span class="note">Desktop browser with WebGL recommended · turn on sound for the score</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <h2>What you can <span>explore</span></h2>
+        <div class="grid">
+            <div class="card"><h3>Study modes</h3><p>Exterior, a sweeping section-plane cutaway with 23 fitted decks, exploded assembly with part labels, drafting-blue blueprint, and deck-by-deck plans like the Booklet of General Plans.</p></div>
+            <div class="card"><h3>Walk-in sets</h3><p>A TOS bridge under the dome, main engineering with its reactor grille and dilithium table, the transporter room and sickbay — with crew figures for scale who run to stations on red alert.</p></div>
+            <div class="card"><h3>Turbolift ride</h3><p>A real car in a shaft from the bridge alcove down the saucer trunk and along the dorsal into engineering, camera locked inside as the doors open.</p></div>
+            <div class="card"><h3>Flight deck</h3><p>Clamshell doors retract into the fantail; the shuttlecraft Galileo taxis out, climbs away, or dives into a planet's atmosphere with a plasma sheath and ion trail.</p></div>
+            <div class="card"><h3>Battle</h3><p>Phasers and photon torpedoes against a Klingon D7 that fires back with disruptors, and a Romulan Bird-of-Prey that decloaks with a green shimmer and launches plasma torpedoes.</p></div>
+            <div class="card"><h3>Movie maker</h3><p>A keyframe clip editor with camera paths, ship pose, effects triggers, depth of field and captions; record to WebM with sound or render PNG frame sequences. Presets include a six-minute showcase film.</p></div>
+        </div>
+
+        <h2>From the <span>showcase film</span></h2>
+        <div class="gallery">
+            <figure><img src="assets/enterprise/hero.jpg" alt="Phasers and a photon torpedo fired at a Klingon D7" loading="lazy"><figcaption>All weapons on the D7</figcaption></figure>
+            <figure><img src="assets/enterprise/orbit.jpg" alt="The Enterprise over the day/night terminator of a Class-M planet" loading="lazy"><figcaption>Standard orbit over the terminator</figcaption></figure>
+            <figure><img src="assets/enterprise/romulan.jpg" alt="Romulan Bird-of-Prey mid-decloak with a green cloak shimmer" loading="lazy"><figcaption>Bird-of-Prey decloaking</figcaption></figure>
+            <figure><img src="assets/enterprise/bridge.jpg" alt="Inside the bridge" loading="lazy"><figcaption>The bridge</figcaption></figure>
+            <figure><img src="assets/enterprise/engineering.jpg" alt="Main engineering with the reactor grille" loading="lazy"><figcaption>Main engineering</figcaption></figure>
+            <figure><img src="assets/enterprise/hangar.jpg" alt="Flight deck with the Galileo launching" loading="lazy"><figcaption>Galileo clearing the flight deck</figcaption></figure>
+            <figure><img src="assets/enterprise/entry.jpg" alt="Shuttlecraft entering the atmosphere with a plasma sheath" loading="lazy"><figcaption>Atmospheric entry</figcaption></figure>
+            <figure><img src="assets/enterprise/redalert.jpg" alt="Red alert on the bridge" loading="lazy"><figcaption>Red alert, crew to stations</figcaption></figure>
+            <figure><img src="assets/enterprise/deck7.jpg" alt="Deck 7 in deck-plans mode" loading="lazy"><figcaption>Deck 7 · deck plans</figcaption></figure>
+            <figure><img src="assets/enterprise/overlay.jpg" alt="Model over Alan Sinclair's starboard elevation" loading="lazy"><figcaption>Checked against Sinclair's drawings</figcaption></figure>
+        </div>
+
+        <h2>Controls</h2>
+        <p class="body">Drag to orbit, scroll to dolly, right-drag to pan. Click a gold marker on the ship to inspect a system. The interface fades when idle; move the mouse to bring it back.</p>
+        <div class="keys">
+            <div><kbd>V</kbd> Showcase film (Esc to stop)</div>
+            <div><kbd>T</kbd> Auto tour</div>
+            <div><kbd>1</kbd>–<kbd>5</kbd> Exterior · Cutaway · Exploded · Blueprint · Deck plans</div>
+            <div><kbd>←</kbd><kbd>→</kbd> Cameras · <kbd>↑</kbd><kbd>↓</kbd> Decks</div>
+            <div><kbd>W</kbd> Warp · <kbd>B</kbd> Hangar doors · <kbd>J</kbd> Launch shuttle</div>
+            <div><kbd>F</kbd> Phasers · <kbd>Y</kbd> Torpedo</div>
+            <div><kbd>D</kbd> Klingon D7 · <kbd>N</kbd> Romulan · <kbd>Z</kbd> Cloak</div>
+            <div><kbd>A</kbd> Red alert · <kbd>X</kbd> Depth of field</div>
+            <div><kbd>S</kbd> Sound · <kbd>C</kbd> Clip editor · <kbd>H</kbd> Hide interface</div>
+            <div><kbd>P</kbd> Save PNG · <kbd>E</kbd> Export GLB</div>
+        </div>
+
+        <h2>How it was <span>built</span></h2>
+        <p class="body">Roughly 9,000 lines of hand-written JavaScript. The exterior is lofted from a station table measured off Sinclair's Rev. D sheets (2.154 m per inch of the 134-inch studio model) and painted with canvas-generated textures — the arched registry, concentric rings and pennant stripes. Interiors are generated to fit the hull's actual cross-sections. Sound is a sampled library (Kenney's CC0 effects, Scott Buckley's CC-BY orchestral score) over a procedural WebAudio synth that covers every cue on its own.</p>
+
+        <div class="cta">
+            <a class="launch-btn" href="enterprise/">Launch the Enterprise</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Music: 'Starfire', 'Aphelion' and 'Legionnaire (Original)' by <a href="https://www.scottbuckley.com.au" rel="noopener noreferrer" target="_blank">Scott Buckley</a>, released under CC-BY 4.0. Effects: <a href="https://www.kenney.nl/assets/sci-fi-sounds" rel="noopener noreferrer" target="_blank">Kenney</a>, CC0.</p>
+        <p>Star Trek and the U.S.S. Enterprise are trademarks of Paramount/CBS. This is a non-commercial fan reconstruction; no studio assets are used.</p>
+    </footer>
+</body>
+</html>

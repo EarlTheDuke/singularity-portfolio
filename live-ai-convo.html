@@ -1420,8 +1420,11 @@
             const errorMessage = document.getElementById('errorMessage');
             
             if (inputPassword === ACCESS_CODE) {
-                // Set session authentication
+                // Set session authentication. The code is also forwarded to the
+                // proxy function, which enforces it server-side when
+                // CHAT_ACCESS_CODE is configured in the Netlify environment.
                 sessionStorage.setItem('aiConvoAuthenticated', 'true');
+                sessionStorage.setItem('aiConvoAccessCode', inputPassword);
                 showChatInterface();
             } else {
                 errorMessage.style.display = 'block';
@@ -2017,14 +2020,18 @@
 
                  // Proxy Configuration - uses Netlify Functions
          const PROXY_URL = '/.netlify/functions/proxy';
+         function proxyHeaders() {
+             return {
+                 'Content-Type': 'application/json',
+                 'X-Access-Code': sessionStorage.getItem('aiConvoAccessCode') || ''
+             };
+         }
         
         async function callGrokAPI(message, turn) {
             try {
                 const response = await fetch(PROXY_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: proxyHeaders(),
                     body: JSON.stringify({
                         model: 'grok',
                         message: message,
@@ -2062,9 +2069,7 @@
             try {
                 const response = await fetch(PROXY_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: proxyHeaders(),
                     body: JSON.stringify({
                         model: 'claude',
                         message: message,

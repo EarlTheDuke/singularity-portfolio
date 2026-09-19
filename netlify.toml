@@ -1,18 +1,44 @@
 [build]
-  command = "npm install"
+  # Only node-fetch is needed (bundled into the proxy function); no site build step.
+  command = "npm install --omit=dev"
   functions = "netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
 
+# Baseline security headers for every page
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), payment=(), usb=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# The proxy function sets its own CORS headers (origin allow-list); nothing extra here.
 [[headers]]
   for = "/.netlify/functions/*"
   [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Content-Type"
-    Access-Control-Allow-Methods = "POST, OPTIONS"
+    Cache-Control = "no-store"
+
+# The Enterprise app: hashed bundles can be cached forever, the entry page and audio should revalidate.
+[[headers]]
+  for = "/enterprise/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/enterprise/audio/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[redirects]]
+  from = "/enterprise"
+  to = "/enterprise/"
+  status = 301
 
 [dev]
   command = "python -m http.server 8000"
   port = 8888
-  functions = "netlify/functions" 
+  functions = "netlify/functions"

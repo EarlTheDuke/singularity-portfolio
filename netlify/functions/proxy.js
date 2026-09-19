@@ -1,33 +1,76 @@
 const fetch = require('node-fetch');
 
+// Origins allowed to call this function from a browser: the production site,
+// Netlify deploy previews / branch deploys of it, and local development.
+const SITE_HOST = 'thesingularity.netlify.app';
+function allowedOrigin(origin) {
+  if (!origin) return null; // same-origin fetches often omit Origin; fine, no CORS header needed
+  try {
+    const u = new URL(origin);
+    const localDev = u.hostname === 'localhost' || u.hostname === '127.0.0.1';
+    const site = u.hostname === SITE_HOST || u.hostname.endsWith(`--${SITE_HOST}`);
+    return localDev || site ? origin : null;
+  } catch {
+    return null;
+  }
+}
+
+// Upper bounds on caller-supplied text so nobody can run up the token bill
+const MAX_MESSAGE_CHARS = 6000;
+const MAX_PROMPT_CHARS = 3000;
+
 exports.handler = async (event, context) => {
+  const origin = allowedOrigin(event.headers && (event.headers.origin || event.headers.Origin));
+  const headers = {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Access-Code',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin'
+  };
+  if (origin) headers['Access-Control-Allow-Origin'] = origin;
+
+  // Handle preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: origin ? 204 : 403, headers, body: '' };
+  }
+
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers,
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
 
-  // Add CORS headers
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json'
-  };
-
-  // Handle preflight requests
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: ''
-    };
+  // Optional server-side gate: when CHAT_ACCESS_CODE is set in the Netlify
+  // environment, callers must send it in the X-Access-Code header. The page
+  // forwards whatever code the visitor typed, so the check happens here rather
+  // than only in client-side JavaScript.
+  const requiredCode = process.env.CHAT_ACCESS_CODE;
+  if (requiredCode) {
+    const supplied = (event.headers && (event.headers['x-access-code'] || event.headers['X-Access-Code'])) || '';
+    if (supplied !== requiredCode) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: 'Access code required' })
+      };
+    }
   }
 
   try {
-    const { model, message, turn, responseLength, responseStyle, customPrompt } = JSON.parse(event.body);
+    let parsed;
+    try {
+      parsed = JSON.parse(event.body || '{}');
+    } catch {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    }
+    const { model, turn, responseLength, responseStyle } = parsed;
+    const message = typeof parsed.message === 'string' ? parsed.message.slice(0, MAX_MESSAGE_CHARS) : '';
+    const customPrompt = typeof parsed.customPrompt === 'string' ? parsed.customPrompt.slice(0, MAX_PROMPT_CHARS) : '';
     
     if (!model || !message) {
       return {
@@ -173,24 +216,16 @@ exports.handler = async (event, context) => {
         errorText = 'Unable to read error response';
       }
       
-      console.error(`${model.toUpperCase()} API Error Details:`);
-      console.error(`- Status: ${response.status}`);
-      console.error(`- Status Text: ${response.statusText}`);
-      console.error(`- Response Headers:`, response.headers);
-      console.error(`- Error Body:`, errorText);
-      console.error(`- Request URL:`, apiUrl);
-      console.error(`- Request Payload:`, JSON.stringify(payload, null, 2));
-      console.error(`- Request Headers:`, JSON.stringify(apiHeaders, null, 2));
+      // Log status and body only — never request headers (they carry the API keys)
+      console.error(`${model.toUpperCase()} API error ${response.status} ${response.statusText} (${payload.model}):`, String(errorText).slice(0, 2000));
       
       return {
-        statusCode: response.status,
+        statusCode: response.status >= 500 ? 502 : response.status,
         headers,
         body: JSON.stringify({ 
           error: `${model.toUpperCase()} API Error: ${response.status}`,
-          details: errorText,
-          status: response.status,
-          model_used: payload.model,
-          api_url: apiUrl
+          details: String(errorText).slice(0, 500),
+          model_used: payload.model
         })
       };
     }
@@ -200,40 +235,25 @@ exports.handler = async (event, context) => {
     // Extract response text based on API format
     let responseText;
     if (model === 'grok') {
-      console.log('Grok API Response:', JSON.stringify(data, null, 2));
-      
-      // Enhanced token usage debugging
+      // Token usage is useful for cost tracking; keep it, drop the full-response dumps
       if (data.usage) {
-        console.log(`🚀 Grok Token Usage - Total: ${data.usage.total_tokens}, Prompt: ${data.usage.prompt_tokens}, Completion: ${data.usage.completion_tokens}`);
-        if (data.usage.completion_tokens_details) {
-          console.log(`🧠 Reasoning tokens: ${data.usage.completion_tokens_details.reasoning_tokens || 0}`);
-        }
+        console.log(`Grok tokens - total ${data.usage.total_tokens}, prompt ${data.usage.prompt_tokens}, completion ${data.usage.completion_tokens}, reasoning ${data.usage.completion_tokens_details?.reasoning_tokens || 0}`);
         if (data.usage.completion_tokens === 0) {
-          console.warn('⚠️ ZERO COMPLETION TOKENS - Response likely cut off due to reasoning overhead!');
+          console.warn('Grok returned zero completion tokens - response likely consumed by reasoning');
         }
       }
-      
       responseText = data.choices?.[0]?.message?.content?.trim();
-      if (!responseText) {
-        console.log('Grok response parsing failed. Full data:', data);
-        console.log('Choices array:', data.choices);
-        console.log('First choice:', data.choices?.[0]);
-        console.log('Message:', data.choices?.[0]?.message);
-        console.log('Content:', data.choices?.[0]?.message?.content);
-      } else {
-        console.log(`✅ Grok response length: ${responseText.length} characters`);
-      }
+      if (!responseText) console.warn('Grok response had no message content', { finish_reason: data.choices?.[0]?.finish_reason });
     } else if (model === 'claude') {
       responseText = data.content?.[0]?.text?.trim();
     }
 
     if (!responseText) {
       return {
-        statusCode: 500,
+        statusCode: 502,
         headers,
         body: JSON.stringify({ 
           error: 'No response text received from API',
-          debug_data: model === 'grok' ? data : 'N/A',
           model_used: model
         })
       };
@@ -251,14 +271,11 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Proxy function error:', error);
+    console.error('Proxy function error:', error && error.message);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
-        error: 'Internal server error',
-        details: error.message 
-      })
+      body: JSON.stringify({ error: 'Internal server error' })
     };
   }
-}; // CRITICAL FIXES: Claude system parameter + Grok 500 tokens for two-sentence responses 
+};
