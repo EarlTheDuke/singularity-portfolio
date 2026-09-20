@@ -38,6 +38,17 @@
   to = "/enterprise/"
   status = 301
 
+# Shareable short links that open straight into the showcase film
+[[redirects]]
+  from = "/film"
+  to = "/enterprise/?film=1"
+  status = 302
+
+[[redirects]]
+  from = "/showcase"
+  to = "/enterprise/?film=1"
+  status = 302
+
 [dev]
   command = "python -m http.server 8000"
   port = 8888
